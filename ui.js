@@ -1,13 +1,7 @@
 "use strict";
 
-const canvas = document.getElementById("canvas");
 const charCanvas = document.getElementById("charCanvas");
-
-const ctx = canvas.getContext("2d");
 const charCtx = charCanvas.getContext("2d");
-
-let coinImage = new Image(); coinImage.src = "coin.png";
-let manaImage = new Image(); manaImage.src = "mana.png";
 
 const tileSize = 32;
 const viewInTiles = 24;
@@ -27,18 +21,6 @@ function canvasOffsetInTiles() {
   const miny = clamp(player.y - halfViewInTiles, 0, world.height - viewInTiles);
   return { x : minx, y : miny };
 }
-
-function drawObj(ctx, obj) {
-  let img = obj.img()
-  let x = obj.x
-  let y = obj.y
-  if (!img.complete)
-    return;
-  const offset = canvasOffsetInTiles();
-  if (x < offset.x || x >= offset.x + viewInTiles || y < offset.y || y >= offset.y + viewInTiles)
-    return;
-  ctx.drawImage(img, (x-offset.x)*tileSize, (y-offset.y)*tileSize);
-};
 
 let tileUnderCursor = { x : 0, y : 0 };
 
@@ -87,11 +69,3 @@ addEventListener("keyup", function(event) {
   if (event.key == "ArrowDown")
     player.tryMove(0,1);
 });
-
-setInterval( () => {
-    world.draw(ctx);
-    player.draw(ctx);
-    redrawInventory(charCtx);
-  },
-  10
-);

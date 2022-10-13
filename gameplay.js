@@ -16,19 +16,6 @@ class World {
     this.objects.push(new ManaBottle(2,2))
     this.objects.push(new Coin(5,18))
   }
-
-  draw(ctx) {
-    const offset = canvasOffsetInTiles();
-    const fillStyles = [["rgb(93, 161, 48)", "rgb(93, 166, 48)"], ["rgb(0, 200, 200)","rgb(0, 195, 205)"]];
-    for (let dx = 0; dx < viewInTiles; dx++) {
-      for (let dy = 0; dy < viewInTiles; dy++) {
-        let tile = this.terrain[offset.x+dx][offset.y+dy];
-        ctx.fillStyle = fillStyles[tile][(offset.x+dx+offset.y+dy)%2];
-        ctx.fillRect(dx*tileSize, dy*tileSize, tileSize, tileSize)
-      }
-    }
-    this.objects.forEach((obj, index, array) => drawObj(ctx, obj))
-  };
 };
 
 class ManaBottle {
@@ -85,13 +72,5 @@ class Player {
       world.objects = world.objects.filter(obj => !obj.hasOwnProperty("dead"));
     }
     return true;
-  }
-
-  draw(ctx) {
-    const offset = canvasOffsetInTiles();
-    let x = (this.x - offset.x);
-    let y = (this.y - offset.y);
-    ctx.fillStyle = "rgb(80, 80, 80)";
-    ctx.fillRect(x*tileSize + 8, y*tileSize + 8, 16, 16);
   }
 };
