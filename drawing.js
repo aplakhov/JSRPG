@@ -36,10 +36,67 @@ function drawPlayer(ctx, offset, player) {
     ctx.fillRect(x*tileSize + 8, y*tileSize + 8, 16, 16);
 }
 
+// Animations. Every animation is an object with a function draw(ctx, offsetInPixels, timeFromStart) => bool
+// if this function returns false, then an animation is over and will be deleted from this list
+// Every animation has a "startTime" and "baseTile" (which game tile is its zero point). 
+// An animation itself doesn't (and probably shouldn't) use either; only outer drawing loop does.
+// But, for convenience, startTime and baseInTiles are stored inplace.
+class Animations {
+    constructor () {
+        this.animations = []
+        this.globalTimer = 0
+    }
+
+    add(animation, baseTile) {
+        animation.startTime = this.globalTimer;
+        animation.baseTile = baseTile;
+        this.animations.push(animation)
+    }
+
+    draw(ctx, offsetInTiles) {
+        this.globalTimer = Date.now() / 1000.
+        if (animations.length == 0)
+            return;
+        let halfTileSize = tileSize / 2;
+        let newAnimations = [];
+        this.animations.forEach((anim) => {
+            let offsetInPixels = { 
+                x: (anim.baseTile.x - offsetInTiles.x) * tileSize + halfTileSize, 
+                y: (anim.baseTile.y - offsetInTiles.y) * tileSize + halfTileSize
+            }
+            let finished = anim.draw(ctx, offsetInPixels, this.globalTimer - anim.startTime);
+            if (!finished)
+                newAnimations.push(anim)
+        });
+        this.animations = newAnimations;    
+    }
+};
+let animations = new Animations();
+
+class Bullet {
+    constructor(direction, duration) {
+        this.direction = direction;
+        this.duration = duration;
+    }
+
+    draw(ctx, offsetInPixels, time) {
+        let rate = time / this.duration 
+        if (rate > 1)
+            return true;
+        ctx.fillStyle = "rgb(0, 0, 0)";
+        let x = offsetInPixels.x + this.direction.x * rate;
+        let y = offsetInPixels.y + this.direction.y * rate;
+        console.log("Here, time=" + time + " x=" + x + " y=" + y);
+        ctx.fillRect(x - 2, y - 2, 4, 4);
+        return false;
+    }
+};
+
 setInterval( () => {
     const offset = canvasOffsetInTiles();
     drawWorld(ctx, offset, world);
     drawPlayer(ctx, offset, player);
+    animations.draw(ctx, offset);
     redrawInventory(charCtx);
   },
   20

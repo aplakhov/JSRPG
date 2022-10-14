@@ -47,15 +47,10 @@ canvas.onclick = function clickEvent(e) {
   updateTileUnderCursor(e);
   let dx = tileUnderCursor.x - player.x;
   let dy = tileUnderCursor.y - player.y;
-  if (dx == 0 && dy == 0)
-    return;
-  let moveX = Math.abs(dx) >= Math.abs(dy);
-  if (moveX) {
-    if (!player.tryMove(dx > 0? 1 : -1, 0) && dy != 0)
-      player.tryMove(0, dy > 0? 1 : -1);
-  } else {
-    if (!player.tryMove(0, dy > 0? 1 : -1) && dx != 0)
-      player.tryMove(dx > 0? 1 : -1, 0);
+  if (dx <= 2 && dx >= -2 && dy <= 2 && dy >= -2) { // add test Bullet animation
+    const duration = 0.3
+    const direction = { x: dx * tileSize, y: dy * tileSize }
+    animations.add(new Bullet(direction, duration), player);
   }
 }
 
