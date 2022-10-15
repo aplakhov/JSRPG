@@ -63,4 +63,6 @@ addEventListener("keyup", function(event) {
     player.tryMove(1,0);
   if (event.key == "ArrowDown")
     player.tryMove(0,1);
+  if (event.key == "f")
+    animations.add(new FadeToBlack(4, "Meanwhile..."), player);
 });

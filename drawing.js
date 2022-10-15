@@ -86,8 +86,36 @@ class Bullet {
         ctx.fillStyle = "rgb(0, 0, 0)";
         let x = offsetInPixels.x + this.direction.x * rate;
         let y = offsetInPixels.y + this.direction.y * rate;
-        console.log("Here, time=" + time + " x=" + x + " y=" + y);
         ctx.fillRect(x - 2, y - 2, 4, 4);
+        return false;
+    }
+};
+
+class FadeToBlack {
+    constructor(duration, text) {
+        this.duration = duration;
+        this.text = text;
+    }
+
+    draw(ctx, offsetInPixels, time) {
+        if (time > this.duration)
+            return true;
+        let rate = time;
+        if (time > this.duration - 1)
+            rate = this.duration - time;
+        else if (time > 1)
+            rate = 1;
+        ctx.fillStyle = `rgba(0, 0, 0, ${rate})`;
+        ctx.fillRect(0, 0, tileSize * viewInTiles, tileSize * viewInTiles);
+
+        ctx.fillStyle = `rgba(200, 200, 180, ${rate})`;
+        ctx.font = '24px sans-serif';
+        let measurement = ctx.measureText(this.text);
+        let x = tileSize * halfViewInTiles - measurement.width/2;
+        let y = tileSize * halfViewInTiles - 12;
+        console.log(x + "; " + y);
+        ctx.fillText(this.text, x, y);
+
         return false;
     }
 };
