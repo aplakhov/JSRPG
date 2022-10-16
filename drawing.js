@@ -6,13 +6,51 @@ const ctx = canvas.getContext("2d");
 let coinImage = new Image(); coinImage.src = "coin.png";
 let manaImage = new Image(); manaImage.src = "mana.png";
 
+function hasBorder(world, tile, nearX, nearY) {
+    if (tile != 0)
+        return false;
+    let row = world.terrain[nearX];
+    if (!row)
+        return false;
+    let nearTile = row[nearY];
+    if (nearTile == 1)
+        return true;
+}
+
 function drawWorld(ctx, offset, world) {
     const fillStyles = [["rgb(93, 161, 48)", "rgb(93, 166, 48)"], ["rgb(0, 200, 200)","rgb(0, 195, 205)"]];
     for (let dx = 0; dx < viewInTiles; dx++) {
         for (let dy = 0; dy < viewInTiles; dy++) {
-        let tile = world.terrain[offset.x+dx][offset.y+dy];
-        ctx.fillStyle = fillStyles[tile][(offset.x+dx+offset.y+dy)%2];
-        ctx.fillRect(dx*tileSize, dy*tileSize, tileSize, tileSize)
+            let x = offset.x+dx;
+            let y = offset.y+dy;
+            let tile = world.terrain[x][y];
+            let styles = fillStyles[tile];
+            let variation = (x + y);
+            ctx.fillStyle = styles[variation%styles.length];
+            ctx.fillRect(dx*tileSize, dy*tileSize, tileSize, tileSize);
+        }
+    }
+    const borderStyle = "rgb(87,54,36)";
+    for (let dx = 0; dx < viewInTiles; dx++) {
+        for (let dy = 0; dy < viewInTiles; dy++) {
+            let x = offset.x+dx;
+            let y = offset.y+dy;
+            let tile = world.terrain[x][y];
+            let borderRight = hasBorder(world, tile, x + 1, y);
+            let borderDown = hasBorder(world, tile, x, y + 1);
+            let borderLeft = hasBorder(world, tile, x - 1, y);
+            let borderUp = hasBorder(world, tile, x, y - 1);
+            if (borderDown || borderLeft || borderRight || borderUp) {
+                ctx.fillStyle = borderStyle;
+                if (borderDown)
+                    ctx.fillRect(dx*tileSize, dy*tileSize + tileSize-3, 33, 6);
+                if (borderUp)
+                    ctx.fillRect(dx*tileSize, dy*tileSize, 33, 1);
+                if (borderLeft)
+                    ctx.fillRect(dx*tileSize, dy*tileSize, 1, 32);
+                if (borderRight)
+                    ctx.fillRect(dx*tileSize + tileSize - 1, dy*tileSize, 2, 32);
+            }
         }
     }
     world.objects.forEach((obj, index, array) => drawObj(ctx, offset, obj))
@@ -113,7 +151,6 @@ class FadeToBlack {
         let measurement = ctx.measureText(this.text);
         let x = tileSize * halfViewInTiles - measurement.width/2;
         let y = tileSize * halfViewInTiles - 12;
-        console.log(x + "; " + y);
         ctx.fillText(this.text, x, y);
 
         return false;
