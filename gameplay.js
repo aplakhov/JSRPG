@@ -16,6 +16,15 @@ class World {
     this.objects.push(new ManaBottle(2,2))
     this.objects.push(new Coin(5,18))
   }
+
+  nextTurn() {
+    console.log("Next turn");
+    this.objects.forEach((obj) => {
+      console.log(obj + " has nextTurn: " + ('nextTurn' in obj))
+      if ('nextTurn' in obj)
+        obj.nextTurn()
+    });
+  }
 };
 
 class ManaBottle {
@@ -42,6 +51,14 @@ class Coin {
   }
   img() {
     return coinImage;
+  }
+  nextTurn() {
+    // coins don't normally move
+    // this is just to check the main game cycle
+    if (Math.random() > 0.7)
+      this.x += 1;
+    if (Math.random() > 0.7)
+      this.x -= 1;
   }
 };
 
@@ -74,3 +91,9 @@ class Player {
     return true;
   }
 };
+
+setInterval( () => {
+    world.nextTurn()
+  },
+  1000
+);
