@@ -1,7 +1,7 @@
 rpg = {
     player_start: {
         hp: 100,
-        mana: 200,
+        mana: 0,
         attackMin: 4,
         attackMax: 8,
         attackRadius: 1

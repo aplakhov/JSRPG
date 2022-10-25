@@ -373,7 +373,7 @@ class Player {
   }
 
   tryCast(targetX, targetY) {
-    if (this.maxMana < 50)
+    if (this.stats.mana < 50)
       return; // casting is not opened yet
     let dx = targetX - this.x;
     let dy = targetY - this.y;
