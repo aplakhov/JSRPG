@@ -413,8 +413,8 @@
                  "rotation":0,
                  "visible":true,
                  "width":0,
-                 "x":2415,
-                 "y":1495
+                 "x":1651,
+                 "y":2483
                 }, 
                 {
                  "class":"Mob",
@@ -441,8 +441,8 @@
                  "rotation":0,
                  "visible":true,
                  "width":0,
-                 "x":2032,
-                 "y":1526
+                 "x":1551,
+                 "y":2575
                 }, 
                 {
                  "class":"Bones",
@@ -487,8 +487,8 @@
                  "rotation":0,
                  "visible":true,
                  "width":0,
-                 "x":1230,
-                 "y":1683
+                 "x":428,
+                 "y":1943
                 }, 
                 {
                  "class":"Mob",
@@ -515,8 +515,8 @@
                  "rotation":0,
                  "visible":true,
                  "width":0,
-                 "x":735,
-                 "y":2074
+                 "x":465,
+                 "y":1941
                 }, 
                 {
                  "class":"Mob",
@@ -543,8 +543,8 @@
                  "rotation":0,
                  "visible":true,
                  "width":0,
-                 "x":1453,
-                 "y":2516
+                 "x":1554,
+                 "y":2456
                 }, 
                 {
                  "class":"Darkness",
@@ -649,8 +649,8 @@
                  "rotation":0,
                  "visible":true,
                  "width":0,
-                 "x":2992,
-                 "y":2002.66666666667
+                 "x":3055,
+                 "y":2003.66666666667
                 }, 
                 {
                  "class":"Darkness",
@@ -749,6 +749,266 @@
                  "width":0,
                  "x":174,
                  "y":2930
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":56,
+                 "name":"\u0411\u043e\u043b\u044c\u0448\u043e\u0439 \u0449\u0438\u0442",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"metal_shield"
+                        }, 
+                        {
+                         "name":"InventoryItem",
+                         "type":"string",
+                         "value":"great_shield"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":13,
+                 "y":2293
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":57,
+                 "name":"\u0414\u0435\u0440\u0435\u0432\u044f\u043d\u043d\u044b\u0439 \u0449\u0438\u0442",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"shield"
+                        }, 
+                        {
+                         "name":"InventoryItem",
+                         "type":"string",
+                         "value":"wooden_shield"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":3089,
+                 "y":1971
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":58,
+                 "name":"\u041a\u043e\u0440\u043e\u0442\u043a\u0438\u0439 \u043c\u0435\u0447",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"sword"
+                        }, 
+                        {
+                         "name":"InventoryItem",
+                         "type":"string",
+                         "value":"short_sword"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":1648,
+                 "y":2581
+                }, 
+                {
+                 "class":"Mob",
+                 "height":0,
+                 "id":59,
+                 "name":"\u0413\u043e\u0431\u043b\u0438\u043d",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"goblin"
+                        }, 
+                        {
+                         "name":"Loot",
+                         "type":"string",
+                         "value":""
+                        }, 
+                        {
+                         "name":"Rules",
+                         "type":"string",
+                         "value":"goblin"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":2000,
+                 "y":3127
+                }, 
+                {
+                 "class":"Mob",
+                 "height":0,
+                 "id":63,
+                 "name":"\u0413\u043e\u0431\u043b\u0438\u043d",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"goblin"
+                        }, 
+                        {
+                         "name":"Loot",
+                         "type":"string",
+                         "value":""
+                        }, 
+                        {
+                         "name":"Rules",
+                         "type":"string",
+                         "value":"goblin"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":1166,
+                 "y":3064
+                }, 
+                {
+                 "class":"Mob",
+                 "height":0,
+                 "id":64,
+                 "name":"\u0413\u043e\u0431\u043b\u0438\u043d",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"goblin"
+                        }, 
+                        {
+                         "name":"Loot",
+                         "type":"string",
+                         "value":""
+                        }, 
+                        {
+                         "name":"Rules",
+                         "type":"string",
+                         "value":"goblin"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":1196,
+                 "y":3063
+                }, 
+                {
+                 "class":"Mob",
+                 "height":0,
+                 "id":65,
+                 "name":"\u0413\u043e\u0431\u043b\u0438\u043d",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"goblin"
+                        }, 
+                        {
+                         "name":"Loot",
+                         "type":"string",
+                         "value":""
+                        }, 
+                        {
+                         "name":"Rules",
+                         "type":"string",
+                         "value":"goblin"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":1232,
+                 "y":3064
+                }, 
+                {
+                 "class":"Mob",
+                 "height":0,
+                 "id":66,
+                 "name":"\u0413\u043e\u0431\u043b\u0438\u043d",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"goblin"
+                        }, 
+                        {
+                         "name":"Loot",
+                         "type":"string",
+                         "value":""
+                        }, 
+                        {
+                         "name":"Rules",
+                         "type":"string",
+                         "value":"goblin"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":1132,
+                 "y":3065
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":67,
+                 "name":"\u041a\u043e\u0440\u043e\u0442\u043a\u0438\u0439 \u043c\u0435\u0447",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"sword"
+                        }, 
+                        {
+                         "name":"InventoryItem",
+                         "type":"string",
+                         "value":"short_sword"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":1972,
+                 "y":3150
+                }, 
+                {
+                 "class":"Mob",
+                 "height":0,
+                 "id":68,
+                 "name":"\u0413\u043e\u0431\u043b\u0438\u043d",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"goblin"
+                        }, 
+                        {
+                         "name":"Loot",
+                         "type":"string",
+                         "value":""
+                        }, 
+                        {
+                         "name":"Rules",
+                         "type":"string",
+                         "value":"goblin"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":1997,
+                 "y":3156
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -757,7 +1017,7 @@
          "y":0
         }],
  "nextlayerid":3,
- "nextobjectid":56,
+ "nextobjectid":69,
  "orientation":"orthogonal",
  "renderorder":"left-down",
  "tiledversion":"1.9.2",

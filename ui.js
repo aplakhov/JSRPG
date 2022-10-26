@@ -219,6 +219,12 @@ const systemMessageSpeaker = {
   font: '18px sans-serif',
   portrait: null
 };
+const errorSpeaker = {
+  color: "rgb(255, 0, 0)",
+  bgColor: "rgb(0, 0, 0)",
+  font: '18px sans-serif',
+  portrait: null
+};
 
 canvas.onmousemove = updateTileUnderCursor;
 

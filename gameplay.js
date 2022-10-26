@@ -193,6 +193,7 @@ class ManaBottle {
 
 class DecorativeObject {
   constructor(obj, x, y, image) {
+    this.inventoryItem = getProp(obj, "InventoryItem");
     this.foundMessage = getProp(obj, "Message");
     this.hint = obj.name;
     this.x = x;
@@ -204,6 +205,11 @@ class DecorativeObject {
       dialogUI.addMessage(this.foundMessage, speaker1);
       this.foundMessage = null;
     }
+    if (this.inventoryItem) {
+      player.foundItem(this.inventoryItem);
+      this.inventoryItem = null;
+      this.dead = true;
+    }    
   }
   draw(ctx, x, y) {
     if (this.image.complete)
@@ -223,7 +229,11 @@ function attackIfNear(attacker, target) {
   animations.add(new Bullet(direction, duration), {x:attacker.x, y:attacker.y});
   setTimeout(() => {
     let damage = Math.floor(attacker.stats.attackMin + (attacker.stats.attackMax - attacker.stats.attackMin + 1) * Math.random());
-    target.damage(damage);
+    if ('damageBonus' in attacker) {
+      console.log("Attack was ", damage, " became ", damage + attacker.damageBonus());
+      damage += attacker.damageBonus();
+    }
+    target.applyDamage(damage);
   }, 200);
   return true;
 }
@@ -277,7 +287,7 @@ class Mob {
     occupied[this.x][this.y] = on? this : null;
   }
 
-  damage(dmg) {
+  applyDamage(dmg) {
     if (this.hp) {
       this.hp -= dmg;
       if (this.hp <= 0)
@@ -489,6 +499,10 @@ class Player {
   draw(ctx, x, y) {
     if (this.img.complete)
       ctx.drawImage(this.img, x, y);
+    if (this.sword && this.sword.img)
+      ctx.drawImage(this.sword.img, x, y);
+    if (this.shield && this.shield.img)
+      ctx.drawImage(this.shield.img, x, y);
     if (this.inCombat)
       drawHPbar(ctx, this.hp, this.stats.hp, x, y)
   }
@@ -515,7 +529,37 @@ class Player {
     }
   }
 
-  damage(dmg) {
+  foundItem(itemName) {
+    let itemRpg = rpg[itemName];
+    if (!itemRpg) {
+      dialogUI.addMessage("Unknown item " + itemName, errorSpeaker);
+      return;
+    }
+    let currentSlot = this[itemRpg.type];
+    if (this.shouldEquip(currentSlot, itemRpg)) {
+      itemRpg.img = makeImage(itemRpg.equip_img);
+      this[itemRpg.type] = itemRpg;
+      if (itemRpg.message)
+        dialogUI.addMessage(itemRpg.message, speaker1);
+    } else {
+      if (itemRpg.reject)
+        dialogUI.addMessage(itemRpg.reject, speaker1);
+    }
+  }
+
+  shouldEquip(current, next) {
+    if (!current)
+      return true;
+    return next.quality > current.quality;
+  }
+
+  applyDamage(dmg) {
+    if (this.shield) {
+      console.log("Dmg was ", dmg, " became ", dmg - this.shield.quality);
+      dmg -= this.shield.quality;
+    }
+    if (dmg <= 0)
+      return;
     this.hp -= dmg;
     if (this.hp <= 0) {
       this.hp = 1;
@@ -526,5 +570,11 @@ class Player {
         this.y = 0;
       }, 1000);
     }
+  }
+
+  damageBonus() {
+    if (this.sword)
+      return this.sword.quality;
+    return 0;
   }
 };
