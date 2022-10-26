@@ -7,6 +7,16 @@ const tileSize = 32;
 const viewInTiles = 24;
 const halfViewInTiles = 12;
 
+let player = new Player();
+let world = new World();
+
+setInterval( () => {
+  world.nextTurn(false);
+  player.nextTurn();
+},
+1000
+);
+
 function clamp(x, minx, maxx) {
   return x > minx? (x < maxx? x : maxx) : minx;
 };
@@ -211,8 +221,6 @@ const systemMessageSpeaker = {
 };
 
 canvas.onmousemove = updateTileUnderCursor;
-let player = new Player();
-let world = new World();
 
 canvas.onclick = function clickEvent(e) {
   updateTileUnderCursor(e);

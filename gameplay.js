@@ -10,6 +10,21 @@ function getProp(obj, name) {
   return "";
 }
 
+function makeImage(imageName) {
+  if (!imageName.endsWith(".png"))
+    imageName += ".png";
+  let image = new Image(); image.src = imageName;
+  return image;
+}
+
+let manaImage = makeImage("mana1");
+let bonesImage = makeImage("bones");
+
+function makeImageFor(obj) {
+  let imageName = getProp(obj, "Image");
+  return makeImage(imageName);
+}
+
 const TERRAIN_GRASS = 0;
 const TERRAIN_WATER = 1;
 const TERRAIN_SAND = 2;
@@ -26,7 +41,7 @@ class World {
     this.terrain = [];
     this.objects = [];
     this.occupied = [];
-    this.darknessAreas = [];
+    let darknessAreas = [];
     for (let x = 0; x < this.width; x++) {
       let row = [];
       let emptyRow = [];
@@ -49,7 +64,10 @@ class World {
       if (obj.class == "ManaBottle")
         this.objects.push(new ManaBottle(x,y));
       if (obj.class == "Bones")
-        this.objects.push(new Bones(obj, x,y));
+        this.objects.push(new DecorativeObject(obj, x, y, bonesImage));
+      if (obj.class == "DecorativeObject") {
+        this.objects.push(new DecorativeObject(obj, x, y, makeImageFor(obj)));
+      }
       if (obj.class == "Mob")
         this.objects.push(new Mob(obj, x,y));
       if (obj.class == "Message") {
@@ -62,19 +80,20 @@ class World {
         let radius = Number(getProp(obj, "Radius"));
         if (radius < 4)
           radius = 4;
-        this.darknessAreas.push({x: x, y: y, width: width, height: height, radius: radius});
+        darknessAreas.push({x: x, y: y, width: width, height: height, radius: radius});
       }
     }
+    this.makeVisibility(darknessAreas);
     this.hints = ["Трава", "Вода", "Утоптанная земля", "Дремучий лес", "Камень", "Горные породы"];
   }
 
-  nextTurn() {
+  nextTurn(forced) {
     this.objects.forEach((obj) => {
       if ('nextTurn' in obj) {
         let occupiesPlace = 'occupy' in obj;
         if (occupiesPlace)
           obj.occupy(this.occupied, false);
-        obj.nextTurn()
+        obj.nextTurn(forced)
         if (occupiesPlace && !obj.dead)
           obj.occupy(this.occupied, true);
       }
@@ -100,14 +119,34 @@ class World {
     return tile == TERRAIN_WATER;
   }
 
-  getVisionRadius(x, y) {
-    for (let n = 0; n < this.darknessAreas.length; n++) {
-      let area = this.darknessAreas[n];
-      if (x >= area.x && x < area.x + area.width && y >= area.y && y < area.y + area.height) {
-        return area.radius;
+  makeVisibility(darknessAreas) {
+    this.visibility = []
+    for (let x = 0; x < this.width; x++) {
+      let row = []
+      for (let y = 0; y < this.height; y++) {
+        let radius = 100;
+        for (let n = 0; n < darknessAreas.length; n++) {
+          let area = darknessAreas[n];
+          if (x >= area.x && x < area.x + area.width && y >= area.y && y < area.y + area.height) {
+            radius = area.radius;
+          }
+        }
+        row.push(radius);
+      }
+      this.visibility.push(row);
+    }
+    for (let n = 0; n < 6; n++) {
+      for (let x = 1; x + 1 < this.width; x++) {
+        for (let y = 1; y + 1 < this.height; y++) {
+          let vis = this.visibility[x][y];
+          if (vis >= 8 || !this.isPassable(x, y))
+            continue;
+          if (vis < this.visibility[x-1][y] - 1 || vis < this.visibility[x+1][y] - 1 ||
+              vis < this.visibility[x][y-1] - 1 || vis < this.visibility[x][y+1] - 1)
+            this.visibility[x][y]++;
+        }
       }
     }
-    return 100;
   }
 
   hint(x, y) {
@@ -152,12 +191,13 @@ class ManaBottle {
   }
 };
 
-class Bones {
-  constructor(obj, x, y) {
+class DecorativeObject {
+  constructor(obj, x, y, image) {
     this.foundMessage = getProp(obj, "Message");
     this.hint = obj.name;
     this.x = x;
     this.y = y;
+    this.image = image;
   }
   onContact(player) {
     if (this.foundMessage) {
@@ -166,8 +206,8 @@ class Bones {
     }
   }
   draw(ctx, x, y) {
-    if (bonesImage.complete)
-      ctx.drawImage(bonesImage, x, y);
+    if (this.image.complete)
+      ctx.drawImage(this.image, x, y);
   }
 };
 
@@ -197,6 +237,12 @@ function drawHPbar(ctx, hp, maxHp, x, y) {
   ctx.fillRect(x + 4 + w1, y + 4, w - w1, 3);
 }
 
+function dist2(x1, y1, x2, y2) {
+  let dx = x1 - x2;
+  let dy = y1 - y2;
+  return dx*dx + dy*dy;
+}
+
 class Mob {
   constructor(obj, x, y) {
     this.meObj = obj;
@@ -210,13 +256,14 @@ class Mob {
       if (stats) {
         this.hp = stats.hp;
         this.stats = stats;
+        this.roamRadius = stats.roamRadius;
+        this.aggroRadius = stats.aggroRadius;
+        this.startingX = x;
+        this.startingY = y;
       }
     }
 
-    let imageName = getProp(obj, "Image");
-    if (!imageName.endsWith(".png"))
-      imageName += ".png";
-    this.img = new Image(); this.img.src = imageName;
+    this.img = makeImageFor(obj);
   }
 
   draw(ctx, x, y) {
@@ -247,14 +294,14 @@ class Mob {
     if (loot == "ManaBottle")
       world.objects.push(new ManaBottle(this.x, this.y));
     else
-      world.objects.push(new Bones({name: "Останки"}, this.x, this.y))
+      world.objects.push(new DecorativeObject({name: "Останки"}, this.x, this.y, bonesImage))
   }
 
   isEnemy() {
     return this.stats && this.stats.enemy;
   }
 
-  nextTurn() {
+  nextTurn(forced) {
     if (this.dead)
       return;
     let canMove = true;
@@ -263,33 +310,76 @@ class Mob {
         this.hp++;
       if (this.hp > this.stats.hp)
         this.hp = this.stats.hp;
-      if (this.stats.attackRadius && this.stats.enemy) {
-        let attacked = attackIfNear(this, player);
-        if (attacked)
-          canMove = false;
+      if (this.stats.enemy) {
+        this.checkAggro();
+        if (this.stats.attackRadius) {
+          let attacked = attackIfNear(this, player);
+          if (attacked)
+            canMove = false;
+        }
       }
     }
     if (canMove)
-      this.move();
+      this.move(forced);
   }
 
-  move() {
+  checkAggro() {
+    if (!this.aggred)
+      this.aggred = dist2(this.x, this.y, player.x, player.y) <= this.aggroRadius * this.aggroRadius;
+  }
+
+  moveRandomlyInsideRoamingArea() {
+    let nextx = this.x, nexty = this.y;
+    let r = Math.random();
+    if (r < 0.25)
+      nextx += 1;
+    else if (r < 0.5)
+      nextx -= 1;
+    else if (r < 0.75)
+      nexty += 1;
+    else
+      nexty -= 1;
+    let insideRoaming = dist2(nextx, nexty, this.startingX, this.startingY) <= this.roamRadius * this.roamRadius;
+    if (world.isPassable(nextx, nexty) && insideRoaming) {
+      this.x = nextx;
+      this.y = nexty;
+    }
+  }
+
+  moveTowardsPlayer() {
+    let dx = Math.abs(this.x - player.x);
+    let dy = Math.abs(this.y - player.y);
+    let nextx = this.x, nexty = this.y;
+    if (player.x < this.x)
+      nextx -= 1;
+    else if (player.x > this.x)
+      nextx += 1;
+    if (player.y < this.y)
+        nexty -= 1;
+    else if (player.y > this.y)
+        nexty += 1;
+    if (dx > dy) {
+      if (world.isPassable(nextx, this.y))
+        this.x = nextx;
+      else if (world.isPassable(this.x, nexty))
+        this.y = nexty;
+    } else {
+      if (world.isPassable(this.x, nexty))
+        this.y = nexty;
+      else if (world.isPassable(nextx, this.y))
+        this.x = nextx;
+    }
+  }
+
+  move(forced) {
+    if (forced && !this.aggred)
+      return;
     if (this.rules == "goblin") {
       if (world.isPassable(this.x, this.y)) {
-        let dx = 0, dy = 0;
-        let r = Math.random();
-        if (r < 0.25)
-          dx = 1;
-        else if (r < 0.5)
-          dx = -1;
-        else if (r < 0.75)
-          dy = 1;
+        if (this.aggred)
+          this.moveTowardsPlayer();
         else
-          dy = -1;
-        if (world.isPassable(this.x + dx, this.y + dy)) {
-          this.x += dx;
-          this.y += dy;
-        }
+          this.moveRandomlyInsideRoamingArea();
       } else {
         this.die();
       }
@@ -368,7 +458,8 @@ class Player {
       else if (obj.x == this.x && obj.y == this.y)
         obj.onContact(this)
     }
-    world.removeDeadObjects()
+    if (Math.random() < 0.8)
+      world.nextTurn(true)
     return true;
   }
 
@@ -437,10 +528,3 @@ class Player {
     }
   }
 };
-
-setInterval( () => {
-    world.nextTurn();
-    player.nextTurn();
-  },
-  1000
-);

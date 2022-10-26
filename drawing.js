@@ -3,9 +3,6 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-let manaImage = new Image(); manaImage.src = "mana1.png";
-let bonesImage = new Image(); bonesImage.src = "bones.png";
-
 function hasBorder(world, tile, nearX, nearY) {
     if (tile == TERRAIN_WATER)
         return false;
@@ -38,7 +35,7 @@ function drawWorld(ctx, offset, world) {
         ["rgb(81, 81, 81)", "rgb(127, 127, 127)", "rgb(95, 95, 95)"],
         ["rgb(62, 42, 25)", "rgb(50, 30, 20)", "rgb(75, 45, 30)"],
     ];
-    let visibilityR = world.getVisionRadius(player.x, player.y);
+    let visibilityR = world.visibility[player.x][player.y];
     let visibilityR2 = visibilityR * visibilityR;
     for (let dx = 0; dx < viewInTiles; dx++) {
         for (let dy = 0; dy < viewInTiles; dy++) {
@@ -87,7 +84,7 @@ function drawWorld(ctx, offset, world) {
 };
 
 function drawTooltip(ctx, offset, tileUnderCursor) {
-    let visibilityR = world.getVisionRadius(player.x, player.y);
+    let visibilityR = world.visibility[player.x][player.y];
     if (!isVisible(tileUnderCursor.x, tileUnderCursor.y, visibilityR*visibilityR))
         return;
     let left = (tileUnderCursor.x-offset.x+0.5)*tileSize;
