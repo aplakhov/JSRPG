@@ -21,11 +21,6 @@ for (let dx = 0; dx < viewInTiles; dx++) {
     }
 }
 
-function isVisible(x, y, visibilityR2) {
-    let dist2 = (x-player.x)*(x-player.x) + (y-player.y)*(y-player.y);
-    return dist2 <= visibilityR2;
-}
-
 function drawWorld(ctx, offset, world) {
     const fillStyles = [
         ["rgb(93, 161, 48)", "rgb(91, 164, 49)", "rgb(93, 166, 48)", "rgb(93, 163, 48)"],
@@ -35,13 +30,11 @@ function drawWorld(ctx, offset, world) {
         ["rgb(81, 81, 81)", "rgb(127, 127, 127)", "rgb(95, 95, 95)"],
         ["rgb(62, 42, 25)", "rgb(50, 30, 20)", "rgb(75, 45, 30)"],
     ];
-    let visibilityR = world.visibility[player.x][player.y];
-    let visibilityR2 = visibilityR * visibilityR;
     for (let dx = 0; dx < viewInTiles; dx++) {
         for (let dy = 0; dy < viewInTiles; dy++) {
             let x = offset.x+dx;
             let y = offset.y+dy;
-            if (isVisible(x, y, visibilityR2)) {
+            if (world.vision.isVisible(x, y)) {
                 let tile = world.terrain[x][y];
                 let styles = fillStyles[tile];
                 let variation = stableRandom[(x*17 + y*31)%stableRandom.length];
@@ -57,7 +50,7 @@ function drawWorld(ctx, offset, world) {
         for (let dy = 0; dy < viewInTiles; dy++) {
             let x = offset.x+dx;
             let y = offset.y+dy;
-            if (!isVisible(x, y, visibilityR2))
+            if (!world.vision.isVisible(x, y))
                 continue;
             let tile = world.terrain[x][y];
             let borderRight = hasBorder(world, tile, x + 1, y);
@@ -78,14 +71,13 @@ function drawWorld(ctx, offset, world) {
         }
     }
     world.objects.forEach((obj) => {
-        if (isVisible(obj.x, obj.y, visibilityR2))
+        if (world.vision.isVisible(obj.x, obj.y))
             drawObj(ctx, offset, obj)
     });
 };
 
 function drawTooltip(ctx, offset, tileUnderCursor) {
-    let visibilityR = world.visibility[player.x][player.y];
-    if (!isVisible(tileUnderCursor.x, tileUnderCursor.y, visibilityR*visibilityR))
+    if (!world.vision.isVisible(tileUnderCursor.x, tileUnderCursor.y))
         return;
     let left = (tileUnderCursor.x-offset.x+0.5)*tileSize;
     let top = (tileUnderCursor.y-offset.y+0.5)*tileSize;
@@ -216,6 +208,8 @@ setInterval( () => {
     drawWorld(ctx, offset, world);
     drawObj(ctx, offset, player);
     animations.draw(ctx, offset);
+    fire.step(canvasOffsetInTiles());
+    fire.draw(ctx, offset);
     if (tileUnderCursor.needShowTooltip())
         drawTooltip(ctx, offset, tileUnderCursor);
     drawUI();

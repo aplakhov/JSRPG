@@ -66,7 +66,11 @@ class World {
       if (obj.class == "Bones")
         this.objects.push(new DecorativeObject(obj, x, y, bonesImage));
       if (obj.class == "DecorativeObject") {
-        this.objects.push(new DecorativeObject(obj, x, y, makeImageFor(obj)));
+        let gameObj = new DecorativeObject(obj, x, y, makeImageFor(obj));
+        this.objects.push(gameObj);
+        let occupiesPlace = 'occupy' in gameObj;
+        if (occupiesPlace)
+          gameObj.occupy(this.occupied, true);
       }
       if (obj.class == "Mob")
         this.objects.push(new Mob(obj, x,y));
@@ -83,7 +87,18 @@ class World {
         darknessAreas.push({x: x, y: y, width: width, height: height, radius: radius});
       }
     }
-    this.makeVisibility(darknessAreas);
+    this.vision = new PlayerVision(darknessAreas, this);
+    for (let n = 0; n < objects.length; n++) {
+      let obj = objects[n]
+      let x = Math.floor((obj.x + 4) / tileSize);
+      let y = Math.floor((obj.y + 4) / tileSize);
+      let fireEmitter = getProp(obj, "Fire");
+      if (fireEmitter != "") {
+        let strength = Number(fireEmitter);
+        fire.addConstantEmitter(x, y, strength);
+        this.vision.addLightSource(x, y, strength);
+      }
+    }
     this.hints = ["Трава", "Вода", "Утоптанная земля", "Дремучий лес", "Камень", "Горные породы"];
   }
 
@@ -99,6 +114,7 @@ class World {
       }
     });
     this.removeDeadObjects();
+    this.vision.recalculateLocalVisibility();
   }
 
   isPassable(x, y) {
@@ -119,34 +135,9 @@ class World {
     return tile == TERRAIN_WATER;
   }
 
-  makeVisibility(darknessAreas) {
-    this.visibility = []
-    for (let x = 0; x < this.width; x++) {
-      let row = []
-      for (let y = 0; y < this.height; y++) {
-        let radius = 100;
-        for (let n = 0; n < darknessAreas.length; n++) {
-          let area = darknessAreas[n];
-          if (x >= area.x && x < area.x + area.width && y >= area.y && y < area.y + area.height) {
-            radius = area.radius;
-          }
-        }
-        row.push(radius);
-      }
-      this.visibility.push(row);
-    }
-    for (let n = 0; n < 6; n++) {
-      for (let x = 1; x + 1 < this.width; x++) {
-        for (let y = 1; y + 1 < this.height; y++) {
-          let vis = this.visibility[x][y];
-          if (vis >= 8 || !this.isPassable(x, y))
-            continue;
-          if (vis < this.visibility[x-1][y] - 1 || vis < this.visibility[x+1][y] - 1 ||
-              vis < this.visibility[x][y-1] - 1 || vis < this.visibility[x][y+1] - 1)
-            this.visibility[x][y]++;
-        }
-      }
-    }
+  isOccluded(x, y) {
+    let tile = this.terrain[x][y];
+    return tile == TERRAIN_STONE_WALL;
   }
 
   hint(x, y) {
@@ -199,6 +190,11 @@ class DecorativeObject {
     this.x = x;
     this.y = y;
     this.image = image;
+    if (getProp(obj, "Blocker") != "") {
+      this.occupy = (occupied, on) => {
+        occupied[this.x][this.y] = on? this : null;
+      }
+    }
   }
   onContact(player) {
     if (this.foundMessage) {
@@ -206,9 +202,10 @@ class DecorativeObject {
       this.foundMessage = null;
     }
     if (this.inventoryItem) {
-      player.foundItem(this.inventoryItem);
-      this.inventoryItem = null;
-      this.dead = true;
+      if (player.takeItem(this.inventoryItem)) {
+        this.inventoryItem = null;
+        this.dead = true;
+      }
     }    
   }
   draw(ctx, x, y) {
@@ -229,10 +226,8 @@ function attackIfNear(attacker, target) {
   animations.add(new Bullet(direction, duration), {x:attacker.x, y:attacker.y});
   setTimeout(() => {
     let damage = Math.floor(attacker.stats.attackMin + (attacker.stats.attackMax - attacker.stats.attackMin + 1) * Math.random());
-    if ('damageBonus' in attacker) {
-      console.log("Attack was ", damage, " became ", damage + attacker.damageBonus());
+    if ('damageBonus' in attacker)
       damage += attacker.damageBonus();
-    }
     target.applyDamage(damage);
   }, 200);
   return true;
@@ -259,6 +254,8 @@ class Mob {
     this.hint = obj.name;
     this.x = x;
     this.y = y;
+    this.prevX = x;
+    this.prevY = y;
 
     this.rules = getProp(obj, "Rules");
     if (this.rules) {
@@ -277,10 +274,16 @@ class Mob {
   }
 
   draw(ctx, x, y) {
+    let moveTime = animations.globalTimer - this.moveTime;
+    let rate = moveTime / 1.0;
+    if (rate < 1) {
+      x += (this.prevX - this.x) * tileSize * (1 - rate);
+      y += (this.prevY - this.y) * tileSize * (1 - rate);
+    }
     if (!this.dead && this.img && this.img.complete)
       ctx.drawImage(this.img, x, y);
     if (this.stats && this.hp < this.stats.hp)
-        drawHPbar(ctx, this.hp, this.stats.hp, x, y)
+      drawHPbar(ctx, this.hp, this.stats.hp, x, y)
   }
 
   occupy(occupied, on) {
@@ -329,8 +332,12 @@ class Mob {
         }
       }
     }
-    if (canMove)
+    if (canMove) {
+      this.prevX = this.x;
+      this.prevY = this.y;
+      this.moveTime = animations.globalTimer;
       this.move(forced);
+    }
   }
 
   checkAggro() {
@@ -529,11 +536,11 @@ class Player {
     }
   }
 
-  foundItem(itemName) {
+  takeItem(itemName) {
     let itemRpg = rpg[itemName];
     if (!itemRpg) {
       dialogUI.addMessage("Unknown item " + itemName, errorSpeaker);
-      return;
+      return false;
     }
     let currentSlot = this[itemRpg.type];
     if (this.shouldEquip(currentSlot, itemRpg)) {
@@ -541,9 +548,11 @@ class Player {
       this[itemRpg.type] = itemRpg;
       if (itemRpg.message)
         dialogUI.addMessage(itemRpg.message, speaker1);
+      return true;
     } else {
       if (itemRpg.reject)
         dialogUI.addMessage(itemRpg.reject, speaker1);
+      return false;
     }
   }
 
@@ -554,10 +563,8 @@ class Player {
   }
 
   applyDamage(dmg) {
-    if (this.shield) {
-      console.log("Dmg was ", dmg, " became ", dmg - this.shield.quality);
+    if (this.shield)
       dmg -= this.shield.quality;
-    }
     if (dmg <= 0)
       return;
     this.hp -= dmg;
