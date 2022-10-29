@@ -1431,6 +1431,17 @@
                  "width":0,
                  "x":2256,
                  "y":2896
+                }, 
+                {
+                 "class":"Message",
+                 "height":60,
+                 "id":86,
+                 "name":"\u0410, \u0432\u043e\u0442 \u043a\u0443\u0434\u0430 \u044f \u043f\u043e\u043b\u043e\u0436\u0438\u043b \u0441\u0432\u043e\u0439 \u0441\u043f\u0438\u0441\u043e\u043a \u0434\u0435\u043b!",
+                 "rotation":0,
+                 "visible":true,
+                 "width":64,
+                 "x":0,
+                 "y":3138
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -1439,7 +1450,7 @@
          "y":0
         }],
  "nextlayerid":3,
- "nextobjectid":86,
+ "nextobjectid":87,
  "orientation":"orthogonal",
  "renderorder":"left-down",
  "tiledversion":"1.9.2",
