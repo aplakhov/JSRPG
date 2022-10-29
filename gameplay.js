@@ -11,10 +11,24 @@ function getProp(obj, name) {
 }
 
 function makeImage(imageName) {
+  if (!imageName)
+    return null;
   if (!imageName.endsWith(".png"))
     imageName += ".png";
   let image = new Image(); image.src = imageName;
   return image;
+}
+
+function randomNoRepeatFrom(array) {
+  for (let n = 0; n < 4; n++) {
+    let n = Math.floor(Math.random() * array.length);
+    if (array[n]) {
+      let res = array[n];
+      array[n] = null;
+      return res;
+    }
+  }
+  return null;
 }
 
 let manaImage = makeImage("mana1");
@@ -341,8 +355,20 @@ class Mob {
   }
 
   checkAggro() {
-    if (!this.aggred)
+    if (!this.aggred) {
       this.aggred = dist2(this.x, this.y, player.x, player.y) <= this.aggroRadius * this.aggroRadius;
+      if (this.aggred && 'aggroMessages' in this.stats && 'speaker' in this.stats) {
+        let msg = randomNoRepeatFrom(this.stats.aggroMessages);
+        let speaker = {
+          color: this.stats.speaker.color,
+          bgColor: this.stats.speaker.bgColor,
+          font: this.stats.speaker.font,
+          portrait: makeImage(randomNoRepeatFrom(this.stats.speaker.portraits))    
+        };
+        if (msg && speaker.portrait)
+          dialogUI.addMessage(msg, speaker);
+      }
+    }
   }
 
   moveRandomlyInsideRoamingArea() {

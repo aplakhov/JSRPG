@@ -13,7 +13,27 @@ rpg = {
         attackRadius: 1,
         roamRadius: 8,
         aggroRadius: 5,
-        enemy: true
+        enemy: true,
+        speaker: {
+            color: "rgb(58, 81, 0)",
+            bgColor: "rgb(255, 255, 255)",
+            font: '18px sans-serif',
+            portraits: [
+                "goblin_portrait",
+                "goblin_portrait2",                           
+                "goblin_portrait4",
+                "goblin_portrait5",                           
+            ]                           
+        },
+        aggroMessages: [
+            "Сегодня едим мясо! Молодое мясо!",
+            "Ты вкусный?",
+            "Ты с какого района?",
+            "Деньги есть? А если найду?",
+            "Иди сюда, слыш",
+            "Есть чё?",
+            "А ну сюда иди!"
+        ]
     },
     short_sword: {
         type: "sword",
