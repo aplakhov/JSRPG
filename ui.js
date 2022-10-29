@@ -146,7 +146,7 @@ class DialogUI {
           return;
       this.redraw = false;
  
-      this.ctx.fillStyle = 'rgb(229, 222, 214)';
+      this.ctx.fillStyle = 'rgb(240, 214, 175)';
       this.ctx.fillRect(this.left, this.top, this.width, this.height);
     
       let oldPortrait = null;
@@ -215,7 +215,7 @@ const speaker2 = {
 };
 const systemMessageSpeaker = {
   color: "rgb(0, 0, 0)",
-  bgColor: "rgb(229, 222, 214)",
+  bgColor: "rgb(240, 214, 175)",
   font: '18px sans-serif',
   portrait: null
 };
@@ -294,19 +294,19 @@ function drawUI() {
   let showHP = player.hp < player.stats.hp;
   const dialogUItopOffset = 40;
   if (showMana || showHP) {
-    charCtx.fillStyle = 'rgb(229, 222, 214)';
+    charCtx.fillStyle = 'rgb(240, 214, 175)';
     if (showHP)
       charCtx.fillRect(0, 0, charCtx.canvas.width, dialogUItopOffset);
     else
       charCtx.fillRect(0, 0, charCtx.canvas.width, dialogUItopOffset / 2);
   }
   if (showMana) {
-    charCtx.strokeStyle = 'black';
+    charCtx.strokeStyle = 'rgb(140, 104, 20)';
     charCtx.strokeRect(0, dialogUItopOffset / 2, charCtx.canvas.width, 0);
     manaBar.draw(player.mana, player.stats.mana, barPadding, dialogUItopOffset / 4);
   }
   if (showHP) {
-    charCtx.strokeStyle = 'black';
+    charCtx.strokeStyle = 'rgb(140, 104, 20)';
     charCtx.strokeRect(0, dialogUItopOffset, charCtx.canvas.width, 0);
     healthBar.draw(player.hp, player.stats.hp, barPadding, dialogUItopOffset * 3 / 4);
   }
