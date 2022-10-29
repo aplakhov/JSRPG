@@ -39,7 +39,7 @@ rpg = {
         type: "sword",
         quality: 2,
         name: "Короткий меч",
-        message: "Гораздо лучше, чем палка!",
+        message: "Меч это гораздо лучше, чем палка!",
         reject: "У меня уже есть оружие не хуже",
         equip_img: "sword_equip"
     },
