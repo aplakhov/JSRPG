@@ -1,5 +1,8 @@
 "use strict";
 
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
 const charCanvas = document.getElementById("charCanvas");
 const charCtx = charCanvas.getContext("2d");
 
@@ -101,7 +104,7 @@ class DialogUI {
         return;
       for (let n = this.messages.length - 1; n >= 0; n--) {
         let oldMessage = this.messages[n];
-        if (text == oldMessage.text && portrait && portrait == oldMessage.portrait)
+        if (text == oldMessage.text && portrait && portrait.src == oldMessage.portrait.src)
           return; 
       }
       let words = text.split(" ");
@@ -226,35 +229,6 @@ const errorSpeaker = {
   portrait: null
 };
 
-canvas.onmousemove = updateTileUnderCursor;
-
-canvas.onclick = function clickEvent(e) {
-  updateTileUnderCursor(e);
-  tileUnderCursor.hideTooltip();
-  player.tryCast(tileUnderCursor.x, tileUnderCursor.y)
-}
-
-addEventListener("keyup", function(event) {
-  tileUnderCursor.hideTooltip();
-  if (event.key == "ArrowLeft")
-    player.tryMove(-1,0);
-  if (event.key == "ArrowUp")
-    player.tryMove(0,-1);
-  if (event.key == "ArrowRight")
-    player.tryMove(1,0);
-  if (event.key == "ArrowDown")
-    player.tryMove(0,1);
-  if (event.key == "f")
-    animations.add(new FadeToBlack(4, "Тем временем..."), player);
-  if (event.key == "s") {
-    let person = player.x % 3;
-    if (person == 0)
-      dialogUI.addMessage("О, привет", speaker1);
-    else if (person == 1)
-      dialogUI.addMessage("И тебе привет, как там погодка в городе", speaker2);
-  }
-});
-
 class ManaBar {
   constructor(ctx, width, color1, color2) {
     this.ctx = ctx;
@@ -288,6 +262,74 @@ let barPadding = 5;
 let manaBar = new ManaBar(charCtx, charCtx.canvas.width - 2 * barPadding, "rgb(0, 38, 255)", "rgb(0, 148, 255)")
 let healthBar = new ManaBar(charCtx, charCtx.canvas.width - 2 * barPadding, "rgb(255, 0, 40)", "rgb(255, 150, 190)")
 
+class Goals {
+  constructor(ctx) {
+    this.ctx = ctx;
+    this.hidden = true;
+    this.button = makeImage("goals_button");
+    this.font = "18px sans-serif";
+    this.headerFont = "32px sans-serif";
+    this.header = "Дела на сегодня";
+    ctx.font = this.headerFont;
+    this.headerWidth = ctx.measureText(this.header).width;
+    this.maxGoalWidth = 0;
+    this.goals = []
+  }
+
+  addGoal(line) {
+    this.ctx.font = this.font;
+    let width = ctx.measureText(line).width;
+    if (this.maxGoalWidth < width)
+      this.maxGoalWidth = width;
+    this.goals.push(line);
+  }
+
+  draw() {
+    if (!this.hidden) {
+      const backColor = "rgb(240, 214, 175)";
+      const foreColor = "rgb(140, 104, 20)";
+      let x = 100, y = 100;
+      let w = ctx.canvas.width - 2 * x;
+      let h = 64 + 72 + 24 * this.goals.length;
+      this.ctx.fillStyle = backColor;
+      this.ctx.fillRect(x, y, w, h);
+      this.ctx.strokeStyle = foreColor;
+      this.ctx.strokeRect(x, y, w, h);
+      this.ctx.fillStyle = foreColor;
+      this.ctx.font = this.headerFont;
+      this.ctx.fillText(this.header, x + (w - this.headerWidth) / 2, y + 64);
+      this.ctx.font = this.font;
+      for (let n = 0; n < this.goals.length; ++n) {
+        let goal = this.goals[n];
+        this.ctx.fillText(goal, x + (w - this.maxGoalWidth) / 2, y + 64 + 48 + 24*n);
+      }
+    }
+    if (this.button.complete) {
+      this.buttonX = (2 * tileSize - this.button.width) / 2;
+      this.buttonY = (ctx.canvas.height - 2 * tileSize) + (2 * tileSize - this.button.height)/2;
+      this.ctx.drawImage(this.button, this.buttonX, this.buttonY)
+    }
+  }
+  onclick(mouseEvent) {
+    const rect = mouseEvent.target.getBoundingClientRect();
+    const x = mouseEvent.clientX - rect.left;
+    const y = mouseEvent.clientY - rect.top;
+    if (this.hidden) {
+      if (x < this.buttonX || y < this.buttonY || x >= this.buttonX + this.button.width || y >= this.buttonY + this.button.height)
+        return false;
+    }
+    this.hidden = !this.hidden;
+    return true;
+  }
+};
+let goals = new Goals(ctx);
+goals.addGoal("1. Перебраться через речку под названием Мокрая")
+goals.addGoal("2. Дойти до горы под названием Высокая")
+goals.addGoal("3. Найти вход в пещеру под названием Тёмная")
+goals.addGoal("4. Добыть сокровища подземных королей")
+goals.addGoal("5. Вернуться в город и кутить")
+setTimeout(() => {goals.hidden = false}, 500)
+
 function drawUI() {
   dialogUI.draw();
   let showMana = player.stats.mana > 0;
@@ -310,4 +352,37 @@ function drawUI() {
     charCtx.strokeRect(0, dialogUItopOffset, charCtx.canvas.width, 0);
     healthBar.draw(player.hp, player.stats.hp, barPadding, dialogUItopOffset * 3 / 4);
   }
+  goals.draw();
 }
+
+canvas.onmousemove = updateTileUnderCursor;
+
+canvas.onclick = function clickEvent(e) {
+  updateTileUnderCursor(e);
+  tileUnderCursor.hideTooltip();
+  if (goals.onclick(e))
+    return;
+  player.tryCast(tileUnderCursor.x, tileUnderCursor.y)
+}
+
+addEventListener("keyup", function(event) {
+  tileUnderCursor.hideTooltip();
+  goals.hidden = true;
+  if (event.key == "ArrowLeft")
+    player.tryMove(-1,0);
+  if (event.key == "ArrowUp")
+    player.tryMove(0,-1);
+  if (event.key == "ArrowRight")
+    player.tryMove(1,0);
+  if (event.key == "ArrowDown")
+    player.tryMove(0,1);
+  if (event.key == "f")
+    animations.add(new FadeToBlack(4, "Тем временем..."), player);
+  if (event.key == "s") {
+    let person = player.x % 3;
+    if (person == 0)
+      dialogUI.addMessage("О, привет", speaker1);
+    else if (person == 1)
+      dialogUI.addMessage("И тебе привет, как там погодка в городе", speaker2);
+  }
+});
