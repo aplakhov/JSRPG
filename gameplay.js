@@ -180,7 +180,7 @@ class ManaBottle {
   onContact(player) {
     this.dead = true;
     dialogUI.addMessage("+10 макс.мана", systemMessageSpeaker);
-    if (player.maxMana == 0)
+    if (player.stats.mana == 0)
       dialogUI.addMessage("На вкус жидкость тоже синяя. Не знаю, как это работает", speaker1);
     player.stats.mana += 10;
     if (player.stats.mana == 50) {
