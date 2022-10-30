@@ -4,7 +4,12 @@ rpg = {
         mana: 0,
         attackMin: 4,
         attackMax: 8,
-        attackRadius: 1
+        attackRadius: 1,
+        deathMessages: [
+            "На самом деле, конечно, всё было не совсем так...",
+            "И тут я такой из последних сил...",
+            "Вот так я и умер. Хотя подождите..."
+        ]
     },
     goblin: {
         hp: 30,

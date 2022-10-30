@@ -19,6 +19,11 @@ function makeImage(imageName) {
   return image;
 }
 
+function randomFrom(array) {
+    let n = Math.floor(Math.random() * array.length);
+    return array[n];
+}
+
 function randomNoRepeatFrom(array) {
   for (let n = 0; n < 4; n++) {
     let n = Math.floor(Math.random() * array.length);
@@ -223,7 +228,7 @@ class DecorativeObject {
     }    
   }
   draw(ctx, x, y) {
-    if (this.image.complete)
+    if (this.image && this.image.complete)
       ctx.drawImage(this.image, x, y);
   }
 };
@@ -589,18 +594,21 @@ class Player {
   }
 
   applyDamage(dmg) {
+    if (this.hp <= 0) // already dead
+      return;
     if (this.shield)
       dmg -= this.shield.quality;
     if (dmg <= 0)
       return;
     this.hp -= dmg;
     if (this.hp <= 0) {
-      this.hp = 1;
-      this.mana = 1;
-      animations.add(new FadeToBlack(3, "На самом деле, конечно, всё было не совсем так..."), player)
+      let deathMessage = randomFrom(this.stats.deathMessages);
+      animations.add(new FadeToBlack(3, deathMessage), player)
       setTimeout(() => {
         this.x = 0;
         this.y = 0;
+        this.hp = 1;
+        this.mana = 1;
       }, 1000);
     }
   }
