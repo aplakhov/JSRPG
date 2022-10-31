@@ -91,6 +91,8 @@ class World {
         if (occupiesPlace)
           gameObj.occupy(this.occupied, true);
       }
+      if (obj.class == "BigScaryObject")
+        this.objects.push(new BigScaryObject(obj, x, y));
       if (obj.class == "Mob")
         this.objects.push(new Mob(obj, x,y));
       if (obj.class == "Message") {
@@ -230,6 +232,48 @@ class DecorativeObject {
   draw(ctx, x, y) {
     if (this.image && this.image.complete)
       ctx.drawImage(this.image, x, y);
+  }
+};
+
+class BigScaryObject {
+  constructor(obj, x, y) {
+    this.x = x;
+    this.y = y;
+    this.image = makeImageFor(obj);
+    this.zeroX = getProp(obj, "ZeroX");
+    this.zeroY = getProp(obj, "ZeroY");
+    this.hint = obj.name;
+    this.rotation = 0;
+    this.visualR = halfViewInTiles; // TODO - can be estimated better
+  }
+  draw(ctx, x, y) {
+    if (this.image && this.image.complete) {
+      if (this.rotation) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(this.rotation * Math.PI/180);
+        ctx.drawImage(this.image, -this.zeroX, -this.zeroY);
+        ctx.restore();
+      } else {
+        ctx.drawImage(this.image, x - this.zeroX, y - this.zeroY);
+      }
+    }
+  }
+  isVisible(offset) {
+    if (this.x + this.visualR < offset.x)
+      return false;
+    if (this.y + this.visualR < offset.y)
+      return false;
+    if (this.x - this.visualR >= offset.x + viewInTiles)
+      return false;
+    if (this.y - this.visualR >= offset.y + viewInTiles)
+      return false;
+    return true;
+  }
+  nextTurn() {
+    this.rotation += 3;
+    if (this.rotation > 30)
+      this.rotation = -30;
   }
 };
 

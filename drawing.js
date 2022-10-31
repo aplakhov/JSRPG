@@ -27,6 +27,7 @@ function drawWorld(ctx, offset, world) {
         ["rgb(81, 81, 81)", "rgb(127, 127, 127)", "rgb(95, 95, 95)"],
         ["rgb(62, 42, 25)", "rgb(50, 30, 20)", "rgb(75, 45, 30)"],
     ];
+    // draw terrain
     for (let dx = 0; dx < viewInTiles; dx++) {
         for (let dy = 0; dy < viewInTiles; dy++) {
             let x = offset.x+dx;
@@ -36,10 +37,8 @@ function drawWorld(ctx, offset, world) {
                 let styles = fillStyles[tile];
                 let variation = stableRandom[(x*17 + y*31)%stableRandom.length];
                 ctx.fillStyle = styles[variation%styles.length];
-            } else {
-                ctx.fillStyle = 'black';
+                ctx.fillRect(dx*tileSize, dy*tileSize, tileSize, tileSize);
             }
-            ctx.fillRect(dx*tileSize, dy*tileSize, tileSize, tileSize);
         }
     }
     const borderStyle = "rgb(87,54,36)";
@@ -67,10 +66,21 @@ function drawWorld(ctx, offset, world) {
             }
         }
     }
+    // draw objects
     world.objects.forEach((obj) => {
-        if (world.vision.isVisible(obj.x, obj.y))
-            drawObj(ctx, offset, obj)
+        drawObj(ctx, offset, obj)
     });
+    // draw darkness
+    for (let dx = 0; dx < viewInTiles; dx++) {
+        for (let dy = 0; dy < viewInTiles; dy++) {
+            let x = offset.x+dx;
+            let y = offset.y+dy;
+            if (!world.vision.isVisible(x, y)) {
+                ctx.fillStyle = 'black';
+                ctx.fillRect(dx*tileSize, dy*tileSize, tileSize, tileSize);
+            }
+        }
+    }    
 };
 
 function drawTooltip(ctx, offset, tileUnderCursor) {
@@ -88,12 +98,20 @@ function drawTooltip(ctx, offset, tileUnderCursor) {
     ctx.fillText(text, left + padding, top - 14);
 }
 
+function isVisible(x, y, offset) {
+    if (x < offset.x || x >= offset.x + viewInTiles || y < offset.y || y >= offset.y + viewInTiles)
+        return false;
+    if (!world.vision.isVisible(x, y))
+        return false;
+    return true;
+}
+
 function drawObj(ctx, offset, obj) {
     let x = obj.x
     let y = obj.y
-    if (x < offset.x || x >= offset.x + viewInTiles || y < offset.y || y >= offset.y + viewInTiles)
-        return;
-    obj.draw(ctx, (x-offset.x)*tileSize, (y-offset.y)*tileSize);
+    let visible = 'isVisible' in obj? obj.isVisible(offset) : isVisible(x, y, offset);
+    if (visible)
+        obj.draw(ctx, (x-offset.x)*tileSize, (y-offset.y)*tileSize);
 }
 
 // Animations. Every animation is an object with a function draw(ctx, offsetInPixels, timeFromStart) => bool
@@ -203,7 +221,7 @@ class FadeToBlack {
 setInterval( () => {
     const offset = canvasOffsetInTiles();
     drawWorld(ctx, offset, world);
-    drawObj(ctx, offset, player);
+    player.draw(ctx, (player.x-offset.x)*tileSize, (player.y-offset.y)*tileSize);
     animations.draw(ctx, offset);
     fire.step(canvasOffsetInTiles());
     fire.draw(ctx, offset);
