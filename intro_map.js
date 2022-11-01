@@ -747,8 +747,8 @@
                  "rotation":0,
                  "visible":true,
                  "width":0,
-                 "x":174,
-                 "y":2930
+                 "x":270,
+                 "y":2929
                 }, 
                 {
                  "class":"DecorativeObject",
@@ -1442,6 +1442,39 @@
                  "width":64,
                  "x":0,
                  "y":3138
+                }, 
+                {
+                 "class":"BigScaryObject",
+                 "height":0,
+                 "id":88,
+                 "name":"\u0414\u0440\u0430\u043a\u043e\u043d",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"dragon"
+                        }, 
+                        {
+                         "name":"ScriptName",
+                         "type":"string",
+                         "value":"dragon"
+                        }, 
+                        {
+                         "name":"ZeroX",
+                         "type":"int",
+                         "value":96
+                        }, 
+                        {
+                         "name":"ZeroY",
+                         "type":"int",
+                         "value":96
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":15,
+                 "y":2930
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -1450,7 +1483,7 @@
          "y":0
         }],
  "nextlayerid":3,
- "nextobjectid":87,
+ "nextobjectid":91,
  "orientation":"orthogonal",
  "renderorder":"left-down",
  "tiledversion":"1.9.2",

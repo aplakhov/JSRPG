@@ -11,7 +11,7 @@ const viewInTiles = 24;
 const halfViewInTiles = 12;
 
 let player = new Player();
-let world = new World();
+let world = new World("intro_map");
 
 setInterval( () => {
   world.nextTurn(false);

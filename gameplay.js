@@ -52,14 +52,15 @@ const TERRAIN_STONE = 4;
 const TERRAIN_STONE_WALL = 5;
 
 class World {
-  constructor() {
-    let map = TileMaps["intro_map"]
+  constructor(name) {
+    let map = TileMaps[name]
     let data = map["layers"][0]["data"]
     this.height = map.height;
     this.width = map.width;
     this.terrain = [];
     this.objects = [];
     this.occupied = [];
+    this.scriptObjects = {};
     let darknessAreas = [];
     for (let x = 0; x < this.width; x++) {
       let row = [];
@@ -107,6 +108,9 @@ class World {
           radius = 4;
         darknessAreas.push({x: x, y: y, width: width, height: height, radius: radius});
       }
+      let scriptName = getProp(obj, "ScriptName");
+      if (scriptName != "")
+        this.scriptObjects[scriptName] = this.objects.at(-1);
     }
     this.vision = new PlayerVision(darknessAreas, this);
     for (let n = 0; n < objects.length; n++) {
@@ -121,6 +125,7 @@ class World {
       }
     }
     this.hints = ["Трава", "Вода", "Утоптанная земля", "Дремучий лес", "Камень", "Горные породы"];
+    this.script = new IntroMapScript(this);
   }
 
   nextTurn(forced) {
@@ -136,6 +141,7 @@ class World {
     });
     this.removeDeadObjects();
     this.vision.recalculateLocalVisibility();
+    this.script.nextTurn(forced);
   }
 
   isPassable(x, y) {
@@ -187,20 +193,37 @@ class ManaBottle {
   onContact(player) {
     this.dead = true;
     dialogUI.addMessage("+10 макс.мана", systemMessageSpeaker);
-    if (player.stats.mana == 0)
-      dialogUI.addMessage("На вкус жидкость тоже синяя. Не знаю, как это работает", speaker1);
     player.stats.mana += 10;
-    if (player.stats.mana == 50) {
-      dialogUI.addMessage("Кажется, пора вспоминать, чему меня учили в университете", speaker1);  
-      dialogUI.addMessage('Доступно заклинание "Создать камень"', systemMessageSpeaker);
-      dialogUI.addMessage('Кликните мышкой на клетку рядом с собой, чтобы использовать', systemMessageSpeaker);
-    }
     player.mana += 3;
   }
   draw(ctx, x, y) {
     if (manaImage.complete)
       ctx.drawImage(manaImage, x, y);
   }
+};
+
+class Message {
+  constructor(message, x, y, w, h) {
+    this.message = message;
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+  }
+  hasContact(x, y) {
+    return x >= this.x && y >= this.y && x < this.x + this.w && y < this.y + this.h;
+  }
+  onContact(player) {
+    dialogUI.addMessage(this.message, speaker1);
+    this.dead = true;
+  }
+  draw(ctx, x, y) {
+    let drawAI = false;
+    if (drawAI) {
+      ctx.strokeStyle = "black";
+      ctx.strokeRect(x, y, this.w * tileSize, this.h * tileSize);
+    }
+  }  
 };
 
 class DecorativeObject {
@@ -243,15 +266,20 @@ class BigScaryObject {
     this.zeroX = getProp(obj, "ZeroX");
     this.zeroY = getProp(obj, "ZeroY");
     this.hint = obj.name;
-    this.rotation = 0;
+    this.pixelX = new SmoothlyChangingNumber(this.x * tileSize);
+    this.pixelY = new SmoothlyChangingNumber(this.y * tileSize);
+    this.rotation = new SmoothlyChangingNumber(0);
     this.visualR = halfViewInTiles; // TODO - can be estimated better
   }
   draw(ctx, x, y) {
     if (this.image && this.image.complete) {
-      if (this.rotation) {
+      x += this.pixelX.get() - this.x * tileSize;
+      y += this.pixelY.get() - this.y * tileSize;
+      let rotation = this.rotation.get();
+      if (rotation) {
         ctx.save();
         ctx.translate(x, y);
-        ctx.rotate(this.rotation * Math.PI/180);
+        ctx.rotate(rotation * Math.PI/180);
         ctx.drawImage(this.image, -this.zeroX, -this.zeroY);
         ctx.restore();
       } else {
@@ -269,11 +297,6 @@ class BigScaryObject {
     if (this.y - this.visualR >= offset.y + viewInTiles)
       return false;
     return true;
-  }
-  nextTurn() {
-    this.rotation += 3;
-    if (this.rotation > 30)
-      this.rotation = -30;
   }
 };
 
@@ -311,14 +334,34 @@ function dist2(x1, y1, x2, y2) {
   return dx*dx + dy*dy;
 }
 
+class SmoothlyChangingNumber {
+  constructor(x) {
+      this.val = x;
+      this.target = x;
+      this.timeAtVal = 0;
+      this.timeAtTarget = 0;
+  }
+  set(target, delay) {
+      this.val = this.get();
+      this.target = target;
+      this.timeAtVal = animations.globalTimer;
+      this.timeAtTarget = animations.globalTimer + delay;
+  }
+  get() {
+      if (animations.globalTimer > this.timeAtTarget)
+          return this.target;
+      return this.val + (this.target - this.val) * (animations.globalTimer - this.timeAtVal) / (this.timeAtTarget - this.timeAtVal);
+  }
+};
+
 class Mob {
   constructor(obj, x, y) {
     this.meObj = obj;
     this.hint = obj.name;
     this.x = x;
     this.y = y;
-    this.prevX = x;
-    this.prevY = y;
+    this.pixelX = new SmoothlyChangingNumber(x * tileSize);
+    this.pixelY = new SmoothlyChangingNumber(y * tileSize);
 
     this.rules = getProp(obj, "Rules");
     if (this.rules) {
@@ -337,12 +380,8 @@ class Mob {
   }
 
   draw(ctx, x, y) {
-    let moveTime = animations.globalTimer - this.moveTime;
-    let rate = moveTime / 1.0;
-    if (rate < 1) {
-      x += (this.prevX - this.x) * tileSize * (1 - rate);
-      y += (this.prevY - this.y) * tileSize * (1 - rate);
-    }
+    x += this.pixelX.get() - this.x * tileSize;
+    y += this.pixelY.get() - this.y * tileSize;
     if (!this.dead && this.img && this.img.complete)
       ctx.drawImage(this.img, x, y);
     if (this.stats && this.hp < this.stats.hp)
@@ -396,10 +435,9 @@ class Mob {
       }
     }
     if (canMove) {
-      this.prevX = this.x;
-      this.prevY = this.y;
-      this.moveTime = animations.globalTimer;
       this.move(forced);
+      this.pixelX.set(this.x * tileSize, 1);
+      this.pixelY.set(this.y * tileSize, 1);
     }
   }
 
@@ -498,31 +536,6 @@ class Mob {
     }
   }
 }
-
-class Message {
-  constructor(message, x, y, w, h) {
-    this.message = message;
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
-  }
-  hasContact(x, y) {
-    return x >= this.x && y >= this.y && x < this.x + this.w && y < this.y + this.h;
-  }
-  onContact(player) {
-    dialogUI.addMessage(this.message, speaker1);
-    this.dead = true;
-  }
-  draw(ctx, x, y) {
-    let drawAI = false;
-    if (drawAI) {
-      ctx.strokeStyle = "black";
-      ctx.strokeRect(x, y, this.w * tileSize, this.h * tileSize);
-    }
-  }
-  
-};
 
 class Player {
   constructor() {
