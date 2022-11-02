@@ -44,6 +44,8 @@ function makeImageFor(obj) {
   return makeImage(imageName);
 }
 
+let drawAI = false;
+
 const TERRAIN_GRASS = 0;
 const TERRAIN_WATER = 1;
 const TERRAIN_SAND = 2;
@@ -130,14 +132,13 @@ class World {
 
   nextTurn(forced) {
     this.objects.forEach((obj) => {
-      if ('nextTurn' in obj) {
-        let occupiesPlace = 'occupy' in obj;
-        if (occupiesPlace)
-          obj.occupy(this.occupied, false);
-        obj.nextTurn(forced)
-        if (occupiesPlace && !obj.dead)
+      let occupiesPlace = 'occupy' in obj;
+      if (occupiesPlace)
+        obj.occupy(this.occupied, false);
+      if ('nextTurn' in obj)
+        obj.nextTurn(forced);
+      if (occupiesPlace && !obj.dead)
           obj.occupy(this.occupied, true);
-      }
     });
     this.removeDeadObjects();
     this.vision.recalculateLocalVisibility();
@@ -218,7 +219,6 @@ class Message {
     this.dead = true;
   }
   draw(ctx, x, y) {
-    let drawAI = false;
     if (drawAI) {
       ctx.strokeStyle = "black";
       ctx.strokeRect(x, y, this.w * tileSize, this.h * tileSize);
@@ -272,14 +272,16 @@ class BigScaryObject {
     this.visualR = halfViewInTiles; // TODO - can be estimated better
   }
   draw(ctx, x, y) {
+    let rotation = this.rotation.get() * Math.PI / 180;
+    this.sin = Math.sin(rotation);
+    this.cos = Math.cos(rotation);
     if (this.image && this.image.complete) {
       x += this.pixelX.get() - this.x * tileSize;
       y += this.pixelY.get() - this.y * tileSize;
-      let rotation = this.rotation.get();
       if (rotation) {
         ctx.save();
         ctx.translate(x, y);
-        ctx.rotate(rotation * Math.PI/180);
+        ctx.rotate(rotation);
         ctx.drawImage(this.image, -this.zeroX, -this.zeroY);
         ctx.restore();
       } else {
@@ -297,6 +299,12 @@ class BigScaryObject {
     if (this.y - this.visualR >= offset.y + viewInTiles)
       return false;
     return true;
+  }
+  toWorldX(pixelX, pixelY) {
+    return this.pixelX.get() + pixelX * this.cos - pixelY * this.sin;
+  }
+  toWorldY(pixelX, pixelY) {
+    return this.pixelY.get() + pixelX * this.sin + pixelY * this.cos;
   }
 };
 
@@ -568,7 +576,7 @@ class Player {
     return true;
   }
 
-  tryCast(targetX, targetY) {
+  tryCast(targetX, targetY, spell) {
     if (this.stats.mana < 50)
       return; // casting is not opened yet
     let dx = targetX - this.x;
@@ -578,7 +586,7 @@ class Player {
       animations.add(new SystemMessage(0.5, "Не хватает маны"), player);
       return;
     }
-    if (dx <= 2 && dx >= -2 && dy <= 2 && dy >= -2) { // add test Bullet animation
+    if (dx <= 2 && dx >= -2 && dy <= 2 && dy >= -2) {
       const duration = 0.3
       const direction = { x: dx * tileSize, y: dy * tileSize }
       animations.add(new Bullet(direction, duration), this);
@@ -587,6 +595,7 @@ class Player {
         let tile = world.terrain[targetX][targetY];
         if (tile != TERRAIN_DARK_FOREST && tile != TERRAIN_STONE_WALL)
           world.terrain[targetX][targetY] = TERRAIN_STONE;
+        world.script.onCast(targetX, targetY, spell);
       }, 300);
     }  
   }
@@ -662,6 +671,7 @@ class Player {
       let deathMessage = randomFrom(this.stats.deathMessages);
       animations.add(new FadeToBlack(3, deathMessage), player)
       setTimeout(() => {
+        world.occupied[this.x][this.y] = null;
         this.x = 0;
         this.y = 0;
         this.hp = 1;

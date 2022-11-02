@@ -71,16 +71,27 @@ function drawWorld(ctx, offset, world) {
         drawObj(ctx, offset, obj)
     });
     // draw darkness
+    ctx.fillStyle = 'black';
     for (let dx = 0; dx < viewInTiles; dx++) {
         for (let dy = 0; dy < viewInTiles; dy++) {
             let x = offset.x+dx;
             let y = offset.y+dy;
-            if (!world.vision.isVisible(x, y)) {
-                ctx.fillStyle = 'black';
+            if (!world.vision.isVisible(x, y))
                 ctx.fillRect(dx*tileSize, dy*tileSize, tileSize, tileSize);
-            }
         }
     }    
+    //draw AI
+    if (drawAI) {
+        ctx.fillStyle = 'rgba(255, 0, 0, 0.25)';
+        for (let dx = 0; dx < viewInTiles; dx++) {
+            for (let dy = 0; dy < viewInTiles; dy++) {
+                let x = offset.x+dx;
+                let y = offset.y+dy;
+                if (!world.isPassable(x, y))
+                    ctx.fillRect(dx*tileSize, dy*tileSize, tileSize, tileSize);
+            }
+        }    
+    }
 };
 
 function drawTooltip(ctx, offset, tileUnderCursor) {

@@ -362,7 +362,7 @@ canvas.onclick = function clickEvent(e) {
   tileUnderCursor.hideTooltip();
   if (goals.onclick(e))
     return;
-  player.tryCast(tileUnderCursor.x, tileUnderCursor.y)
+  player.tryCast(tileUnderCursor.x, tileUnderCursor.y, "stone")
 }
 
 addEventListener("keyup", function(event) {
@@ -378,11 +378,6 @@ addEventListener("keyup", function(event) {
     player.tryMove(0,1);
   if (event.key == "f")
     animations.add(new FadeToBlack(4, "Тем временем..."), player);
-  if (event.key == "s") {
-    let person = player.x % 3;
-    if (person == 0)
-      dialogUI.addMessage("О, привет", speaker1);
-    else if (person == 1)
-      dialogUI.addMessage("И тебе привет, как там погодка в городе", speaker2);
-  }
+  if (event.key == "`")
+    drawAI = !drawAI;
 });

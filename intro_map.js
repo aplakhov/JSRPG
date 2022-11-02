@@ -743,12 +743,17 @@
                          "name":"Image",
                          "type":"string",
                          "value":"chest"
+                        }, 
+                        {
+                         "name":"ScriptName",
+                         "type":"string",
+                         "value":"treasure"
                         }],
                  "rotation":0,
                  "visible":true,
                  "width":0,
-                 "x":270,
-                 "y":2929
+                 "x":240,
+                 "y":2806
                 }, 
                 {
                  "class":"DecorativeObject",
@@ -1453,7 +1458,7 @@
                         {
                          "name":"Image",
                          "type":"string",
-                         "value":"dragon"
+                         "value":"sleeping_dragon"
                         }, 
                         {
                          "name":"ScriptName",
@@ -1482,7 +1487,7 @@
          "x":0,
          "y":0
         }],
- "nextlayerid":3,
+ "nextlayerid":4,
  "nextobjectid":91,
  "orientation":"orthogonal",
  "renderorder":"left-down",
