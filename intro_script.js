@@ -49,6 +49,7 @@ class IntroMapScript {
             [1, 1, 1, 1, 1, 1, 1, 0, 0],
             [1, 1, 0, 1, 1, 0, 0, 0, 0],
         ];
+        dragon.hint = "Горные породы";
     }
     nextTurn(forced) {
         executeTriggers(this.triggers);
@@ -57,12 +58,16 @@ class IntroMapScript {
         if (!dragon.awake && player.x == world.scriptObjects.treasure.x && player.y == world.scriptObjects.treasure.y) {
             dragon.awake = true;
             dragon.image = dragon.awakeImage;
+            dragon.hint = "Дракон";
             dragon.x += 2;
             dragon.pixelX.set(dragon.pixelX.get() + 64, 1);
             fire.emitters.push((particles, offset) => {
                 addSmokeParticle(dragon, 6*tileSize - 4, tileSize - 4, particles, offset);
                 addSmokeParticle(dragon, 6*tileSize - 4, - tileSize + 4, particles, offset);
             });
+            dragon.onContact = (player) => {
+                player.applyDamage(10000);
+            }
             const dragonSpeaker = {
                 color: "rgb(252, 221, 118)",
                 bgColor: "rgb(0, 0, 0)",
@@ -78,8 +83,6 @@ class IntroMapScript {
             let rotation = Math.atan2(player.y - dragon.y + 0.5, player.x - dragon.x + 0.5);
             rotation *= 180 / Math.PI;
             dragon.rotation.set(rotation, 0.5);
-            if (player.x == world.scriptObjects.treasure.x - 1 && player.y == world.scriptObjects.treasure.y)
-                player.applyDamage(10000);
         }
     }
     onCast(targetX, targetY, spell) {
@@ -87,6 +90,16 @@ class IntroMapScript {
             this.castTriggerDone = true;
             dialogUI.addMessage("БАТУ ДАТАНГ!", speaker1);
             dialogUI.addMessage("Я вообще-то больше люблю вызывать огонь. Но после экзамена всё, кроме БАТУ ДАТАНГ, сразу забыл", speaker1);
+        }
+    }
+    onPlayerDeath() {
+        let dragon = world.scriptObjects.dragon;
+        if (dragon.awake) {
+            dragon.awake = false;
+            dragon.image = dragon.sleepingImage;
+            dragon.rotation.set(0, 3);
+            dragon.x -= 2;
+            dragon.pixelX.set(dragon.pixelX.get() - 64, 3);       
         }
     }
 };
