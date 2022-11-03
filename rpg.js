@@ -20,8 +20,8 @@ rpg = {
         aggroRadius: 5,
         enemy: true,
         speaker: {
-            color: "rgb(58, 81, 0)",
-            bgColor: "rgb(255, 255, 255)",
+            color: "rgb(10, 10, 10)",
+            bgColor: "rgb(179, 188, 157)",
             font: '18px sans-serif',
             portraits: [
                 "goblin_portrait",
