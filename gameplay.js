@@ -61,19 +61,15 @@ class World {
     this.width = map.width;
     this.terrain = [];
     this.objects = [];
-    this.occupied = [];
     this.scriptObjects = {};
     let darknessAreas = [];
     for (let x = 0; x < this.width; x++) {
       let row = [];
-      let emptyRow = [];
       for (let y = 0; y < this.height; y++) {
         let tile = data[x + y * this.width] - 1
         row.push(tile)
-        emptyRow.push(null)
       }
       this.terrain.push(row)
-      this.occupied.push(emptyRow)
     }
     let objects = map["layers"][1]["objects"];
     let halfTileSize = tileSize / 2;
@@ -87,13 +83,8 @@ class World {
         this.objects.push(new ManaBottle(x,y));
       if (obj.class == "Bones")
         this.objects.push(new DecorativeObject(obj, x, y, bonesImage));
-      if (obj.class == "DecorativeObject") {
-        let gameObj = new DecorativeObject(obj, x, y, makeImageFor(obj));
-        this.objects.push(gameObj);
-        let occupiesPlace = 'occupy' in gameObj;
-        if (occupiesPlace)
-          gameObj.occupy(this.occupied, true);
-      }
+      if (obj.class == "DecorativeObject")
+        this.objects.push(new DecorativeObject(obj, x, y, makeImageFor(obj)));
       if (obj.class == "BigScaryObject")
         this.objects.push(new BigScaryObject(obj, x, y));
       if (obj.class == "Mob")
@@ -114,6 +105,8 @@ class World {
       if (scriptName != "")
         this.scriptObjects[scriptName] = this.objects.at(-1);
     }
+    this.pathfinding = new Pathfinding(this);
+    this.pathfinding.recalculateOccupiedTiles(this.objects);
     this.vision = new PlayerVision(darknessAreas, this);
     for (let n = 0; n < objects.length; n++) {
       let obj = objects[n]
@@ -131,36 +124,16 @@ class World {
   }
 
   nextTurn(forced) {
-    this.objects.forEach((obj) => {
-      let occupiesPlace = 'occupy' in obj;
-      if (occupiesPlace)
-        obj.occupy(this.occupied, false);
-      if ('nextTurn' in obj)
-        obj.nextTurn(forced);
-      if (occupiesPlace && !obj.dead)
-          obj.occupy(this.occupied, true);
-    });
-    this.removeDeadObjects();
+    if (Math.random() < 0.8) {
+      this.objects.forEach((obj) => {
+        if ('nextTurn' in obj)
+          obj.nextTurn(forced);
+      });
+      this.removeDeadObjects();
+    }
     this.vision.recalculateLocalVisibility();
+    this.pathfinding.recalculateOccupiedTiles(this.objects);
     this.script.nextTurn(forced);
-  }
-
-  isPassable(x, y) {
-    if (x < 0 || x >= this.width || y < 0 || y >= this.height)
-      return false;
-    if (this.occupied[x][y])
-      return false;
-    let tile = this.terrain[x][y];
-    return tile != TERRAIN_WATER && tile != TERRAIN_DARK_FOREST && tile != TERRAIN_STONE_WALL;
-  }
-
-  isPassableForFish(x, y) {
-    if (x < 0 || x >= this.width || y < 0 || y >= this.height)
-      return false;
-    if (this.occupied[x][y])
-      return false;
-    let tile = this.terrain[x][y];
-    return tile == TERRAIN_WATER;
   }
 
   isOccluded(x, y) {
@@ -171,6 +144,9 @@ class World {
   hint(x, y) {
     if (x == player.x && y == player.y)
       return "Боб"
+    let gameObj = this.pathfinding.isOccupied(x,y);
+    if (gameObj != null && gameObj.hint)
+        return gameObj.hint;
     for (let n = 0; n < this.objects.length; ++n) {
       let o = this.objects[n];
       if (x == o.x && y == o.y && o.hint)
@@ -235,8 +211,8 @@ class DecorativeObject {
     this.y = y;
     this.image = image;
     if (getProp(obj, "Blocker") != "") {
-      this.occupy = (occupied, on) => {
-        occupied[this.x][this.y] = on? this : null;
+      this.occupy = (pathfinding) => {
+        pathfinding.occupyTile(this, this.x, this.y);
       }
     }
   }
@@ -255,56 +231,6 @@ class DecorativeObject {
   draw(ctx, x, y) {
     if (this.image && this.image.complete)
       ctx.drawImage(this.image, x, y);
-  }
-};
-
-class BigScaryObject {
-  constructor(obj, x, y) {
-    this.x = x;
-    this.y = y;
-    this.image = makeImageFor(obj);
-    this.zeroX = getProp(obj, "ZeroX");
-    this.zeroY = getProp(obj, "ZeroY");
-    this.hint = obj.name;
-    this.pixelX = new SmoothlyChangingNumber(this.x * tileSize);
-    this.pixelY = new SmoothlyChangingNumber(this.y * tileSize);
-    this.rotation = new SmoothlyChangingNumber(0);
-    this.visualR = halfViewInTiles; // TODO - can be estimated better
-  }
-  draw(ctx, x, y) {
-    let rotation = this.rotation.get() * Math.PI / 180;
-    this.sin = Math.sin(rotation);
-    this.cos = Math.cos(rotation);
-    if (this.image && this.image.complete) {
-      x += this.pixelX.get() - this.x * tileSize;
-      y += this.pixelY.get() - this.y * tileSize;
-      if (rotation) {
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.rotate(rotation);
-        ctx.drawImage(this.image, -this.zeroX, -this.zeroY);
-        ctx.restore();
-      } else {
-        ctx.drawImage(this.image, x - this.zeroX, y - this.zeroY);
-      }
-    }
-  }
-  isVisible(offset) {
-    if (this.x + this.visualR < offset.x)
-      return false;
-    if (this.y + this.visualR < offset.y)
-      return false;
-    if (this.x - this.visualR >= offset.x + viewInTiles)
-      return false;
-    if (this.y - this.visualR >= offset.y + viewInTiles)
-      return false;
-    return true;
-  }
-  toWorldX(pixelX, pixelY) {
-    return this.pixelX.get() + pixelX * this.cos - pixelY * this.sin;
-  }
-  toWorldY(pixelX, pixelY) {
-    return this.pixelY.get() + pixelX * this.sin + pixelY * this.cos;
   }
 };
 
@@ -396,8 +322,8 @@ class Mob {
       drawHPbar(ctx, this.hp, this.stats.hp, x, y)
   }
 
-  occupy(occupied, on) {
-    occupied[this.x][this.y] = on? this : null;
+  occupy(pathfinding) {
+    pathfinding.occupyTile(this, this.x, this.y);
   }
 
   applyDamage(dmg) {
@@ -444,6 +370,7 @@ class Mob {
     }
     if (canMove) {
       this.move(forced);
+      this.occupy(world.pathfinding);
       this.pixelX.set(this.x * tileSize, 1);
       this.pixelY.set(this.y * tileSize, 1);
     }
@@ -478,7 +405,7 @@ class Mob {
     else
       nexty -= 1;
     let insideRoaming = dist2(nextx, nexty, this.startingX, this.startingY) <= this.roamRadius * this.roamRadius;
-    if (world.isPassable(nextx, nexty) && insideRoaming) {
+    if (world.pathfinding.isPassable(nextx, nexty, this) && insideRoaming) {
       this.x = nextx;
       this.y = nexty;
     }
@@ -497,14 +424,14 @@ class Mob {
     else if (player.y > this.y)
         nexty += 1;
     if (dx > dy) {
-      if (world.isPassable(nextx, this.y))
+      if (world.pathfinding.isPassable(nextx, this.y, this))
         this.x = nextx;
-      else if (world.isPassable(this.x, nexty))
+      else if (world.pathfinding.isPassable(this.x, nexty, this))
         this.y = nexty;
     } else {
-      if (world.isPassable(this.x, nexty))
+      if (world.pathfinding.isPassable(this.x, nexty, this))
         this.y = nexty;
-      else if (world.isPassable(nextx, this.y))
+      else if (world.pathfinding.isPassable(nextx, this.y, this))
         this.x = nextx;
     }
   }
@@ -513,7 +440,7 @@ class Mob {
     if (forced && !this.aggred)
       return;
     if (this.rules == "goblin") {
-      if (world.isPassable(this.x, this.y)) {
+      if (world.pathfinding.isPassable(this.x, this.y, this)) {
         if (this.aggred)
           this.moveTowardsPlayer();
         else
@@ -523,7 +450,7 @@ class Mob {
       }
     }
     if (this.rules == "fish") {
-      if (world.isPassableForFish(this.x, this.y)) {
+      if (world.pathfinding.isPassableForFish(this.x, this.y, this)) {
         let dx = 0, dy = 0;
         let r = Math.random();
         if (r < 0.25)
@@ -534,7 +461,7 @@ class Mob {
           dy = 1;
         else
           dy = -1;
-        if (world.isPassableForFish(this.x + dx, this.y + dy)) {
+        if (world.pathfinding.isPassableForFish(this.x + dx, this.y + dy, this)) {
           this.x += dx;
           this.y += dy;
         }
@@ -558,10 +485,8 @@ class Player {
   tryMove(dx, dy) {
     const newx = this.x + dx;
     const newy = this.y + dy;
-    if (!world.isPassable(newx, newy))
+    if (!world.pathfinding.isPassable(newx, newy, this))
       return false;
-    world.occupied[this.x][this.y] = null;
-    world.occupied[newx][newy] = this;
     this.x = newx;
     this.y = newy;
     for (let n = 0; n < world.objects.length; n++) {
@@ -571,8 +496,7 @@ class Player {
       else if (obj.x == this.x && obj.y == this.y)
         obj.onContact(this)
     }
-    if (Math.random() < 0.8)
-      world.nextTurn(true)
+    world.nextTurn(true)
     return true;
   }
 
@@ -601,6 +525,10 @@ class Player {
   }
 
   draw(ctx, x, y) {
+    if (this.hp <= 0) {
+      ctx.drawImage(bonesImage, x, y);
+      return;
+    }
     if (this.img.complete)
       ctx.drawImage(this.img, x, y);
     if (this.sword && this.sword.img)
@@ -669,9 +597,9 @@ class Player {
     this.hp -= dmg;
     if (this.hp <= 0) {
       let deathMessage = randomFrom(this.stats.deathMessages);
-      animations.add(new FadeToBlack(3, deathMessage), player)
+      animations.add(new FadeToBlack(3, deathMessage), player);
+      world.script.onPlayerDeath();
       setTimeout(() => {
-        world.occupied[this.x][this.y] = null;
         this.x = 0;
         this.y = 0;
         this.hp = 1;

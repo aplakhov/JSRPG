@@ -27,7 +27,7 @@ class PlayerVision {
         for (let n = 0; n < 6; n++) {
           for (let x = 1; x + 1 < world.width; x++) {
             for (let y = 1; y + 1 < world.height; y++) {
-              if (this.visibilityRadius[x][y] >= 8 || !world.isPassable(x, y))
+              if (this.visibilityRadius[x][y] >= 8 || !world.pathfinding.isPassable(x, y, null))
                 continue;
               this.fixVisibility(x, y, -1, 0, world);
               this.fixVisibility(x, y, 1, 0, world);
@@ -39,7 +39,8 @@ class PlayerVision {
     }
 
     fixVisibility(x, y, dx, dy, world) {
-        if (this.visibilityRadius[x][y] < this.visibilityRadius[x + dx][y + dy] - 1 && world.isPassable(x + dx, y + dy))
+        if (this.visibilityRadius[x][y] < this.visibilityRadius[x + dx][y + dy] - 1
+          && world.pathfinding.isPassable(x + dx, y + dy, this))
             this.visibilityRadius[x][y]++;
     }
 

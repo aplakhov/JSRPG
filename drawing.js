@@ -87,7 +87,7 @@ function drawWorld(ctx, offset, world) {
             for (let dy = 0; dy < viewInTiles; dy++) {
                 let x = offset.x+dx;
                 let y = offset.y+dy;
-                if (!world.isPassable(x, y))
+                if (!world.pathfinding.isPassable(x, y, null))
                     ctx.fillRect(dx*tileSize, dy*tileSize, tileSize, tileSize);
             }
         }    
