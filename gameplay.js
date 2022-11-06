@@ -169,7 +169,7 @@ class ManaBottle {
   }
   onContact(player) {
     this.dead = true;
-    dialogUI.addMessage("+10 макс.мана", systemMessageSpeaker);
+    dialogUI.addMessage("+10 макс.мана", systemMessageSpeaker, player);
     player.stats.mana += 10;
     player.mana += 3;
   }
@@ -191,7 +191,7 @@ class Message {
     return x >= this.x && y >= this.y && x < this.x + this.w && y < this.y + this.h;
   }
   onContact(player) {
-    dialogUI.addMessage(this.message, speaker1);
+    dialogUI.addMessage(this.message, speaker1, player);
     this.dead = true;
   }
   draw(ctx, x, y) {
@@ -218,7 +218,7 @@ class DecorativeObject {
   }
   onContact(player) {
     if (this.foundMessage) {
-      dialogUI.addMessage(this.foundMessage, speaker1);
+      dialogUI.addMessage(this.foundMessage, speaker1, player);
       this.foundMessage = null;
     }
     if (this.inventoryItem) {
@@ -296,6 +296,7 @@ class Mob {
     this.y = y;
     this.pixelX = new SmoothlyChangingNumber(x * tileSize);
     this.pixelY = new SmoothlyChangingNumber(y * tileSize);
+    this.zLayer = 1;
 
     this.rules = getProp(obj, "Rules");
     if (this.rules) {
@@ -338,7 +339,7 @@ class Mob {
 
   die() {
     this.dead = true;
-    dialogUI.addMessage(getProp(this.meObj, "DeathComment"), speaker1)
+    dialogUI.addMessage(getProp(this.meObj, "DeathComment"), speaker1, player)
     let loot = getProp(this.meObj, "Loot");
     if (loot == "ManaBottle")
       world.objects.push(new ManaBottle(this.x, this.y));
@@ -388,7 +389,7 @@ class Mob {
           portrait: makeImage(randomNoRepeatFrom(this.stats.speaker.portraits))    
         };
         if (msg && speaker.portrait)
-          dialogUI.addMessage(msg, speaker);
+          dialogUI.addMessage(msg, speaker, this);
       }
     }
   }
@@ -572,11 +573,11 @@ class Player {
       itemRpg.img = makeImage(itemRpg.equip_img);
       this[itemRpg.type] = itemRpg;
       if (itemRpg.message)
-        dialogUI.addMessage(itemRpg.message, speaker1);
+        dialogUI.addMessage(itemRpg.message, speaker1, player);
       return true;
     } else {
       if (itemRpg.reject)
-        dialogUI.addMessage(itemRpg.reject, speaker1);
+        dialogUI.addMessage(itemRpg.reject, speaker1, player);
       return false;
     }
   }
@@ -596,15 +597,7 @@ class Player {
       return;
     this.hp -= dmg;
     if (this.hp <= 0) {
-      let deathMessage = randomFrom(this.stats.deathMessages);
-      animations.add(new FadeToBlack(3, deathMessage), player);
       world.script.onPlayerDeath();
-      setTimeout(() => {
-        this.x = 0;
-        this.y = 0;
-        this.hp = 1;
-        this.mana = 1;
-      }, 1000);
     }
   }
 

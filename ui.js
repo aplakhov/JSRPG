@@ -71,16 +71,6 @@ function updateTileUnderCursor(mouseEvent) {
   tileUnderCursor.set(tileX, tileY);
 };
 
-function roundedRect(ctx, x, y, width, height, radius) {
-  ctx.beginPath();
-  ctx.moveTo(x, y + radius);
-  ctx.arcTo(x, y + height, x + radius, y + height, radius);
-  ctx.arcTo(x + width, y + height, x + width, y + height - radius, radius);
-  ctx.arcTo(x + width, y, x + width - radius, y, radius);
-  ctx.arcTo(x, y, x, y + radius, radius);
-  ctx.fill();
-}
-
 class DialogUI {
     constructor(ctx, left, top, width, height, padding) {
       this.ctx = ctx;
@@ -101,46 +91,36 @@ class DialogUI {
 
     addMessageImpl(text, color, bgColor, font, portrait) {
       if (text == "")
-        return;
+        return false;
       for (let n = this.messages.length - 1; n >= 0; n--) {
         let oldMessage = this.messages[n];
         if (text == oldMessage.text && portrait && portrait.src == oldMessage.portrait.src)
-          return; 
+          return false; 
       }
-      let words = text.split(" ");
-      let countWords = words.length;
-      let lines = [];
-      let line = "";
-      this.ctx.font = font;
-      for (let n = 0; n < countWords; n++) {
-        let testLine = line + words[n] + " ";
-        let testWidth = this.ctx.measureText(testLine).width;
-        if (testWidth > this.maxTextWidth) {
-            lines.push(line)
-            line = words[n] + " ";
-        } else {
-          line = testLine;
-        }
-      }
-      lines.push(line);
-      this.messages.push({
-        text: text,
-        lines: lines,
-        color: color,
-        bgColor: bgColor,
-        font: font,
-        lineHeight: this.lineHeight,
-        portrait: portrait
-      });
-      this.lastMessageAdded = Date.now() / 1000. 
+      let message = new Utterance(this.ctx, text, this.maxTextWidth, color, bgColor, font, this.lineHeight, this.padding);
+      message.portrait = portrait;
+      this.messages.push(message);
+      this.lastMessageAdded = Date.now() / 1000.;
+      return true;
     }
 
     forceRedraw() {
       this.redraw = true;
     }
 
-    addMessage(text, speaker) {
-      this.addMessageImpl(text, speaker.color, speaker.bgColor, speaker.font, speaker.portrait);
+    addMessage(text, speaker, baseTile) {
+      if (!this.addMessageImpl(text, speaker.color, speaker.bgColor, speaker.font, speaker.portrait))
+        return;
+      if (baseTile) {
+        for (let n = 0; n < animations.animations.length; n++) {
+          let oldAnim = animations.animations[n];
+          if (oldAnim instanceof DialogMessages && oldAnim.baseTile == baseTile) {
+            oldAnim.addMessage(ctx, text, speaker);
+            return;
+          }
+        }
+        animations.add(new DialogMessages(ctx, text, speaker), baseTile);
+      }
     }
 
     draw() {
@@ -158,15 +138,10 @@ class DialogUI {
 
       for (let n = this.messages.length - 1; n >= 0; n--) {
         let msg = this.messages[n];
-        let textBoxHeight = msg.lineHeight * msg.lines.length + msg.lineHeight/2;
-        // last message animation
         if (n == this.messages.length - 1) {
           if (timeFromLastMessage < 0.3)
-            bottomOfMessage += (0.3 - timeFromLastMessage) * 3.33 * textBoxHeight;
+            bottomOfMessage += (0.3 - timeFromLastMessage) * 3.33 * msg.textBoxHeight;
         }
-
-        this.ctx.fillStyle = msg.bgColor;
-
         if (msg.portrait && msg.portrait != oldPortrait && msg.portrait.complete) {
           if (bottomOfMessage > oldPortraitTop - this.padding)
             bottomOfMessage = oldPortraitTop - this.padding;
@@ -174,19 +149,11 @@ class DialogUI {
           oldPortrait = msg.portrait;
           oldPortraitTop = bottomOfMessage - this.portraitSize;
         }
-
         let textBoxLeft = this.left + this.portraitSize + 2 * this.padding;
-        let textBoxTop = bottomOfMessage - textBoxHeight;
-        roundedRect(this.ctx, textBoxLeft, textBoxTop,
-          this.maxTextWidth + 2 * this.padding, textBoxHeight, 6);
-        this.ctx.fillStyle = msg.color;
-        this.ctx.font = msg.font;
-        for (let l = 0; l < msg.lines.length; l++) {
-          let line = msg.lines[l];
-          this.ctx.fillText(line, textBoxLeft + this.padding, textBoxTop + (l + 1) * msg.lineHeight);
-        }
+        let textBoxTop = bottomOfMessage - msg.textBoxHeight;
+        msg.draw(this.ctx, textBoxLeft, textBoxTop, this.maxTextWidth, false);
 
-        bottomOfMessage -= textBoxHeight;        
+        bottomOfMessage -= msg.textBoxHeight;
         bottomOfMessage -= this.distBetweenMessages;
         if (bottomOfMessage <= 0)
           return;
@@ -217,7 +184,7 @@ const speaker2 = {
   portrait: portrait2
 };
 const systemMessageSpeaker = {
-  color: "rgb(0, 0, 0)",
+  color: "rgb(140, 104, 20)",
   bgColor: "rgb(240, 214, 175)",
   font: '18px sans-serif',
   portrait: null

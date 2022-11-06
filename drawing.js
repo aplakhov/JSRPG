@@ -68,7 +68,17 @@ function drawWorld(ctx, offset, world) {
     }
     // draw objects
     world.objects.forEach((obj) => {
-        drawObj(ctx, offset, obj)
+        if (!obj.zLayer)
+            drawObj(ctx, offset, obj)
+    });
+    player.draw(ctx, (player.x-offset.x)*tileSize, (player.y-offset.y)*tileSize);
+    world.objects.forEach((obj) => {
+        if (obj.zLayer == 1)
+            drawObj(ctx, offset, obj)
+    });
+    world.objects.forEach((obj) => {
+        if (obj.zLayer == 2)
+            drawObj(ctx, offset, obj)
     });
     // draw darkness
     ctx.fillStyle = 'black';
@@ -100,13 +110,13 @@ function drawTooltip(ctx, offset, tileUnderCursor) {
     let left = (tileUnderCursor.x-offset.x+0.5)*tileSize;
     let top = (tileUnderCursor.y-offset.y+0.5)*tileSize;
     let text = world.hint(tileUnderCursor.x, tileUnderCursor.y);
-    let textWidth = ctx.measureText(text).width;
-    let padding = 5;
-    ctx.fillStyle = "white"
-    ctx.fillRect(left, top - tileSize, textWidth + 2 * padding, 24);
-    ctx.fillStyle = "black"
-    ctx.font = "18px sans-serif"
-    ctx.fillText(text, left + padding, top - 14);
+
+    const maxWidth = 320;
+    const lineHeight = 24;
+    const padding = 5;
+    let u = new Utterance(ctx, text, maxWidth, systemMessageSpeaker.color,
+        systemMessageSpeaker.bgColor, systemMessageSpeaker.font, lineHeight, padding);
+    u.draw(ctx, left - u.textBoxWidth/2, top - tileSize, 0, true);
 }
 
 function isVisible(x, y, offset) {
@@ -149,9 +159,11 @@ class Animations {
         let halfTileSize = tileSize / 2;
         let newAnimations = [];
         this.animations.forEach((anim) => {
+            let x = ('pixelX' in anim.baseTile)? anim.baseTile.pixelX.get() : anim.baseTile.x * tileSize;
+            let y = ('pixelY' in anim.baseTile)? anim.baseTile.pixelY.get() : anim.baseTile.y * tileSize;
             let offsetInPixels = { 
-                x: (anim.baseTile.x - offsetInTiles.x) * tileSize + halfTileSize, 
-                y: (anim.baseTile.y - offsetInTiles.y) * tileSize + halfTileSize
+                x: x - offsetInTiles.x * tileSize + halfTileSize, 
+                y: y - offsetInTiles.y * tileSize + halfTileSize
             }
             let finished = anim.draw(ctx, offsetInPixels, this.globalTimer - anim.startTime);
             if (!finished)
@@ -193,18 +205,28 @@ class SystemMessage {
         let measurement = ctx.measureText(this.text);
         let x = tileSize * halfViewInTiles - measurement.width/2;
         let y = 60;
-        ctx.fillStyle = `white`;
-        //ctx.fillRect(x - 5, y - 24, measurement.width + 10, 32);
-        //ctx.fillStyle = `black`;
+        ctx.fillStyle = "black";
+        ctx.fillText(this.text, x-1, y);
+        ctx.fillText(this.text, x+1, y);
+        ctx.fillText(this.text, x, y-1);
+        ctx.fillText(this.text, x, y+1);
+        ctx.fillStyle = "white";
         ctx.fillText(this.text, x, y);
         return false;
     }
 }
 
 class FadeToBlack {
-    constructor(duration, text) {
+    constructor(duration, text1, text2) {
         this.duration = duration;
-        this.text = text;
+        this.text1 = text1;
+        this.text2 = text2;
+    }
+
+    _draw(ctx, y, text) {
+        let measurement = ctx.measureText(text);
+        let x = tileSize * halfViewInTiles - measurement.width/2;
+        ctx.fillText(text, x, y);
     }
 
     draw(ctx, offsetInPixels, time) {
@@ -220,22 +242,110 @@ class FadeToBlack {
 
         ctx.fillStyle = `rgba(200, 200, 180, ${rate})`;
         ctx.font = '24px sans-serif';
-        let measurement = ctx.measureText(this.text);
-        let x = tileSize * halfViewInTiles - measurement.width/2;
         let y = tileSize * halfViewInTiles - 12;
-        ctx.fillText(this.text, x, y);
+        this._draw(ctx, y, this.text1);
+        this._draw(ctx, y + 24, this.text2);
 
         return false;
     }
 };
 
+class Utterance {
+    constructor(ctx, text, maxTextWidth, color, bgColor, font, lineHeight, padding) {
+      this.text = text;
+      this.color = color;
+      this.bgColor = bgColor;
+      this.font = font;
+      this.lineHeight = lineHeight;
+      this.padding = padding;
+  
+      let words = text.split(" ");
+      this.lines = [];
+      let line = "";
+      ctx.font = font;
+      for (let n = 0; n < words.length; n++) {
+        let testLine = line + words[n] + " ";
+        let testWidth = ctx.measureText(testLine).width;
+        if (testWidth > maxTextWidth) {
+          this.lines.push(line)
+          line = words[n] + " ";
+        } else {
+          line = testLine;
+        }
+      }
+      this.lines.push(line);
+  
+      this.textBoxWidth = 0;
+      this.textBoxHeight = this.lineHeight * this.lines.length + this.lineHeight/2;
+      for (let n = 0; n < this.lines.length; n++) {
+        let w = ctx.measureText(this.lines[n]).width;
+        if (this.textBoxWidth < w)
+          this.textBoxWidth = w;
+      }
+    }
+  
+    _roundedRect(ctx, x, y, width, height, radius, doBorder) {
+      ctx.beginPath();
+      ctx.moveTo(x, y + radius);
+      ctx.arcTo(x, y + height, x + radius, y + height, radius);
+      ctx.arcTo(x + width, y + height, x + width, y + height - radius, radius);
+      ctx.arcTo(x + width, y, x + width - radius, y, radius);
+      ctx.arcTo(x, y, x, y + radius, radius);
+      ctx.fill();
+      if (doBorder)
+        ctx.stroke();
+    }
+  
+    draw(ctx, textBoxLeft, textBoxTop, fixedWidth, doBorder) {
+      ctx.fillStyle = this.bgColor;
+      ctx.strokeStyle = this.color;
+      let width = fixedWidth;
+      if (width < this.textBoxWidth)
+        width = this.textBoxWidth;
+      this._roundedRect(ctx, textBoxLeft, textBoxTop,
+        width + 2 * this.padding, this.textBoxHeight, 6, doBorder);
+      ctx.fillStyle = this.color;
+      ctx.font = this.font;
+      for (let l = 0; l < this.lines.length; l++)
+        ctx.fillText(this.lines[l], textBoxLeft + this.padding, textBoxTop + (l + 1) * this.lineHeight);
+    }
+}
+  
+class DialogMessages {
+    constructor(ctx, text, speaker) {
+        this.msgQueue = [];
+        this.addMessage(ctx, text, speaker);
+    }
+    addMessage(ctx, text, speaker) {
+        const maxWidth = 320;
+        const lineHeight = 24;
+        const padding = 5;
+        let u = new Utterance(ctx, text, maxWidth, speaker.color, speaker.bgColor, speaker.font, lineHeight, padding);
+        u.endTime = animations.globalTimer + (text.length + 80) / 40;
+        this.msgQueue.push(u);
+    }
+    draw(ctx, offsetInPixels, time) {
+        let y = offsetInPixels.y + 4;
+        for (let n = this.msgQueue.length - 1; n >= 0; n--) {
+            let msg = this.msgQueue[n];
+            if (msg.endTime < animations.globalTimer)
+                return n == this.msgQueue.length - 1;
+            let left = offsetInPixels.x - msg.textBoxWidth/2;
+            if (left < 0)
+                left = 0;
+            msg.draw(ctx, left, y - msg.textBoxHeight - 20, 0, true);
+            y -= msg.textBoxHeight + msg.padding;
+        }
+        return false;
+    }
+}
+
 setInterval( () => {
     const offset = canvasOffsetInTiles();
     drawWorld(ctx, offset, world);
-    player.draw(ctx, (player.x-offset.x)*tileSize, (player.y-offset.y)*tileSize);
-    animations.draw(ctx, offset);
     fire.step(canvasOffsetInTiles());
     fire.draw(ctx, offset);
+    animations.draw(ctx, offset);
     if (tileUnderCursor.needShowTooltip())
         drawTooltip(ctx, offset, tileUnderCursor);
     drawUI();

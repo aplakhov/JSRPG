@@ -201,8 +201,8 @@
                  "rotation":0,
                  "visible":true,
                  "width":0,
-                 "x":1807,
-                 "y":50
+                 "x":1774.3249041057,
+                 "y":148.02528768291
                 }, 
                 {
                  "class":"ManaBottle",
@@ -230,14 +230,14 @@
                 }, 
                 {
                  "class":"Message",
-                 "height":412,
+                 "height":284.140929109248,
                  "id":15,
                  "name":"\u0414\u043e\u0440\u043e\u0433\u0430 \u043f\u0440\u0438\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0439 \u043d\u0440\u0430\u0432\u0438\u043b\u0430\u0441\u044c \u043c\u043d\u0435 \u0431\u043e\u043b\u044c\u0448\u0435, \u043f\u043e\u043a\u0430 \u043d\u0430 \u043d\u0435\u0439 \u043d\u0435 \u0441\u0442\u0430\u043b\u0438 \u043f\u043e\u043f\u0430\u0434\u0430\u0442\u044c\u0441\u044f \u0441\u043a\u0435\u043b\u0435\u0442\u044b",
                  "rotation":0,
                  "visible":true,
-                 "width":449,
-                 "x":830,
-                 "y":514
+                 "width":322.561585452479,
+                 "x":893.929535445376,
+                 "y":604.922005966757
                 }, 
                 {
                  "class":"Message",
@@ -368,6 +368,11 @@
                  "point":true,
                  "properties":[
                         {
+                         "name":"DeathComment",
+                         "type":"string",
+                         "value":"\u0422\u0438\u043f\u0438\u0438\u0438\u0447\u043d\u044b\u0439 \u0433\u043e\u0431\u043b\u0438\u043d"
+                        }, 
+                        {
                          "name":"Image",
                          "type":"string",
                          "value":"goblin"
@@ -396,6 +401,11 @@
                  "point":true,
                  "properties":[
                         {
+                         "name":"DeathComment",
+                         "type":"string",
+                         "value":"\u041c\u0430\u043b\u0435\u043d\u044c\u043a\u0438\u0439, \u0437\u0435\u043b\u0451\u043d\u044b\u0439, \u043d\u043e \u043d\u0435 \u043b\u044f\u0433\u0443\u0448\u043a\u0430"
+                        }, 
+                        {
                          "name":"Image",
                          "type":"string",
                          "value":"goblin"
@@ -423,6 +433,11 @@
                  "name":"\u0413\u043e\u0431\u043b\u0438\u043d",
                  "point":true,
                  "properties":[
+                        {
+                         "name":"DeathComment",
+                         "type":"string",
+                         "value":"\u041f\u043e\u0447\u0435\u043c\u0443 \u043e\u043d\u0438 \u0432\u0441\u0435 \u0442\u0430\u043a\u0438\u0435 \u043a\u0432\u0430\u0434\u0440\u0430\u0442\u043d\u0435\u043d\u044c\u043a\u0438\u0435? \u041e\u0442\u0432\u0440\u0430\u0442\u0438\u0442\u0435\u043b\u044c\u043d\u043e."
+                        }, 
                         {
                          "name":"Image",
                          "type":"string",
@@ -695,7 +710,7 @@
                         {
                          "name":"Message",
                          "type":"string",
-                         "value":"\u041d\u0430 \u0442\u0430\u0431\u043b\u0438\u0447\u043a\u0435 \u043d\u0430\u043f\u0438\u0441\u0430\u043d\u043e: \"\u0414\u043e\u0431\u0440\u043e \u043f\u043e\u0436\u0430\u043b\u043e\u0432\u0430\u0442\u044c \u043a \u043f\u0430\u0440\u043e\u043c\u043d\u043e\u0439 \u043f\u0435\u0440\u0435\u043f\u0440\u0430\u0432\u0435 \u0419\u043e\u0440\u0438\u043a\u0430. \u041a\u0442\u043e \u0437\u0430\u043f\u043b\u0430\u0442\u0438\u043b \u043c\u043e\u043d\u0435\u0442\u0443, \u0442\u043e\u0442 \u043f\u043e\u043b\u0443\u0447\u0438\u0442 \u043d\u0430 \u0442\u043e\u0442 \u0431\u0435\u0440\u0435\u0433 \u0431\u0438\u043b\u0435\u0442\u044b\""
+                         "value":"\u041d\u0430 \u0442\u0430\u0431\u043b\u0438\u0447\u043a\u0435 \u043d\u0430\u043f\u0438\u0441\u0430\u043d\u043e: \"\u0414\u043e\u0431\u0440\u043e \u043f\u043e\u0436\u0430\u043b\u043e\u0432\u0430\u0442\u044c \u043a \u043f\u0430\u0440\u043e\u043c\u043d\u043e\u0439 \u043f\u0435\u0440\u0435\u043f\u0440\u0430\u0432\u0435 \u0419\u043e\u0440\u0438\u043a\u0430. \u041a\u0442\u043e \u0437\u0430\u043f\u043b\u0430\u0442\u0438\u043b \u043c\u043e\u043d\u0435\u0442\u0443, \u0442\u043e\u0442 \u043f\u043e\u043b\u0443\u0447\u0438\u0442 \u043d\u0430 \u043f\u0430\u0440\u043e\u043c \u0431\u0438\u043b\u0435\u0442\u044b\""
                         }],
                  "rotation":0,
                  "visible":true,
@@ -1032,34 +1047,6 @@
                  "width":0,
                  "x":45,
                  "y":2256
-                }, 
-                {
-                 "class":"Mob",
-                 "height":0,
-                 "id":71,
-                 "name":"\u0413\u043e\u0431\u043b\u0438\u043d",
-                 "point":true,
-                 "properties":[
-                        {
-                         "name":"Image",
-                         "type":"string",
-                         "value":"goblin"
-                        }, 
-                        {
-                         "name":"Loot",
-                         "type":"string",
-                         "value":""
-                        }, 
-                        {
-                         "name":"Rules",
-                         "type":"string",
-                         "value":"goblin"
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":0,
-                 "x":3118,
-                 "y":1263
                 }, 
                 {
                  "class":"DecorativeObject",
@@ -1480,6 +1467,39 @@
                  "width":0,
                  "x":15,
                  "y":2930
+                }, 
+                {
+                 "class":"Mob",
+                 "height":0,
+                 "id":91,
+                 "name":"\u0413\u043e\u0431\u043b\u0438\u043d",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"DeathComment",
+                         "type":"string",
+                         "value":"\u0422\u0438\u043f\u0438\u0438\u0438\u0447\u043d\u044b\u0439 \u0433\u043e\u0431\u043b\u0438\u043d"
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"goblin"
+                        }, 
+                        {
+                         "name":"Loot",
+                         "type":"string",
+                         "value":""
+                        }, 
+                        {
+                         "name":"Rules",
+                         "type":"string",
+                         "value":"goblin"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":3118.34067339111,
+                 "y":1268.6461145049
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -1488,7 +1508,7 @@
          "y":0
         }],
  "nextlayerid":4,
- "nextobjectid":91,
+ "nextobjectid":92,
  "orientation":"orthogonal",
  "renderorder":"left-down",
  "tiledversion":"1.9.2",

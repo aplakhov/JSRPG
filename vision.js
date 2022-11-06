@@ -59,9 +59,12 @@ class PlayerVision {
         }
     }
 
+    everythingVisible() {
+        return this.visibilityRadius[player.x][player.y] > 10;
+    }
+
     recalculateLocalVisibility() {
-        let everythingVisible = this.visibilityRadius[player.x][player.y] > 10;
-        if (everythingVisible)
+        if (this.everythingVisible())
             return;
         this.turnNumber++;
         let queue = [];
@@ -91,7 +94,6 @@ class PlayerVision {
     }
   
     isVisible(x, y) {
-      let everythingVisible = this.visibilityRadius[player.x][player.y] > 10;
-      return everythingVisible || this.visibleTiles[x][y] == this.turnNumber;
+      return this.everythingVisible() || this.visibleTiles[x][y] == this.turnNumber;
     }
 }
