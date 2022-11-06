@@ -20,23 +20,28 @@ class Fire {
     addConstantEmitter(x, y, size) {
         this.emitters.push((particles, offset) => {
             if (x < offset.x || y < offset.y || x > offset.x + viewInTiles || y > offset.y + viewInTiles)
-                return;
+                return false;
             if (!world.vision.isVisible(x, y))
-                return;
+                return false;
             for (let n = 0; n < size; n++) {
                 let xInside = n + (tileSize-size)/2;
                 let yInside = 15;
                 particles.push({x: x*tileSize+xInside, y: y*tileSize+yInside, temperature: 20});
             }
+            return false;
         })
     }
 
     step(offset) {
-        let newParticles = []
+        let newParticles = [];
+        let newEmitters = [];
         for (let n = 0; n < this.emitters.length; n++) {
             let e = this.emitters[n];
-            e(this.particles, offset);
+            let emitterEnded = e(this.particles, offset);
+            if (!emitterEnded)
+                newEmitters.push(e);
         }
+        this.emitters = newEmitters;
         for (let n = 0; n < this.particles.length; n++) {
             let p = this.particles[n];
             // move up and sideways

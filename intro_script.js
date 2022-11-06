@@ -55,6 +55,7 @@ class IntroMapScript {
                 addSmokeParticle(dragon, 6*tileSize - 4, tileSize - 4, particles, offset);
                 addSmokeParticle(dragon, 6*tileSize - 4, - tileSize + 4, particles, offset);
             }
+            return false;
         });
         dragon.zLayer = 2;
     }
