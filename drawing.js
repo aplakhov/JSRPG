@@ -128,11 +128,13 @@ function isVisible(x, y, offset) {
 }
 
 function drawObj(ctx, offset, obj) {
-    let x = obj.x
-    let y = obj.y
-    let visible = 'isVisible' in obj? obj.isVisible(offset) : isVisible(x, y, offset);
-    if (visible)
-        obj.draw(ctx, (x-offset.x)*tileSize, (y-offset.y)*tileSize);
+    if ('draw' in obj) {
+        let x = obj.x
+        let y = obj.y
+        let visible = 'isVisible' in obj? obj.isVisible(offset) : isVisible(x, y, offset);
+        if (visible)
+            obj.draw(ctx, (x-offset.x)*tileSize, (y-offset.y)*tileSize);
+    }
 }
 
 // Animations. Every animation is an object with a function draw(ctx, offsetInPixels, timeFromStart) => bool
