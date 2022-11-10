@@ -13,7 +13,7 @@ const halfViewInTiles = 12;
 let player = new Player();
 let world = new World("intro_map");
 
-setInterval( () => {
+setInterval(() => {
   world.nextTurn(false);
   player.nextTurn();
 },
@@ -89,13 +89,15 @@ class DialogUI {
       this.lastMessageAdded = Date.now() / 1000.;
     }
 
-    addMessageImpl(text, color, bgColor, font, portrait) {
+    addMessageImpl(text, color, bgColor, font, portrait, okToRepeat) {
       if (text == "")
         return false;
-      for (let n = this.messages.length - 1; n >= 0; n--) {
-        let oldMessage = this.messages[n];
-        if (text == oldMessage.text && portrait && portrait.src == oldMessage.portrait.src)
-          return false; 
+      if (!okToRepeat) {
+        for (let n = this.messages.length - 1; n >= 0; n--) {
+          let oldMessage = this.messages[n];
+          if (text == oldMessage.text && portrait && portrait.src == oldMessage.portrait.src)
+            return false; 
+        }
       }
       let message = new Utterance(this.ctx, text, this.maxTextWidth, color, bgColor, font, this.lineHeight, this.padding);
       message.portrait = portrait;
@@ -108,8 +110,8 @@ class DialogUI {
       this.redraw = true;
     }
 
-    addMessage(text, speaker, baseTile) {
-      if (!this.addMessageImpl(text, speaker.color, speaker.bgColor, speaker.font, speaker.portrait))
+    addMessage(text, speaker, baseTile, okToRepeat) {
+      if (!this.addMessageImpl(text, speaker.color, speaker.bgColor, speaker.font, speaker.portrait, okToRepeat))
         return;
       if (baseTile) {
         for (let n = 0; n < animations.animations.length; n++) {
@@ -169,8 +171,8 @@ let dialogUI = new DialogUI(
   dialogUIpadding
 );
 
-let portrait1 = new Image(); portrait1.src = "portrait1.png";
-let portrait2 = new Image(); portrait2.src = "portrait2.png";
+let portrait1 = makeImage("portrait1");
+let portrait2 = makeImage("portrait2");
 const speaker1 = {
   color: "rgb(10, 10, 10)",
   bgColor: "rgb(255, 255, 255)",
