@@ -125,10 +125,10 @@ class World {
 
   nextTurn(forced) {
     if (Math.random() < 0.8) {
-      this.objects.forEach((obj) => {
+      for (obj of this.objects) {
         if ('nextTurn' in obj)
           obj.nextTurn(forced);
-      });
+      };
       this.removeDeadObjects();
     }
     this.vision.recalculateLocalVisibility();
@@ -480,10 +480,12 @@ class Player {
     this.stats = rpg.player_start;
     this.mana = this.stats.mana;
     this.hp = this.stats.hp;
-    this.img = new Image(); this.img.src = "player.png";
+    this.img = makeImage("player");
   }
 
   tryMove(dx, dy) {
+    if (this.hp <= 0)
+      return false;
     const newx = this.x + dx;
     const newy = this.y + dy;
     if (!world.pathfinding.isPassable(newx, newy, this))
