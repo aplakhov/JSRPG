@@ -20,15 +20,15 @@ class IntroMapScript {
         this.triggers = [];
         this.triggers.push(() => {
             if (player.stats.mana > 0) {
-                dialogUI.addMessage("На вкус жидкость тоже синяя. Не знаю, как это работает", speaker1, player);
+                ui.dialogUI.addMessage("На вкус жидкость тоже синяя. Не знаю, как это работает", speaker1, player);
                 return true;
             }
         });
         this.triggers.push(() => {
             if (player.stats.mana == 50) {
-                dialogUI.addMessage("Кажется, пора вспоминать, чему меня учили в университете", speaker1, player);  
-                dialogUI.addMessage('Доступно заклинание "Создать камень"', systemMessageSpeaker, player);
-                dialogUI.addMessage('Кликните мышкой на клетку рядом с собой, чтобы использовать', systemMessageSpeaker, player);
+                ui.dialogUI.addMessage("Кажется, пора вспоминать, чему меня учили в университете", speaker1, player);  
+                ui.dialogUI.addMessage('Доступно заклинание "Создать камень"', systemMessageSpeaker, player);
+                ui.dialogUI.addMessage('Кликните мышкой на клетку рядом с собой, чтобы использовать', systemMessageSpeaker, player);
                 return true;
             }                      
         });
@@ -105,7 +105,7 @@ class IntroMapScript {
             dragon.hint = "Дракон";
             dragon.x = dragon.initialX + 2;
             dragon.pixelX.set(dragon.x * tileSize, 1);
-            dialogUI.addMessage("В̶͉̭̏ͅО̶͍̚͝Р̵̡̭̥̎͒͊", dragon.speaker, dragon, true);
+            ui.dialogUI.addMessage("В̶͉̭̏ͅО̶͍̚͝Р̵̡̭̥̎͒͊", dragon.speaker, dragon, true);
             this.timeAtTreasure = animations.globalTimer;
         }
         if (dragon.awake && !dragon.laughing) {
@@ -116,15 +116,15 @@ class IntroMapScript {
         if (dragon.awake && playerOnTreasure) {
             let timePassed = animations.globalTimer - this.timeAtTreasure;
             if (timePassed > 1)
-                dialogUI.addMessage("Ой-ой", speaker1, player);
+                ui.dialogUI.addMessage("Ой-ой", speaker1, player);
             if (timePassed > 5)
-                dialogUI.addMessage("Почему он меня до сих пор не съел?", speaker1, player);
+                ui.dialogUI.addMessage("Почему он меня до сих пор не съел?", speaker1, player);
             if (timePassed > 8)
-                dialogUI.addMessage("Смотрит как-то косо. Он что, меня не видит?", speaker1, player);
+                ui.dialogUI.addMessage("Смотрит как-то косо. Он что, меня не видит?", speaker1, player);
             if (timePassed > 12)
-                dialogUI.addMessage("Как лягушка - не видит то, что не двигается", speaker1, player);
+                ui.dialogUI.addMessage("Как лягушка - не видит то, что не двигается", speaker1, player);
             if (timePassed > 16)
-                dialogUI.addMessage("Но я же не могу стоять тут вечно. Надо как-то его отвлечь...", speaker1, player);
+                ui.dialogUI.addMessage("Но я же не могу стоять тут вечно. Надо как-то его отвлечь...", speaker1, player);
         }
     }
     onDraw() {
@@ -177,8 +177,8 @@ class IntroMapScript {
     onCast(targetX, targetY) {
         if (!this.castTriggerDone) {
             this.castTriggerDone = true;
-            dialogUI.addMessage("БАТУ ДАТАНГ!", speaker1, player);
-            dialogUI.addMessage("Я вообще-то больше люблю вызывать огонь. Но после экзамена всё, кроме БАТУ ДАТАНГ, сразу забыл",
+            ui.dialogUI.addMessage("БАТУ ДАТАНГ!", speaker1, player);
+            ui.dialogUI.addMessage("Я вообще-то больше люблю вызывать огонь. Но после экзамена всё, кроме БАТУ ДАТАНГ, сразу забыл",
                 speaker1, player);
         }
         let affectedObject = world.pathfinding.isOccupied(targetX, targetY);
@@ -189,11 +189,11 @@ class IntroMapScript {
             else
                 dragon.tickled += 1;
             if (dragon.tickled == 1)
-                dialogUI.addMessage("ХИ-Х̵̟̗̜͆̌͋И̴̡͓͍̍̄͝", dragon.speaker, dragon, true);
+                ui.dialogUI.addMessage("ХИ-Х̵̟̗̜͆̌͋И̴̡͓͍̍̄͝", dragon.speaker, dragon, true);
             else if (dragon.tickled == 2)
-                dialogUI.addMessage("ХИ-ХИ-Х̵̟̗̜͆̌͋И̴̡͓͍̍̄͝", dragon.speaker, dragon, true);
+                ui.dialogUI.addMessage("ХИ-ХИ-Х̵̟̗̜͆̌͋И̴̡͓͍̍̄͝", dragon.speaker, dragon, true);
             else
-                dialogUI.addMessage("У̶͖̀͋͊̆̕А̶̰̎̒͂͆Х̵̨̣͒̑̓Х̶̻͖͎͈̔̾̀А̷̝͙͠ХА-ХИ-Х̵̟̗̜͆̌͋И̴̡͓͍̍̄͝", dragon.speaker, dragon, true);
+                ui.dialogUI.addMessage("У̶͖̀͋͊̆̕А̶̰̎̒͂͆Х̵̨̣͒̑̓Х̶̻͖͎͈̔̾̀А̷̝͙͠ХА-ХИ-Х̵̟̗̜͆̌͋И̴̡͓͍̍̄͝", dragon.speaker, dragon, true);
             dragon.laughing = true;
             dragon.laughingUntil = animations.globalTimer + 1 * dragon.tickled;
         }

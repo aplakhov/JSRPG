@@ -169,7 +169,7 @@ class ManaBottle {
   }
   onContact(player) {
     this.dead = true;
-    dialogUI.addMessage("+10 макс.мана", systemMessageSpeaker, player);
+    ui.dialogUI.addMessage("+10 макс.мана", systemMessageSpeaker, player);
     player.stats.mana += 10;
     player.mana += 3;
   }
@@ -191,7 +191,7 @@ class Message {
     return x >= this.x && y >= this.y && x < this.x + this.w && y < this.y + this.h;
   }
   onContact(player) {
-    dialogUI.addMessage(this.message, speaker1, player);
+    ui.dialogUI.addMessage(this.message, speaker1, player);
     this.dead = true;
   }
   draw(ctx, x, y) {
@@ -218,7 +218,7 @@ class DecorativeObject {
   }
   onContact(player) {
     if (this.foundMessage) {
-      dialogUI.addMessage(this.foundMessage, speaker1, player);
+      ui.dialogUI.addMessage(this.foundMessage, speaker1, player);
       this.foundMessage = null;
     }
     if (this.inventoryItem) {
@@ -339,7 +339,7 @@ class Mob {
 
   die() {
     this.dead = true;
-    dialogUI.addMessage(getProp(this.meObj, "DeathComment"), speaker1, player)
+    ui.dialogUI.addMessage(getProp(this.meObj, "DeathComment"), speaker1, player)
     let loot = getProp(this.meObj, "Loot");
     if (loot == "ManaBottle")
       world.objects.push(new ManaBottle(this.x, this.y));
@@ -389,7 +389,7 @@ class Mob {
           portrait: makeImage(randomNoRepeatFrom(this.stats.speaker.portraits))    
         };
         if (msg && speaker.portrait)
-          dialogUI.addMessage(msg, speaker, this);
+          ui.dialogUI.addMessage(msg, speaker, this);
       }
     }
   }
@@ -509,11 +509,11 @@ class Player {
     let dx = targetX - this.x;
     let dy = targetY - this.y;
     let manaToCast = 10;
-    if (this.mana < manaToCast) {
-      animations.add(new SystemMessage(0.5, "Не хватает маны"), player);
-      return;
-    }
     if (dx <= 2 && dx >= -2 && dy <= 2 && dy >= -2) {
+      if (this.mana < manaToCast) {
+        animations.add(new SystemMessage(0.5, "Не хватает маны"), player);
+        return;
+      }
       const duration = 0.3
       const direction = { x: dx * tileSize, y: dy * tileSize }
       animations.add(new Bullet(direction, duration), this);
@@ -550,7 +550,7 @@ class Player {
     if (this.hp < this.stats.hp) {
       this.hp++;
       if (this.hp >= this.stats.hp)
-        dialogUI.forceRedraw(); // force hiding HP bar
+        ui.dialogUI.forceRedraw(); // force hiding HP bar
     }
     if (this.hp > this.stats.hp)
       this.hp = this.stats.hp;
@@ -567,7 +567,7 @@ class Player {
   takeItem(itemName) {
     let itemRpg = rpg[itemName];
     if (!itemRpg) {
-      dialogUI.addMessage("Unknown item " + itemName, errorSpeaker);
+      ui.dialogUI.addMessage("Unknown item " + itemName, errorSpeaker);
       return false;
     }
     let currentSlot = this[itemRpg.type];
@@ -575,11 +575,11 @@ class Player {
       itemRpg.img = makeImage(itemRpg.equip_img);
       this[itemRpg.type] = itemRpg;
       if (itemRpg.message)
-        dialogUI.addMessage(itemRpg.message, speaker1, player);
+        ui.dialogUI.addMessage(itemRpg.message, speaker1, player);
       return true;
     } else {
       if (itemRpg.reject)
-        dialogUI.addMessage(itemRpg.reject, speaker1, player);
+        ui.dialogUI.addMessage(itemRpg.reject, speaker1, player);
       return false;
     }
   }

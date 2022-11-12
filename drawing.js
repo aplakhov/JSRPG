@@ -120,7 +120,7 @@ function drawTooltip(ctx, offset, tileUnderCursor) {
     if (left < 0)
         left = 0;
     if (left + u.textBoxWidth + 20 >= dialogUIleftOffset)
-        left = dialogUIleftOffset - u.textBoxWidth - 20;
+        left = dialogUIleftOffset - u.textBoxWidth - 12;
     u.draw(ctx, left, top - tileSize, 0, true);
 }
 
@@ -356,7 +356,7 @@ setInterval( () => {
     animations.draw(ctx, offset);
     if (tileUnderCursor.needShowTooltip())
         drawTooltip(ctx, offset, tileUnderCursor);
-    drawUI();
+    ui.draw();
   },
   20
 );

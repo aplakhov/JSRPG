@@ -162,13 +162,6 @@ class DialogUI {
     }
 };
 
-const dialogUIleftOffset = 768;
-const uiWidth = canvas.width - dialogUIleftOffset;
-const dialogUIpadding = 5;
-let dialogUI = new DialogUI(
-  ctx, dialogUIleftOffset, 0, uiWidth, canvas.height, dialogUIpadding
-);
-
 let portrait1 = makeImage("portrait1");
 let portrait2 = makeImage("portrait2");
 const speaker1 = {
@@ -225,9 +218,6 @@ class ManaBar {
     this.ctx.fillText(text, textX, y + 3); // TODO: magic const 3
   }
 }
-let barPadding = 5;
-let manaBar = new ManaBar(ctx, uiWidth - 2 * barPadding, "rgb(0, 38, 255)", "rgb(0, 148, 255)")
-let healthBar = new ManaBar(ctx, uiWidth - 2 * barPadding, "rgb(255, 0, 40)", "rgb(255, 150, 190)")
 
 class Goals {
   constructor(ctx) {
@@ -289,54 +279,108 @@ class Goals {
     return true;
   }
 };
-let goals = new Goals(ctx);
-goals.addGoal("1. Перебраться через речку под названием Мокрая")
-goals.addGoal("2. Дойти до горы под названием Высокая")
-goals.addGoal("3. Найти вход в пещеру под названием Тёмная")
-goals.addGoal("4. Добыть сокровища подземных королей")
-goals.addGoal("5. Вернуться в город и кутить")
-setTimeout(() => {goals.hidden = false}, 500)
 
-function drawUI() {
-  dialogUI.draw();
-  let showMana = player.stats.mana > 0;
-  let showHP = player.hp < player.stats.hp;
-  const dialogUItopOffset = 40;
-  if (showMana || showHP) {
-    ctx.fillStyle = 'rgb(240, 214, 175)';
-    if (showHP)
-      ctx.fillRect(dialogUIleftOffset, 0, uiWidth, dialogUItopOffset);
-    else
-      ctx.fillRect(dialogUIleftOffset, 0, uiWidth, dialogUItopOffset / 2);
+const dialogUIleftOffset = 768;
+const uiWidth = canvas.width - dialogUIleftOffset;
+const dialogUIheight = canvas.height - 80;
+const dialogUIpadding = 5;
+const barPadding = 5;
+
+class UI {
+  constructor() {
+    this.state = 2;
+
+    this.dialogUI = new DialogUI(
+      ctx, dialogUIleftOffset, 0, uiWidth, dialogUIheight, dialogUIpadding
+    );
+    this.stateImages = [
+      makeImage("icons1"),
+      makeImage("icons2"),
+      makeImage("icons3"),
+    ];
+
+    this.goals = new Goals(ctx);
+    // TODO: move to script
+    this.goals.addGoal("1. Перебраться через речку под названием Мокрая")
+    this.goals.addGoal("2. Дойти до горы под названием Высокая")
+    this.goals.addGoal("3. Найти вход в пещеру под названием Тёмная")
+    this.goals.addGoal("4. Добыть сокровища подземных королей")
+    this.goals.addGoal("5. Вернуться в город и кутить")
+    setTimeout(() => {this.goals.hidden = false}, 500)
+
+    this.manaBar = new ManaBar(ctx, uiWidth - 2 * barPadding, "rgb(0, 38, 255)", "rgb(0, 148, 255)")
+    this.healthBar = new ManaBar(ctx, uiWidth - 2 * barPadding, "rgb(255, 0, 40)", "rgb(255, 150, 190)")
   }
-  if (showMana) {
+  
+  draw() {
+    if (this.state == 2) {
+      this.dialogUI.draw();
+    } else {
+      const backColor = "rgb(240, 214, 175)";
+      ctx.fillStyle = backColor;
+      ctx.fillRect(dialogUIleftOffset, 0, uiWidth, canvas.height);
+    }
+      
+    let showMana = player.stats.mana > 0;
+    let showHP = player.hp < player.stats.hp;
+    const dialogUItopOffset = 40;
+    if (showMana || showHP) {
+      ctx.fillStyle = 'rgb(240, 214, 175)';
+      if (showHP)
+        ctx.fillRect(dialogUIleftOffset, 0, uiWidth, dialogUItopOffset);
+      else
+        ctx.fillRect(dialogUIleftOffset, 0, uiWidth, dialogUItopOffset / 2);
+    }
+    if (showMana) {
+      ctx.strokeStyle = 'rgb(140, 104, 20)';
+      ctx.strokeRect(dialogUIleftOffset, dialogUItopOffset / 2, uiWidth, 0);
+      this.manaBar.draw(player.mana, player.stats.mana, dialogUIleftOffset + barPadding, dialogUItopOffset / 4);
+    }
+    if (showHP) {
+      ctx.strokeStyle = 'rgb(140, 104, 20)';
+      ctx.strokeRect(dialogUIleftOffset, dialogUItopOffset, uiWidth, 0);
+      this.healthBar.draw(player.hp, player.stats.hp, dialogUIleftOffset + barPadding, dialogUItopOffset * 3 / 4);
+    }
+    let stateImg = this.stateImages[this.state];
+    if (stateImg.complete)
+      ctx.drawImage(stateImg, dialogUIleftOffset, dialogUIheight);
     ctx.strokeStyle = 'rgb(140, 104, 20)';
-    ctx.strokeRect(dialogUIleftOffset, dialogUItopOffset / 2, uiWidth, 0);
-    manaBar.draw(player.mana, player.stats.mana, dialogUIleftOffset + barPadding, dialogUItopOffset / 4);
+    ctx.strokeRect(dialogUIleftOffset, 0, 0, canvas.height);
+    this.goals.draw();
   }
-  if (showHP) {
-    ctx.strokeStyle = 'rgb(140, 104, 20)';
-    ctx.strokeRect(dialogUIleftOffset, dialogUItopOffset, uiWidth, 0);
-    healthBar.draw(player.hp, player.stats.hp, dialogUIleftOffset + barPadding, dialogUItopOffset * 3 / 4);
+
+  onclick(mouseEvent) {
+    if (this.goals.onclick(mouseEvent))
+      return true;
+    const rect = mouseEvent.target.getBoundingClientRect();
+    const x = mouseEvent.clientX - rect.left;
+    const y = mouseEvent.clientY - rect.top;
+    if (y > dialogUIheight && x > dialogUIleftOffset) {
+      let state = Math.floor((x - dialogUIleftOffset) * 3 / (canvas.width - dialogUIleftOffset));
+      if (state >= 0 && state <= 2) {
+        this.state = state;
+        this.dialogUI.forceRedraw();
+      }
+      return true;
+    }   
+    return false;    
   }
-  ctx.strokeStyle = 'rgb(140, 104, 20)';
-  ctx.strokeRect(dialogUIleftOffset, 0, 0, canvas.height);
-  goals.draw();
 }
+let ui = new UI();
 
 canvas.onmousemove = updateTileUnderCursor;
 
 canvas.onclick = function clickEvent(e) {
   updateTileUnderCursor(e);
   tileUnderCursor.hideTooltip();
-  if (goals.onclick(e))
+  if (ui.onclick(e))
     return;
   player.tryCast(tileUnderCursor.x, tileUnderCursor.y, "stone")
 }
 
 addEventListener("keyup", function(event) {
   tileUnderCursor.hideTooltip();
-  goals.hidden = true;
+  ui.goals.hidden = true;
   if (event.key == "ArrowLeft")
     player.tryMove(-1,0);
   if (event.key == "ArrowUp")
