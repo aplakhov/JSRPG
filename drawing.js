@@ -116,7 +116,12 @@ function drawTooltip(ctx, offset, tileUnderCursor) {
     const padding = 5;
     let u = new Utterance(ctx, text, maxWidth, systemMessageSpeaker.color,
         systemMessageSpeaker.bgColor, systemMessageSpeaker.font, lineHeight, padding);
-    u.draw(ctx, left - u.textBoxWidth/2, top - tileSize, 0, true);
+    left -= u.textBoxWidth/2;
+    if (left < 0)
+        left = 0;
+    if (left + u.textBoxWidth + 20 >= dialogUIleftOffset)
+        left = dialogUIleftOffset - u.textBoxWidth - 20;
+    u.draw(ctx, left, top - tileSize, 0, true);
 }
 
 function isVisible(x, y, offset) {

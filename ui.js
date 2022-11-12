@@ -3,9 +3,6 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-const charCanvas = document.getElementById("charCanvas");
-const charCtx = charCanvas.getContext("2d");
-
 const tileSize = 32;
 const viewInTiles = 24;
 const halfViewInTiles = 12;
@@ -66,6 +63,8 @@ let tileUnderCursor = new TileUnderCursor();
 function updateTileUnderCursor(mouseEvent) {
   const rect = mouseEvent.target.getBoundingClientRect();
   const offset = canvasOffsetInTiles();
+  if (mouseEvent.clientX >= rect.left + dialogUIleftOffset)
+    tileUnderCursor.hideTooltip();
   const tileX = offset.x + ((mouseEvent.clientX - rect.left) / tileSize) >> 0;
   const tileY = offset.y + ((mouseEvent.clientY - rect.top) / tileSize) >> 0;
   tileUnderCursor.set(tileX, tileY);
@@ -163,12 +162,11 @@ class DialogUI {
     }
 };
 
-const dialogUIleftOffset = 0;
+const dialogUIleftOffset = 768;
+const uiWidth = canvas.width - dialogUIleftOffset;
 const dialogUIpadding = 5;
 let dialogUI = new DialogUI(
-  charCtx, dialogUIleftOffset, 0, 
-  charCanvas.width - dialogUIleftOffset, charCanvas.height,
-  dialogUIpadding
+  ctx, dialogUIleftOffset, 0, uiWidth, canvas.height, dialogUIpadding
 );
 
 let portrait1 = makeImage("portrait1");
@@ -228,8 +226,8 @@ class ManaBar {
   }
 }
 let barPadding = 5;
-let manaBar = new ManaBar(charCtx, charCtx.canvas.width - 2 * barPadding, "rgb(0, 38, 255)", "rgb(0, 148, 255)")
-let healthBar = new ManaBar(charCtx, charCtx.canvas.width - 2 * barPadding, "rgb(255, 0, 40)", "rgb(255, 150, 190)")
+let manaBar = new ManaBar(ctx, uiWidth - 2 * barPadding, "rgb(0, 38, 255)", "rgb(0, 148, 255)")
+let healthBar = new ManaBar(ctx, uiWidth - 2 * barPadding, "rgb(255, 0, 40)", "rgb(255, 150, 190)")
 
 class Goals {
   constructor(ctx) {
@@ -258,7 +256,7 @@ class Goals {
       const backColor = "rgb(240, 214, 175)";
       const foreColor = "rgb(140, 104, 20)";
       let x = 100, y = 100;
-      let w = ctx.canvas.width - 2 * x;
+      let w = dialogUIleftOffset - 2 * x;
       let h = 64 + 72 + 24 * this.goals.length;
       this.ctx.fillStyle = backColor;
       this.ctx.fillRect(x, y, w, h);
@@ -305,22 +303,24 @@ function drawUI() {
   let showHP = player.hp < player.stats.hp;
   const dialogUItopOffset = 40;
   if (showMana || showHP) {
-    charCtx.fillStyle = 'rgb(240, 214, 175)';
+    ctx.fillStyle = 'rgb(240, 214, 175)';
     if (showHP)
-      charCtx.fillRect(0, 0, charCtx.canvas.width, dialogUItopOffset);
+      ctx.fillRect(dialogUIleftOffset, 0, uiWidth, dialogUItopOffset);
     else
-      charCtx.fillRect(0, 0, charCtx.canvas.width, dialogUItopOffset / 2);
+      ctx.fillRect(dialogUIleftOffset, 0, uiWidth, dialogUItopOffset / 2);
   }
   if (showMana) {
-    charCtx.strokeStyle = 'rgb(140, 104, 20)';
-    charCtx.strokeRect(0, dialogUItopOffset / 2, charCtx.canvas.width, 0);
-    manaBar.draw(player.mana, player.stats.mana, barPadding, dialogUItopOffset / 4);
+    ctx.strokeStyle = 'rgb(140, 104, 20)';
+    ctx.strokeRect(dialogUIleftOffset, dialogUItopOffset / 2, uiWidth, 0);
+    manaBar.draw(player.mana, player.stats.mana, dialogUIleftOffset + barPadding, dialogUItopOffset / 4);
   }
   if (showHP) {
-    charCtx.strokeStyle = 'rgb(140, 104, 20)';
-    charCtx.strokeRect(0, dialogUItopOffset, charCtx.canvas.width, 0);
-    healthBar.draw(player.hp, player.stats.hp, barPadding, dialogUItopOffset * 3 / 4);
+    ctx.strokeStyle = 'rgb(140, 104, 20)';
+    ctx.strokeRect(dialogUIleftOffset, dialogUItopOffset, uiWidth, 0);
+    healthBar.draw(player.hp, player.stats.hp, dialogUIleftOffset + barPadding, dialogUItopOffset * 3 / 4);
   }
+  ctx.strokeStyle = 'rgb(140, 104, 20)';
+  ctx.strokeRect(dialogUIleftOffset, 0, 0, canvas.height);
   goals.draw();
 }
 

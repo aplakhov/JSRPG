@@ -78,7 +78,7 @@ class Fire {
     draw(ctx, offset) {
         let x = offset.x * tileSize;
         let y = offset.y * tileSize;
-        let maxx = x + ctx.canvas.width;
+        let maxx = x + dialogUIleftOffset;
         let maxy = y + ctx.canvas.height;
         for (let n = this.particles.length - 1; n >= 0; n--) {
             let p = this.particles[n];
