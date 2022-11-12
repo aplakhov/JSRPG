@@ -1051,118 +1051,6 @@
                 {
                  "class":"DecorativeObject",
                  "height":0,
-                 "id":72,
-                 "name":"\u0424\u0430\u043a\u0435\u043b",
-                 "point":true,
-                 "properties":[
-                        {
-                         "name":"Blocker",
-                         "type":"string",
-                         "value":"true"
-                        }, 
-                        {
-                         "name":"Fire",
-                         "type":"string",
-                         "value":"4"
-                        }, 
-                        {
-                         "name":"Image",
-                         "type":"string",
-                         "value":"torch"
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":0,
-                 "x":2317,
-                 "y":2422
-                }, 
-                {
-                 "class":"DecorativeObject",
-                 "height":0,
-                 "id":73,
-                 "name":"\u0424\u0430\u043a\u0435\u043b",
-                 "point":true,
-                 "properties":[
-                        {
-                         "name":"Blocker",
-                         "type":"string",
-                         "value":"true"
-                        }, 
-                        {
-                         "name":"Fire",
-                         "type":"string",
-                         "value":"4"
-                        }, 
-                        {
-                         "name":"Image",
-                         "type":"string",
-                         "value":"torch"
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":0,
-                 "x":2416,
-                 "y":2418
-                }, 
-                {
-                 "class":"DecorativeObject",
-                 "height":0,
-                 "id":74,
-                 "name":"\u0424\u0430\u043a\u0435\u043b",
-                 "point":true,
-                 "properties":[
-                        {
-                         "name":"Blocker",
-                         "type":"string",
-                         "value":"true"
-                        }, 
-                        {
-                         "name":"Fire",
-                         "type":"string",
-                         "value":"4"
-                        }, 
-                        {
-                         "name":"Image",
-                         "type":"string",
-                         "value":"torch"
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":0,
-                 "x":2512,
-                 "y":2420
-                }, 
-                {
-                 "class":"DecorativeObject",
-                 "height":0,
-                 "id":75,
-                 "name":"\u0424\u0430\u043a\u0435\u043b",
-                 "point":true,
-                 "properties":[
-                        {
-                         "name":"Blocker",
-                         "type":"string",
-                         "value":"true"
-                        }, 
-                        {
-                         "name":"Fire",
-                         "type":"string",
-                         "value":"4"
-                        }, 
-                        {
-                         "name":"Image",
-                         "type":"string",
-                         "value":"torch"
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":0,
-                 "x":2609,
-                 "y":2421
-                }, 
-                {
-                 "class":"DecorativeObject",
-                 "height":0,
                  "id":76,
                  "name":"\u0424\u0430\u043a\u0435\u043b",
                  "point":true,
@@ -1175,7 +1063,7 @@
                         {
                          "name":"Fire",
                          "type":"string",
-                         "value":"4"
+                         "value":"80"
                         }, 
                         {
                          "name":"Image",
@@ -1187,90 +1075,6 @@
                  "width":0,
                  "x":2318,
                  "y":2582
-                }, 
-                {
-                 "class":"DecorativeObject",
-                 "height":0,
-                 "id":77,
-                 "name":"\u0424\u0430\u043a\u0435\u043b",
-                 "point":true,
-                 "properties":[
-                        {
-                         "name":"Blocker",
-                         "type":"string",
-                         "value":"true"
-                        }, 
-                        {
-                         "name":"Fire",
-                         "type":"string",
-                         "value":"4"
-                        }, 
-                        {
-                         "name":"Image",
-                         "type":"string",
-                         "value":"torch"
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":0,
-                 "x":2416,
-                 "y":2580
-                }, 
-                {
-                 "class":"DecorativeObject",
-                 "height":0,
-                 "id":78,
-                 "name":"\u0424\u0430\u043a\u0435\u043b",
-                 "point":true,
-                 "properties":[
-                        {
-                         "name":"Blocker",
-                         "type":"string",
-                         "value":"true"
-                        }, 
-                        {
-                         "name":"Fire",
-                         "type":"string",
-                         "value":"4"
-                        }, 
-                        {
-                         "name":"Image",
-                         "type":"string",
-                         "value":"torch"
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":0,
-                 "x":2513,
-                 "y":2583
-                }, 
-                {
-                 "class":"DecorativeObject",
-                 "height":0,
-                 "id":79,
-                 "name":"\u0424\u0430\u043a\u0435\u043b",
-                 "point":true,
-                 "properties":[
-                        {
-                         "name":"Blocker",
-                         "type":"string",
-                         "value":"true"
-                        }, 
-                        {
-                         "name":"Fire",
-                         "type":"string",
-                         "value":"4"
-                        }, 
-                        {
-                         "name":"Image",
-                         "type":"string",
-                         "value":"torch"
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":0,
-                 "x":2608,
-                 "y":2581
                 }, 
                 {
                  "class":"DecorativeObject",
@@ -1287,7 +1091,7 @@
                         {
                          "name":"Fire",
                          "type":"string",
-                         "value":"4"
+                         "value":"80"
                         }, 
                         {
                          "name":"Image",
@@ -1315,7 +1119,7 @@
                         {
                          "name":"Fire",
                          "type":"string",
-                         "value":"4"
+                         "value":"80"
                         }, 
                         {
                          "name":"Image",
@@ -1343,7 +1147,7 @@
                         {
                          "name":"Fire",
                          "type":"string",
-                         "value":"4"
+                         "value":"80"
                         }, 
                         {
                          "name":"Image",
@@ -1371,7 +1175,7 @@
                         {
                          "name":"Fire",
                          "type":"string",
-                         "value":"4"
+                         "value":"80"
                         }, 
                         {
                          "name":"Image",
@@ -1399,7 +1203,7 @@
                         {
                          "name":"Fire",
                          "type":"string",
-                         "value":"4"
+                         "value":"80"
                         }, 
                         {
                          "name":"Image",
@@ -1500,6 +1304,202 @@
                  "width":0,
                  "x":3118.34067339111,
                  "y":1268.6461145049
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":92,
+                 "name":"\u0424\u0430\u043a\u0435\u043b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Blocker",
+                         "type":"string",
+                         "value":"true"
+                        }, 
+                        {
+                         "name":"Fire",
+                         "type":"string",
+                         "value":"80"
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"torch"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":2416.5364398352,
+                 "y":2574.2292939338
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":93,
+                 "name":"\u0424\u0430\u043a\u0435\u043b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Blocker",
+                         "type":"string",
+                         "value":"true"
+                        }, 
+                        {
+                         "name":"Fire",
+                         "type":"string",
+                         "value":"80"
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"torch"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":2513.14107117488,
+                 "y":2572.80863759057
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":94,
+                 "name":"\u0424\u0430\u043a\u0435\u043b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Blocker",
+                         "type":"string",
+                         "value":"true"
+                        }, 
+                        {
+                         "name":"Fire",
+                         "type":"string",
+                         "value":"80"
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"torch"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":2608.32504617133,
+                 "y":2572.80863759057
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":95,
+                 "name":"\u0424\u0430\u043a\u0435\u043b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Blocker",
+                         "type":"string",
+                         "value":"true"
+                        }, 
+                        {
+                         "name":"Fire",
+                         "type":"string",
+                         "value":"80"
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"torch"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":2319.93180849552,
+                 "y":2417.95709617843
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":96,
+                 "name":"\u0424\u0430\u043a\u0435\u043b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Blocker",
+                         "type":"string",
+                         "value":"true"
+                        }, 
+                        {
+                         "name":"Fire",
+                         "type":"string",
+                         "value":"80"
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"torch"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":2410.85381446228,
+                 "y":2416.5364398352
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":97,
+                 "name":"\u0424\u0430\u043a\u0435\u043b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Blocker",
+                         "type":"string",
+                         "value":"true"
+                        }, 
+                        {
+                         "name":"Fire",
+                         "type":"string",
+                         "value":"80"
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"torch"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":2511.72041483165,
+                 "y":2415.11578349197
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":98,
+                 "name":"\u0424\u0430\u043a\u0435\u043b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Blocker",
+                         "type":"string",
+                         "value":"true"
+                        }, 
+                        {
+                         "name":"Fire",
+                         "type":"string",
+                         "value":"80"
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"torch"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":2606.9043898281,
+                 "y":2413.69512714874
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -1508,7 +1508,7 @@
          "y":0
         }],
  "nextlayerid":4,
- "nextobjectid":92,
+ "nextobjectid":99,
  "orientation":"orthogonal",
  "renderorder":"left-down",
  "tiledversion":"1.9.2",

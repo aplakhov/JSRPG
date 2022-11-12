@@ -17,17 +17,26 @@ class Fire {
         ]
     }
 
+    emitParticles(pixelX, pixelY, size, offset) {
+        let x = Math.floor(pixelX/tileSize);
+        let y = Math.floor(pixelY/tileSize);
+        if (x < offset.x || y < offset.y || x > offset.x + viewInTiles || y > offset.y + viewInTiles)
+            return;
+        if (!world.vision.isVisible(x, y))
+            return;
+        let nBigParticles = Math.floor(size/20);
+        for (let n = 0; n < nBigParticles; n++) {
+            let xInside = n - size/40;
+            this.particles.push({x: pixelX+xInside, y: pixelY, temperature: 20});
+        }
+        size = size % 20;
+        if (size)
+            this.particles.push({x: pixelX, y: pixelY, temperature: size});
+    }
+
     addConstantEmitter(x, y, size) {
-        this.emitters.push((particles, offset) => {
-            if (x < offset.x || y < offset.y || x > offset.x + viewInTiles || y > offset.y + viewInTiles)
-                return false;
-            if (!world.vision.isVisible(x, y))
-                return false;
-            for (let n = 0; n < size; n++) {
-                let xInside = n + (tileSize-size)/2;
-                let yInside = 15;
-                particles.push({x: x*tileSize+xInside, y: y*tileSize+yInside, temperature: 20});
-            }
+        this.emitters.push((fire, offset) => {
+            fire.emitParticles(x * tileSize + tileSize/2, y * tileSize + 15, size, offset);
             return false;
         })
     }
@@ -37,20 +46,26 @@ class Fire {
         let newEmitters = [];
         for (let n = 0; n < this.emitters.length; n++) {
             let e = this.emitters[n];
-            let emitterEnded = e(this.particles, offset);
+            let emitterEnded = e(this, offset);
             if (!emitterEnded)
                 newEmitters.push(e);
         }
         this.emitters = newEmitters;
         for (let n = 0; n < this.particles.length; n++) {
             let p = this.particles[n];
-            // move up and sideways
-            if (Math.random() < 0.8)
+            // apply motion
+            if (p.impulseX) {
+                p.x += p.impulseX;
+            } else {
+                if (Math.random() < 0.3)
+                    p.x -= 1;
+                if (Math.random() < 0.3)
+                    p.x += 1;
+            }
+            if (p.impulseY)
+                p.y += p.impulseY;
+            else if (Math.random() < 0.8)
                 p.y -= 1;
-            if (Math.random() < 0.3)
-                p.x -= 1;
-            if (Math.random() < 0.3)
-                p.x += 1;
             // lower temperature and delete some
             if (Math.random() < 0.7)
                 p.temperature--;

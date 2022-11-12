@@ -67,16 +67,16 @@ function drawWorld(ctx, offset, world) {
         }
     }
     // draw objects
-    for (obj of world.objects) {
+    for (let obj of world.objects) {
         if (!obj.zLayer)
             drawObj(ctx, offset, obj)
     };
     player.draw(ctx, (player.x-offset.x)*tileSize, (player.y-offset.y)*tileSize);
-    for (obj of world.objects) {
+    for (let obj of world.objects) {
         if (obj.zLayer == 1)
             drawObj(ctx, offset, obj)
     };
-    for (obj of world.objects) {
+    for (let obj of world.objects) {
         if (obj.zLayer == 2)
             drawObj(ctx, offset, obj)
     };
@@ -160,7 +160,7 @@ class Animations {
             return;
         let halfTileSize = tileSize / 2;
         let newAnimations = [];
-        for (anim of this.animations) {
+        for (let anim of this.animations) {
             let x = ('pixelX' in anim.baseTile)? anim.baseTile.pixelX.get() : anim.baseTile.x * tileSize;
             let y = ('pixelY' in anim.baseTile)? anim.baseTile.pixelY.get() : anim.baseTile.y * tileSize;
             let offsetInPixels = { 

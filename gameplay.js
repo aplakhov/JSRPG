@@ -116,7 +116,7 @@ class World {
       if (fireEmitter != "") {
         let strength = Number(fireEmitter);
         fire.addConstantEmitter(x, y, strength);
-        this.vision.addLightSource(x, y, strength);
+        this.vision.addLightSource(x, y, strength/20);
       }
     }
     this.hints = ["Трава", "Вода", "Утоптанная земля", "Дремучий лес", "Камень", "Горные породы"];
@@ -125,7 +125,7 @@ class World {
 
   nextTurn(forced) {
     if (Math.random() < 0.8) {
-      for (obj of this.objects) {
+      for (let obj of this.objects) {
         if ('nextTurn' in obj)
           obj.nextTurn(forced);
       };
@@ -348,7 +348,7 @@ class Mob {
   }
 
   isEnemy() {
-    return this.stats && this.stats.enemy;
+    return this.stats && this.stats.enemy && !this.dead;
   }
 
   nextTurn(forced) {
