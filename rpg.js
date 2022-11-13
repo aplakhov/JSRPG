@@ -40,13 +40,20 @@ rpg = {
             "А ну сюда иди!"
         ]
     },
+    wooden_stick: {
+        type: "sword",
+        quality: 0,
+        name: "Дубинка",
+        inventory_img: "inventory_wooden_stick"
+    },
     short_sword: {
         type: "sword",
         quality: 2,
         name: "Короткий меч",
         message: "Меч это гораздо лучше, чем палка!",
         reject: "У меня уже есть оружие не хуже",
-        equip_img: "sword_equip"
+        equip_img: "sword_equip",
+        inventory_img: "inventory_short_sword"
     },
     wooden_shield: {
         type: "shield",
@@ -54,7 +61,8 @@ rpg = {
         name: "Деревянный щит",
         message: "Этот щит мне идёт",
         reject: "У меня уже есть щит не хуже",
-        equip_img: "shield"
+        equip_img: "shield",
+        inventory_img: "inventory_wooden_shield"
     },
     great_shield: {
         type: "shield",
@@ -62,6 +70,7 @@ rpg = {
         name: "Большой щит",
         message: 'В таверне "О щит" такой же висел вместо вывески',
         reject: "У меня уже есть щит не хуже",
-        equip_img: "metal_shield"
+        equip_img: "metal_shield",
+        inventory_img: "inventory_metal_shield"
     },
 }

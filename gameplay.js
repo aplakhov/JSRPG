@@ -594,6 +594,7 @@ class Player {
         let currentSlot = this[itemRpg.type];
         if (this.shouldEquip(currentSlot, itemRpg)) {
             itemRpg.img = makeImage(itemRpg.equip_img);
+            itemRpg.inventoryImg = makeImage(itemRpg.inventory_img);
             this[itemRpg.type] = itemRpg;
             if (itemRpg.message)
                 ui.dialogUI.addMessage(itemRpg.message, speaker1, player);

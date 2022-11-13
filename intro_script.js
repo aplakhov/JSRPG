@@ -88,6 +88,7 @@ class IntroMapScript {
         dragon.onContact = (player) => {
             player.applyDamage(10000);
         }
+        player.takeItem("wooden_stick");
     }
     nextTurn(forced) {
         executeTriggers(this.triggers, this.done);

@@ -294,6 +294,7 @@ class UI {
         this.tileUnderCursor = new TileUnderCursor();
 
         this.state = 2;
+        this.inventoryImg = makeImage("inventory");
 
         this.dialogUI = new DialogUI(
             ctx, dialogUIleftOffset, 0, uiWidth, dialogUIheight, dialogUIpadding
@@ -329,22 +330,25 @@ class UI {
         u1.draw(ctx, dialogUIleftOffset + padding, 200, false, false);
     }
 
+    _drawInventoryItem(slotX, slotY, img) {
+        if (!img || !img.complete)
+            return;
+        const width = canvas.width - dialogUIleftOffset;
+        const x = dialogUIleftOffset + (width - this.inventoryImg.width) / 2;
+        const y = 90;
+        ctx.drawImage(img, x + slotX * 64, y + slotY * 64);
+    }
+
     _drawInventory() {
-        let texts = [];
+        const width = canvas.width - dialogUIleftOffset;
+        const x = dialogUIleftOffset + (width - this.inventoryImg.width) / 2;
+        const y = 90;
+        ctx.drawImage(this.inventoryImg, x, y);
+
         if (player.sword)
-            texts.push(player.sword.name);
+            this._drawInventoryItem(0, 0, player.sword.inventoryImg)
         if (player.shield)
-            texts.push(player.shield.name);
-        let y = 40;
-        for (let n = 0; n < texts.length; n++) {
-            const width = canvas.width - dialogUIleftOffset;
-            const lineHeight = 24;
-            const padding = 5;
-            let u = new Utterance(ctx, texts[n], width, systemMessageSpeaker.color,
-                systemMessageSpeaker.bgColor, systemMessageSpeaker.font, lineHeight, padding);
-            u.draw(ctx, dialogUIleftOffset + padding, y, false, false);
-            y += u.textBoxHeight + padding;
-        }
+            this._drawInventoryItem(2, 0, player.shield.inventoryImg)
     }
 
     draw(ctx, offset) {
