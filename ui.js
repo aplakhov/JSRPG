@@ -334,21 +334,30 @@ class UI {
         if (!img || !img.complete)
             return;
         const width = canvas.width - dialogUIleftOffset;
-        const x = dialogUIleftOffset + (width - this.inventoryImg.width) / 2;
+        const x = dialogUIleftOffset + Math.floor((width - this.inventoryImg.width) / 2);
         const y = 90;
         ctx.drawImage(img, x + slotX * 64, y + slotY * 64);
     }
 
     _drawInventory() {
         const width = canvas.width - dialogUIleftOffset;
-        const x = dialogUIleftOffset + (width - this.inventoryImg.width) / 2;
+        const x = dialogUIleftOffset + Math.floor((width - this.inventoryImg.width) / 2);
         const y = 90;
+        console.log("Drawing at ", x, y);
         ctx.drawImage(this.inventoryImg, x, y);
 
         if (player.sword)
             this._drawInventoryItem(0, 0, player.sword.inventoryImg)
         if (player.shield)
             this._drawInventoryItem(2, 0, player.shield.inventoryImg)
+    }
+
+    _line(ctx, x1, y1, x2, y2) {
+        ctx.strokeStyle = 'rgb(140, 104, 20)';
+        ctx.beginPath();
+        ctx.moveTo(x1 + 0.5, y1 + 0.5);
+        ctx.lineTo(x2 + 0.5, y2 + 0.5);
+        ctx.stroke();
     }
 
     draw(ctx, offset) {
@@ -378,20 +387,17 @@ class UI {
                 ctx.fillRect(dialogUIleftOffset, 0, uiWidth, dialogUItopOffset / 2);
         }
         if (showMana) {
-            ctx.strokeStyle = 'rgb(140, 104, 20)';
-            ctx.strokeRect(dialogUIleftOffset, dialogUItopOffset / 2, uiWidth, 0);
+            this._line(ctx, dialogUIleftOffset, dialogUItopOffset / 2, dialogUIleftOffset + uiWidth, dialogUItopOffset / 2);
             this.manaBar.draw(player.mana, player.stats.mana, dialogUIleftOffset + barPadding, dialogUItopOffset / 4);
         }
         if (showHP) {
-            ctx.strokeStyle = 'rgb(140, 104, 20)';
-            ctx.strokeRect(dialogUIleftOffset, dialogUItopOffset, uiWidth, 0);
+            this._line(ctx, dialogUIleftOffset, dialogUItopOffset, dialogUIleftOffset + uiWidth, dialogUItopOffset);
             this.healthBar.draw(player.hp, player.stats.hp, dialogUIleftOffset + barPadding, dialogUItopOffset * 3 / 4);
         }
         let stateImg = this.stateImages[this.state];
         if (stateImg.complete)
             ctx.drawImage(stateImg, dialogUIleftOffset, dialogUIheight);
-        ctx.strokeStyle = 'rgb(140, 104, 20)';
-        ctx.strokeRect(dialogUIleftOffset, 0, 0, canvas.height);
+        this._line(ctx, dialogUIleftOffset, 0, dialogUIleftOffset, canvas.height);
         this.goals.draw();
     }
 
