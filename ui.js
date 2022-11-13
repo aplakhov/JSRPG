@@ -58,16 +58,15 @@ class TileUnderCursor {
     return true;
   }
 }
-let tileUnderCursor = new TileUnderCursor();
 
 function updateTileUnderCursor(mouseEvent) {
-  const rect = mouseEvent.target.getBoundingClientRect();
-  const offset = canvasOffsetInTiles();
-  if (mouseEvent.clientX >= rect.left + dialogUIleftOffset)
-    tileUnderCursor.hideTooltip();
-  const tileX = offset.x + ((mouseEvent.clientX - rect.left) / tileSize) >> 0;
-  const tileY = offset.y + ((mouseEvent.clientY - rect.top) / tileSize) >> 0;
-  tileUnderCursor.set(tileX, tileY);
+    const rect = mouseEvent.target.getBoundingClientRect();
+    const offset = canvasOffsetInTiles();
+    if (mouseEvent.clientX >= rect.left + dialogUIleftOffset)
+        ui.tileUnderCursor.hideTooltip();
+    const tileX = offset.x + ((mouseEvent.clientX - rect.left) / tileSize) >> 0;
+    const tileY = offset.y + ((mouseEvent.clientY - rect.top) / tileSize) >> 0;
+    ui.tileUnderCursor.set(tileX, tileY);
 };
 
 class DialogUI {
@@ -288,6 +287,8 @@ const barPadding = 5;
 
 class UI {
   constructor() {
+    this.tileUnderCursor = new TileUnderCursor();
+
     this.state = 2;
 
     this.dialogUI = new DialogUI(
@@ -311,14 +312,49 @@ class UI {
     this.manaBar = new ManaBar(ctx, uiWidth - 2 * barPadding, "rgb(0, 38, 255)", "rgb(0, 148, 255)")
     this.healthBar = new ManaBar(ctx, uiWidth - 2 * barPadding, "rgb(255, 0, 40)", "rgb(255, 150, 190)")
   }
+
+  _drawStatsAndMagic() {
+    const width = canvas.width - dialogUIleftOffset;
+    const lineHeight = 24;
+    const padding = 5;
+    const text1 = `Атака: ${player.stats.attackMin}-${player.stats.attackMax}`;
+    let u1 = new Utterance(ctx, text1, width, systemMessageSpeaker.color,
+      systemMessageSpeaker.bgColor, systemMessageSpeaker.font, lineHeight, padding);
+    u1.draw(ctx, dialogUIleftOffset + padding, 200, false, false);
+  }
   
-  draw() {
+  _drawInventory() {
+    let texts = [];
+    if (player.sword)
+      texts.push(player.sword.name);
+    if (player.shield)
+      texts.push(player.shield.name);
+    let y = 40;
+    for (let n = 0; n < texts.length; n++) {
+      const width = canvas.width - dialogUIleftOffset;
+      const lineHeight = 24;
+      const padding = 5;
+      let u = new Utterance(ctx, texts[n], width, systemMessageSpeaker.color,
+        systemMessageSpeaker.bgColor, systemMessageSpeaker.font, lineHeight, padding);
+      u.draw(ctx, dialogUIleftOffset + padding, y, false, false);
+      y += u.textBoxHeight + padding;
+    }
+  }
+  
+  draw(ctx, offset) {
+    if (this.tileUnderCursor.needShowTooltip())
+        drawTooltip(ctx, offset, this.tileUnderCursor);
+
     if (this.state == 2) {
       this.dialogUI.draw();
     } else {
       const backColor = "rgb(240, 214, 175)";
       ctx.fillStyle = backColor;
       ctx.fillRect(dialogUIleftOffset, 0, uiWidth, canvas.height);
+      if (this.state == 0)
+        this._drawStatsAndMagic();
+      else
+        this._drawInventory();
     }
       
     let showMana = player.stats.mana > 0;
@@ -371,26 +407,26 @@ let ui = new UI();
 canvas.onmousemove = updateTileUnderCursor;
 
 canvas.onclick = function clickEvent(e) {
-  updateTileUnderCursor(e);
-  tileUnderCursor.hideTooltip();
-  if (ui.onclick(e))
-    return;
-  player.tryCast(tileUnderCursor.x, tileUnderCursor.y, "stone")
+    updateTileUnderCursor(e);
+    ui.tileUnderCursor.hideTooltip();
+    if (ui.onclick(e))
+        return;
+    player.tryCast(ui.tileUnderCursor.x, ui.tileUnderCursor.y, "stone")
 }
 
 addEventListener("keyup", function(event) {
-  tileUnderCursor.hideTooltip();
-  ui.goals.hidden = true;
-  if (event.key == "ArrowLeft")
-    player.tryMove(-1,0);
-  if (event.key == "ArrowUp")
-    player.tryMove(0,-1);
-  if (event.key == "ArrowRight")
-    player.tryMove(1,0);
-  if (event.key == "ArrowDown")
-    player.tryMove(0,1);
-  if (event.key == "f")
-    animations.add(new FadeToBlack(4, "Тем временем..."), player);
-  if (event.key == "`")
-    drawAI = !drawAI;
+    ui.tileUnderCursor.hideTooltip();
+    ui.goals.hidden = true;
+    if (event.key == "ArrowLeft")
+        player.tryMove(-1,0);
+    if (event.key == "ArrowUp")
+        player.tryMove(0,-1);
+    if (event.key == "ArrowRight")
+        player.tryMove(1,0);
+    if (event.key == "ArrowDown")
+        player.tryMove(0,1);
+    if (event.key == "f")
+        animations.add(new FadeToBlack(4, "Тем временем..."), player);
+    if (event.key == "`")
+        drawAI = !drawAI;
 });

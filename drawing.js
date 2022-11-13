@@ -354,9 +354,7 @@ setInterval( () => {
     fire.step(canvasOffsetInTiles());
     fire.draw(ctx, offset);
     animations.draw(ctx, offset);
-    if (tileUnderCursor.needShowTooltip())
-        drawTooltip(ctx, offset, tileUnderCursor);
-    ui.draw();
+    ui.draw(ctx, offset);
   },
   20
 );
