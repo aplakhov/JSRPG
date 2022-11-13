@@ -339,17 +339,43 @@ class UI {
         ctx.drawImage(img, x + slotX * 64, y + slotY * 64);
     }
 
+    _drawInventoryTooltip(text, left, top) {
+        const maxWidth = 320;
+        const lineHeight = 24;
+        const padding = 5;
+        let u = new Utterance(ctx, text, maxWidth, systemMessageSpeaker.color,
+            systemMessageSpeaker.bgColor, systemMessageSpeaker.font, lineHeight, padding);
+        left -= u.textBoxWidth / 2;
+        if (left < dialogUIleftOffset)
+            left = dialogUIleftOffset;
+        if (left + u.textBoxWidth + 12 >= canvas.width)
+            left = canvas.width - u.textBoxWidth - 12;
+        u.draw(ctx, left, top - tileSize, 0, true);    
+    }
+
     _drawInventory() {
         const width = canvas.width - dialogUIleftOffset;
         const x = dialogUIleftOffset + Math.floor((width - this.inventoryImg.width) / 2);
         const y = 90;
-        console.log("Drawing at ", x, y);
         ctx.drawImage(this.inventoryImg, x, y);
 
-        if (player.sword)
-            this._drawInventoryItem(0, 0, player.sword.inventoryImg)
-        if (player.shield)
-            this._drawInventoryItem(2, 0, player.shield.inventoryImg)
+        let slotX = Math.floor((this.mouseSelfX - x)/64);
+        let slotY = Math.floor((this.mouseSelfY - y)/64);
+        let tooltip = "";
+
+        if (player.sword) {
+            this._drawInventoryItem(0, 0, player.sword.inventoryImg);
+            if (slotX == 0 && slotY == 0)
+                tooltip = player.sword.name;
+        }
+        if (player.shield) {
+            this._drawInventoryItem(2, 0, player.shield.inventoryImg);
+            if (slotX == 2 && slotY == 0)
+                tooltip = player.shield.name;
+        }
+
+        if (tooltip)
+            this._drawInventoryTooltip(tooltip, this.mouseSelfX, this.mouseSelfY);
     }
 
     _line(ctx, x1, y1, x2, y2) {
@@ -417,10 +443,19 @@ class UI {
         }
         return false;
     }
+
+    onmousemove(mouseEvent) {
+        const rect = mouseEvent.target.getBoundingClientRect();
+        this.mouseSelfX = mouseEvent.clientX - rect.left;
+        this.mouseSelfY = mouseEvent.clientY - rect.top;
+    }
 }
 let ui = new UI();
 
-canvas.onmousemove = updateTileUnderCursor;
+canvas.onmousemove = function clickEvent(e) {
+    updateTileUnderCursor(e);
+    ui.onmousemove(e);
+}
 
 canvas.onclick = function clickEvent(e) {
     updateTileUnderCursor(e);

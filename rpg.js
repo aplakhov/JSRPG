@@ -44,6 +44,7 @@ rpg = {
         type: "sword",
         quality: 0,
         name: "Дубинка",
+        equip_img: "stick_equip",
         inventory_img: "inventory_wooden_stick"
     },
     short_sword: {

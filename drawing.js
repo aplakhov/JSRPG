@@ -119,7 +119,7 @@ function drawTooltip(ctx, offset, tileUnderCursor) {
     left -= u.textBoxWidth / 2;
     if (left < 0)
         left = 0;
-    if (left + u.textBoxWidth + 20 >= dialogUIleftOffset)
+    if (left + u.textBoxWidth + 12 >= dialogUIleftOffset)
         left = dialogUIleftOffset - u.textBoxWidth - 12;
     u.draw(ctx, left, top - tileSize, 0, true);
 }
@@ -292,6 +292,10 @@ class Utterance {
     }
 
     _roundedRect(ctx, x, y, width, height, radius, doBorder) {
+        x = Math.floor(x) + 0.5;
+        y = Math.floor(y) + 0.5;
+        width = Math.floor(width);
+        height = Math.floor(height);
         ctx.beginPath();
         ctx.moveTo(x, y + radius);
         ctx.arcTo(x, y + height, x + radius, y + height, radius);
@@ -310,7 +314,7 @@ class Utterance {
         if (width < this.textBoxWidth)
             width = this.textBoxWidth;
         this._roundedRect(ctx, textBoxLeft, textBoxTop,
-            width + 2 * this.padding, this.textBoxHeight, 6, doBorder);
+            width + this.padding, this.textBoxHeight, 6, doBorder);
         ctx.fillStyle = this.color;
         ctx.font = this.font;
         for (let l = 0; l < this.lines.length; l++)
