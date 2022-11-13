@@ -254,7 +254,7 @@ class Goals {
             this.ctx.fillStyle = backColor;
             this.ctx.fillRect(x, y, w, h);
             this.ctx.strokeStyle = foreColor;
-            this.ctx.strokeRect(x, y, w, h);
+            this.ctx.strokeRect(x + 0.5, y + 0.5, w, h);
             this.ctx.fillStyle = foreColor;
             this.ctx.font = this.headerFont;
             this.ctx.fillText(this.header, x + (w - this.headerWidth) / 2, y + 64);
