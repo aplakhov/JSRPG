@@ -199,4 +199,7 @@ class IntroMapScript {
             dragon.laughingUntil = animations.globalTimer + 1 * dragon.tickled;
         }
     }
+    onItemUse(item) {
+        return false;
+    }
 };

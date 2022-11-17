@@ -1259,12 +1259,12 @@
                         {
                          "name":"ZeroX",
                          "type":"int",
-                         "value":96
+                         "value":110
                         }, 
                         {
                          "name":"ZeroY",
                          "type":"int",
-                         "value":96
+                         "value":102
                         }],
                  "rotation":0,
                  "visible":true,

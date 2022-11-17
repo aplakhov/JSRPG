@@ -107,11 +107,9 @@ class DialogUI {
         return true;
     }
 
-    forceRedraw() {
-        this.redraw = true;
-    }
-
     addMessage(text, speaker, baseTile, okToRepeat) {
+        if (text instanceof Array)
+            text = randomFrom(text);
         if (!this.addMessageImpl(text, speaker.color, speaker.bgColor, speaker.font, speaker.portrait, okToRepeat))
             return;
         if (baseTile) {
@@ -128,9 +126,8 @@ class DialogUI {
 
     draw() {
         let timeFromLastMessage = Date.now() / 1000. - this.lastMessageAdded;
-        if (timeFromLastMessage > 1 && !this.redraw)
-            return;
-        this.redraw = false;
+        if (timeFromLastMessage > 1)
+            timeFromLastMessage = 1;
 
         this.ctx.fillStyle = 'rgb(240, 214, 175)';
         this.ctx.fillRect(this.left, this.top, this.width, this.height);
@@ -304,6 +301,11 @@ class UI {
             makeImage("icons2"),
             makeImage("icons3"),
         ];
+        this.spellImages = {
+            none: makeImage("spell_none"),
+            stone: makeImage("spell_stone"),
+            fire: makeImage("spell_fire"),
+        };
 
         this.goals = new Goals(ctx);
         // TODO: move to script
@@ -321,13 +323,31 @@ class UI {
     }
 
     _drawStatsAndMagic() {
-        const width = canvas.width - dialogUIleftOffset;
-        const lineHeight = 24;
-        const padding = 5;
-        const text1 = `Атака: ${player.stats.attackMin}-${player.stats.attackMax}`;
-        let u1 = new Utterance(ctx, text1, width, systemMessageSpeaker.color,
-            systemMessageSpeaker.bgColor, systemMessageSpeaker.font, lineHeight, padding);
-        u1.draw(ctx, dialogUIleftOffset + padding, 200, false, false);
+        const maxSlotX = 3, maxSlotY = 4;
+        for (let slotX = 0; slotX < maxSlotX; slotX++) {
+            for (let slotY = 0; slotY < maxSlotY; slotY++) {
+                let img = this.spellImages.none;
+                if (player.stats.mana >= 50 && slotX == 0 && slotY == 0)
+                    img = this.spellImages.stone;
+                //if (slotX == 1 && slotY == 0)
+                //    img = this.spellImages.fire;
+                this._drawInventoryItem(slotX, slotY, img);
+            }
+        }
+
+        const x = this._inventoryX();
+        const y = 90;
+        let slotX = Math.floor((this.mouseSelfX - x)/64);
+        let slotY = Math.floor((this.mouseSelfY - y)/64);
+        let tooltip = "";
+        if (player.stats.mana >= 50 && slotX == 0 && slotY == 0)
+            tooltip = "Создать камень";
+        //else if (slotX == 1 && slotY == 0)
+        //    tooltip = "Призвать огонь";
+        else if (slotX >= 0 && slotX < maxSlotX && slotY >= 0 && slotY < maxSlotY)
+            tooltip = "Не выученное заклинание";
+        if (tooltip)
+            this._drawInventoryTooltip(tooltip, this.mouseSelfX, this.mouseSelfY);
     }
 
     _drawInventoryItem(slotX, slotY, img) {
@@ -346,16 +366,20 @@ class UI {
         let u = new Utterance(ctx, text, maxWidth, systemMessageSpeaker.color,
             systemMessageSpeaker.bgColor, systemMessageSpeaker.font, lineHeight, padding);
         left -= u.textBoxWidth / 2;
-        if (left < dialogUIleftOffset)
-            left = dialogUIleftOffset;
-        if (left + u.textBoxWidth + 12 >= canvas.width)
-            left = canvas.width - u.textBoxWidth - 12;
+        if (left <= dialogUIleftOffset)
+            left = dialogUIleftOffset + 1;
+        if (left + u.textBoxWidth + 6 >= canvas.width)
+            left = canvas.width - u.textBoxWidth - 6;
         u.draw(ctx, left, top - tileSize, 0, true);    
     }
 
-    _drawInventory() {
+    _inventoryX() {
         const width = canvas.width - dialogUIleftOffset;
-        const x = dialogUIleftOffset + Math.floor((width - this.inventoryImg.width) / 2);
+        return dialogUIleftOffset + Math.floor((width - this.inventoryImg.width) / 2);
+    }
+
+    _drawInventory() {
+        const x = this._inventoryX();
         const y = 90;
         ctx.drawImage(this.inventoryImg, x, y);
 
@@ -376,6 +400,22 @@ class UI {
 
         if (tooltip)
             this._drawInventoryTooltip(tooltip, this.mouseSelfX, this.mouseSelfY);
+    }
+
+    _onInventoryClick() {
+        const x = this._inventoryX();
+        const y = 90;
+        let slotX = Math.floor((this.mouseSelfX - x)/64);
+        let slotY = Math.floor((this.mouseSelfY - y)/64);
+        let itemToUse = null;
+        if (slotX == 0 && slotY == 0 && player.sword)
+            itemToUse = player.sword;
+        if (slotX == 2 && slotY == 0 && player.shield)
+            itemToUse = player.shield;
+        if (itemToUse && itemToUse.use_message) {
+            if (!world.script.onItemUse(itemToUse))
+                this.dialogUI.addMessage(itemToUse.use_message, speaker1, player, true);
+        }
     }
 
     _line(ctx, x1, y1, x2, y2) {
@@ -430,18 +470,15 @@ class UI {
     onclick(mouseEvent) {
         if (this.goals.onclick(mouseEvent))
             return true;
-        const rect = mouseEvent.target.getBoundingClientRect();
-        const x = mouseEvent.clientX - rect.left;
-        const y = mouseEvent.clientY - rect.top;
-        if (y > dialogUIheight && x > dialogUIleftOffset) {
-            let state = Math.floor((x - dialogUIleftOffset) * 3 / (canvas.width - dialogUIleftOffset));
-            if (state >= 0 && state <= 2) {
+        this.onmousemove(mouseEvent);
+        if (this.mouseSelfY > dialogUIheight && this.mouseSelfX > dialogUIleftOffset) {
+            let state = Math.floor((this.mouseSelfX - dialogUIleftOffset) * 3 / (canvas.width - dialogUIleftOffset));
+            if (state >= 0 && state <= 2)
                 this.state = state;
-                this.dialogUI.forceRedraw();
-            }
-            return true;
+        } else if (this.state == 1) {
+            this._onInventoryClick();
         }
-        return false;
+        return this.mouseSelfX > dialogUIleftOffset;
     }
 
     onmousemove(mouseEvent) {

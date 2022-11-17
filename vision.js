@@ -96,4 +96,14 @@ class PlayerVision {
     isVisible(x, y) {
       return this.everythingVisible() || this.visibleTiles[x][y] == this.turnNumber;
     }
+
+    isVisibleSafe(x, y) {
+      if (this.everythingVisible())
+        return true;
+      if (x < 0 || x >= world.height)
+        return false;
+      if (y < 0 || y >= world.height)
+        return false;
+      return this.visibleTiles[x][y] == this.turnNumber;
+    }
 }

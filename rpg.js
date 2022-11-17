@@ -31,7 +31,7 @@ rpg = {
             ]                           
         },
         aggroMessages: [
-            "Сегодня едим мясо! Молодое мясо!",
+            "Сегодня едим мясо!",
             "Ты вкусный?",
             "Ты с какого района?",
             "Деньги есть? А если найду?",
@@ -45,7 +45,12 @@ rpg = {
         quality: 0,
         name: "Дубинка",
         equip_img: "stick_equip",
-        inventory_img: "inventory_wooden_stick"
+        inventory_img: "inventory_wooden_stick",
+        use_message: [
+            "*размахивает дубинкой*",
+            "*размахивает дубинкой*",
+            "Все с дороги, я знаю бодзюцу!"
+        ]
     },
     short_sword: {
         type: "sword",
@@ -54,7 +59,12 @@ rpg = {
         message: "Меч это гораздо лучше, чем палка!",
         reject: "У меня уже есть оружие не хуже",
         equip_img: "sword_equip",
-        inventory_img: "inventory_short_sword"
+        inventory_img: "inventory_short_sword",
+        use_message: [
+            "*изображает турнирного бойца*",
+            "*размахивает направо и налево*",
+            "*делает крутой выпад*"
+        ]
     },
     wooden_shield: {
         type: "shield",
@@ -63,7 +73,13 @@ rpg = {
         message: "Этот щит мне идёт",
         reject: "У меня уже есть щит не хуже",
         equip_img: "shield",
-        inventory_img: "inventory_wooden_shield"
+        inventory_img: "inventory_wooden_shield",
+        use_message: [
+            "И как его тут использовать?", 
+            "Если бы шел дождь, я бы его использовал вместо зонтика. Но дождя нет",
+            "Он деревянный. Его можно, например, поджечь. Но я не хочу",
+            "Когда надо, он как-то сам собой используется"
+        ]
     },
     great_shield: {
         type: "shield",
@@ -72,6 +88,11 @@ rpg = {
         message: 'В таверне "О щит" такой же висел вместо вывески',
         reject: "У меня уже есть щит не хуже",
         equip_img: "metal_shield",
-        inventory_img: "inventory_metal_shield"
+        inventory_img: "inventory_metal_shield",
+        use_message: [
+            "Когда надо, он как-то сам собой используется",
+            "Вот выйду на пенсию, куплю себе таверну и обязательно тоже использую для вывески",
+            "*любуется крутым щитом*"
+        ]
     },
 }

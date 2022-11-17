@@ -16,7 +16,7 @@ function makeImage(imageName) {
     if (!imageName.endsWith(".png"))
         imageName += ".png";
     let image = new Image();
-    image.src = imageName;
+    image.src = "Assets/" + imageName;
     return image;
 }
 
@@ -568,11 +568,8 @@ class Player {
             this.mana++;
         if (this.mana > this.stats.mana)
             this.mana = this.stats.mana;
-        if (this.hp < this.stats.hp) {
+        if (this.hp < this.stats.hp)
             this.hp++;
-            if (this.hp >= this.stats.hp)
-                ui.dialogUI.forceRedraw(); // force hiding HP bar
-        }
         if (this.hp > this.stats.hp)
             this.hp = this.stats.hp;
         this.inCombat = false;

@@ -1,108 +1,130 @@
 "use strict"
 
-function hasBorder(world, tile, nearX, nearY) {
-    if (tile == TERRAIN_WATER)
-        return false;
-    let row = world.terrain[nearX];
-    if (!row)
-        return false;
-    let nearTile = row[nearY];
-    if (nearTile == TERRAIN_WATER)
-        return true;
-}
-
-let stableRandom = [];
-for (let dx = 0; dx < viewInTiles; dx++) {
-    for (let dy = 0; dy < viewInTiles; dy++) {
-        stableRandom.push(Math.floor(Math.random() * 10000));
-    }
-}
-
-function drawWorld(ctx, offset, world) {
-    const fillStyles = [
-        ["rgb(93, 161, 48)", "rgb(91, 164, 49)", "rgb(93, 166, 48)", "rgb(93, 163, 48)"],
-        ["rgb(0, 200, 200)", "rgb(0, 195, 205)", "rgb(0, 198, 205)", "rgb(0, 202, 198)"],
-        ["rgb(252, 221, 118)", "rgb(255, 224, 120)"],
-        ["rgb(66, 83, 43)", "rgb(69, 87, 45)", "rgb(62, 77, 40)"],
-        ["rgb(81, 81, 81)", "rgb(127, 127, 127)", "rgb(95, 95, 95)"],
-        ["rgb(62, 42, 25)", "rgb(50, 30, 20)", "rgb(75, 45, 30)"],
-    ];
-    // draw terrain
-    for (let dx = 0; dx < viewInTiles; dx++) {
-        for (let dy = 0; dy < viewInTiles; dy++) {
-            let x = offset.x + dx;
-            let y = offset.y + dy;
-            if (world.vision.isVisible(x, y)) {
-                let tile = world.terrain[x][y];
-                let styles = fillStyles[tile];
-                let variation = stableRandom[(x * 17 + y * 31) % stableRandom.length];
-                ctx.fillStyle = styles[variation % styles.length];
-                ctx.fillRect(dx * tileSize, dy * tileSize, tileSize, tileSize);
-            }
-        }
-    }
-    const borderStyle = "rgb(87,54,36)";
-    for (let dx = 0; dx < viewInTiles; dx++) {
-        for (let dy = 0; dy < viewInTiles; dy++) {
-            let x = offset.x + dx;
-            let y = offset.y + dy;
-            if (!world.vision.isVisible(x, y))
-                continue;
-            let tile = world.terrain[x][y];
-            let borderRight = hasBorder(world, tile, x + 1, y);
-            let borderDown = hasBorder(world, tile, x, y + 1);
-            let borderLeft = hasBorder(world, tile, x - 1, y);
-            let borderUp = hasBorder(world, tile, x, y - 1);
-            if (borderDown || borderLeft || borderRight || borderUp) {
-                ctx.fillStyle = borderStyle;
-                if (borderDown)
-                    ctx.fillRect(dx * tileSize, dy * tileSize + tileSize - 3, 33, 6);
-                if (borderUp)
-                    ctx.fillRect(dx * tileSize, dy * tileSize, 33, 1);
-                if (borderLeft)
-                    ctx.fillRect(dx * tileSize, dy * tileSize, 1, 32);
-                if (borderRight)
-                    ctx.fillRect(dx * tileSize + tileSize - 1, dy * tileSize, 2, 32);
-            }
-        }
-    }
-    // draw objects
-    for (let obj of world.objects) {
-        if (!obj.zLayer)
-            drawObj(ctx, offset, obj)
-    };
-    player.draw(ctx, (player.x - offset.x) * tileSize, (player.y - offset.y) * tileSize);
-    for (let obj of world.objects) {
-        if (obj.zLayer == 1)
-            drawObj(ctx, offset, obj)
-    };
-    for (let obj of world.objects) {
-        if (obj.zLayer == 2)
-            drawObj(ctx, offset, obj)
-    };
-    // draw darkness
-    ctx.fillStyle = 'black';
-    for (let dx = 0; dx < viewInTiles; dx++) {
-        for (let dy = 0; dy < viewInTiles; dy++) {
-            let x = offset.x + dx;
-            let y = offset.y + dy;
-            if (!world.vision.isVisible(x, y))
-                ctx.fillRect(dx * tileSize, dy * tileSize, tileSize, tileSize);
-        }
-    }
-    //draw AI
-    if (drawAI) {
-        ctx.fillStyle = 'rgba(255, 0, 0, 0.25)';
+class Renderer {
+    constructor() {
+        this.stableRandom = []
         for (let dx = 0; dx < viewInTiles; dx++) {
             for (let dy = 0; dy < viewInTiles; dy++) {
+                this.stableRandom.push(Math.floor(Math.random() * 12000));
+            }
+        }
+        this.sandTiles = makeImage("sand_tiles");
+        this.grassTiles = makeImage("grass_tiles");
+        this.groundTiles = makeImage("ground_tiles");
+        this.forestTiles = makeImage("forest_tiles2");
+        this.stoneTile = makeImage("stone_tile");
+        this.stoneGroundTile = makeImage("stone_wall_ground_tile");
+        this.rockTiles = makeImage("rock_tiles");
+        this.rockGroundTiles = makeImage("rock_ground_tiles");
+        this.animatedWater = makeImage("animated_water");
+        this.darknessVeil = makeImage("darkness_veil");        
+    }
+
+    _drawTerrainLayerNewStyle(ctx, offset, world, tile, tileImages) {
+        let variationsNum = tileImages.width / 64;
+        let stableRandomLen = this.stableRandom.length;
+        for (let dy = 0; dy < viewInTiles; dy++) {
+            for (let dx = 0; dx < viewInTiles; dx++) {
                 let x = offset.x + dx;
                 let y = offset.y + dy;
-                if (!world.pathfinding.isPassable(x, y, null))
-                    ctx.fillRect(dx * tileSize, dy * tileSize, tileSize, tileSize);
+                if (tile == world.terrain[x][y]) {
+                    let variation = this.stableRandom[(x + y * viewInTiles) % stableRandomLen] % variationsNum;
+                    ctx.drawImage(tileImages, variation*64, 0, 64, 64, dx*tileSize-16, dy*tileSize-16, 64, 64); 
+                }
             }
         }
     }
-};
+
+    _drawTerrainNewStyle(ctx, offset, world) {
+        let numWaterFrames = this.animatedWater.width/32
+        for (let dy = 0; dy < viewInTiles; dy++) {
+            for (let dx = 0; dx < viewInTiles; dx++) {
+                let x = offset.x + dx;
+                let y = offset.y + dy;
+                if (TERRAIN_WATER == world.terrain[x][y]) {
+                    let animatedWaterFrame = Math.floor(animations.globalTimer*8) % numWaterFrames;
+                    ctx.drawImage(this.animatedWater, animatedWaterFrame*32, 0, 32, 32, dx*tileSize, dy*tileSize, 32, 32); 
+                }
+            }
+        }
+        this._drawTerrainLayerNewStyle(ctx, offset, world, TERRAIN_SAND, this.groundTiles);
+        this._drawTerrainLayerNewStyle(ctx, offset, world, TERRAIN_GRASS, this.groundTiles);
+        this._drawTerrainLayerNewStyle(ctx, offset, world, TERRAIN_STONE, this.stoneGroundTile);
+        for (let dy = 0; dy < viewInTiles; dy++) {
+            for (let dx = 0; dx < viewInTiles; dx++) {
+                let x = offset.x + dx;
+                let y = offset.y + dy;
+                if (TERRAIN_STONE == world.terrain[x][y]) {
+                    ctx.drawImage(this.stoneTile, dx*tileSize, dy*tileSize); 
+                }
+            }
+        }
+        this._drawTerrainLayerNewStyle(ctx, offset, world, TERRAIN_SAND, this.sandTiles);
+        this._drawTerrainLayerNewStyle(ctx, offset, world, TERRAIN_GRASS, this.grassTiles);
+        this._drawTerrainLayerNewStyle(ctx, offset, world, TERRAIN_STONE_WALL, this.rockGroundTiles);
+        this._drawTerrainLayerNewStyle(ctx, offset, world, TERRAIN_STONE_WALL, this.rockTiles);
+    } 
+
+    _drawObj(ctx, offset, obj) {
+        if ('draw' in obj) {
+            let x = obj.x
+            let y = obj.y
+            let visible = 'isVisible' in obj ? obj.isVisible(offset) : world.vision.isVisibleSafe(x, y, offset);
+            if (visible)
+                obj.draw(ctx, (x - offset.x) * tileSize, (y - offset.y) * tileSize);
+        }
+    }
+    
+    _drawObjects(ctx, offset, world) {
+        for (let obj of world.objects) {
+            if (!obj.zLayer)
+                this._drawObj(ctx, offset, obj)
+        };
+        player.draw(ctx, (player.x - offset.x) * tileSize, (player.y - offset.y) * tileSize);
+        for (let obj of world.objects) {
+            if (obj.zLayer == 1)
+                this._drawObj(ctx, offset, obj)
+        };
+        for (let obj of world.objects) {
+            if (obj.zLayer == 2)
+                this._drawObj(ctx, offset, obj)
+        };
+    }
+        
+    _drawDarkness(ctx, offset, world) {
+        for (let dx = -1; dx < viewInTiles; dx++) {
+            for (let dy = -1; dy < viewInTiles; dy++) {
+                let x = offset.x + dx;
+                let y = offset.y + dy;
+                let upleftVisible = world.vision.isVisibleSafe(x, y)
+                let uprightVisible = world.vision.isVisibleSafe(x+1, y)
+                let downleftVisible = world.vision.isVisibleSafe(x, y+1)
+                let downrightVisible = world.vision.isVisibleSafe(x+1, y+1)
+                let tile = (upleftVisible? 1: 0) + (uprightVisible? 2: 0) + (downleftVisible? 4: 0) + (downrightVisible? 8: 0)
+                if (tile < 15)
+                    ctx.drawImage(this.darknessVeil, 32*tile, 0, 32, 32, dx*tileSize+16, dy*tileSize+16, 32, 32)
+            }
+        }
+    }        
+
+    drawWorld(ctx, offset, world) {
+        this._drawTerrainNewStyle(ctx, offset, world);
+        this._drawObjects(ctx, offset, world);
+        this._drawTerrainLayerNewStyle(ctx, offset, world, TERRAIN_DARK_FOREST, this.forestTiles);
+        this._drawDarkness(ctx, offset, world);
+        if (drawAI) {
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.25)';
+            for (let dx = 0; dx < viewInTiles; dx++) {
+                for (let dy = 0; dy < viewInTiles; dy++) {
+                    let x = offset.x + dx;
+                    let y = offset.y + dy;
+                    if (!world.pathfinding.isPassable(x, y, null))
+                        ctx.fillRect(dx * tileSize, dy * tileSize, tileSize, tileSize);
+                }
+            }
+        }
+    }
+}
 
 function drawTooltip(ctx, offset, tileUnderCursor) {
     if (!world.vision.isVisible(tileUnderCursor.x, tileUnderCursor.y))
@@ -122,24 +144,6 @@ function drawTooltip(ctx, offset, tileUnderCursor) {
     if (left + u.textBoxWidth + 12 >= dialogUIleftOffset)
         left = dialogUIleftOffset - u.textBoxWidth - 12;
     u.draw(ctx, left, top - tileSize, 0, true);
-}
-
-function isVisible(x, y, offset) {
-    if (x < offset.x || x >= offset.x + viewInTiles || y < offset.y || y >= offset.y + viewInTiles)
-        return false;
-    if (!world.vision.isVisible(x, y))
-        return false;
-    return true;
-}
-
-function drawObj(ctx, offset, obj) {
-    if ('draw' in obj) {
-        let x = obj.x
-        let y = obj.y
-        let visible = 'isVisible' in obj ? obj.isVisible(offset) : isVisible(x, y, offset);
-        if (visible)
-            obj.draw(ctx, (x - offset.x) * tileSize, (y - offset.y) * tileSize);
-    }
 }
 
 // Animations. Every animation is an object with a function draw(ctx, offsetInPixels, timeFromStart) => bool
@@ -351,10 +355,11 @@ class DialogMessages {
     }
 }
 
+let renderer = new Renderer();
 setInterval(() => {
         const offset = canvasOffsetInTiles();
         world.script.onDraw();
-        drawWorld(ctx, offset, world);
+        renderer.drawWorld(ctx, offset, world);
         fire.step(canvasOffsetInTiles());
         fire.draw(ctx, offset);
         animations.draw(ctx, offset);
