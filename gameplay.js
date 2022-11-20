@@ -6,6 +6,8 @@ function getProp(obj, name) {
         for (let n = 0; n < props.length; ++n)
             if (props[n].name == name)
                 return props[n].value;
+    } else if (name in obj) {
+        return obj[name];
     }
     return "";
 }
@@ -73,31 +75,14 @@ class World {
             this.terrain.push(row)
         }
         let objects = map["layers"][1]["objects"];
-        let halfTileSize = tileSize / 2;
         for (let n = 0; n < objects.length; n++) {
-            let obj = objects[n]
+            let obj = objects[n];
             let x = Math.floor((obj.x + 4) / tileSize);
             let y = Math.floor((obj.y + 4) / tileSize);
-            let width = Math.floor((obj.width + halfTileSize) / tileSize);
-            let height = Math.floor((obj.height + halfTileSize) / tileSize);
-            if (obj.class == "ManaBottle")
-                this.objects.push(new ManaBottle(x, y));
-            if (obj.class == "Bones")
-                this.objects.push(new DecorativeObject(obj, x, y, bonesImage));
-            if (obj.class == "DecorativeObject")
-                this.objects.push(new DecorativeObject(obj, x, y, makeImageFor(obj)));
-            if (obj.class == "BigScaryObject")
-                this.objects.push(new BigScaryObject(obj, x, y));
-            if (obj.class == "Mob")
-                this.objects.push(new Mob(obj, x, y));
-            if (obj.class == "Message") {
-                let msg = getProp(obj, "Message");
-                if (msg == "")
-                    msg = obj.name;
-                this.objects.push(new Message(msg, x, y, width, height));
-            }
             if (obj.class == "Darkness") {
                 let radius = Number(getProp(obj, "Radius"));
+                let width = Math.floor((obj.width + halfTileSize) / tileSize);
+                let height = Math.floor((obj.height + halfTileSize) / tileSize);        
                 if (radius < 4)
                     radius = 4;
                 darknessAreas.push({
@@ -107,10 +92,8 @@ class World {
                     height: height,
                     radius: radius
                 });
-            }
-            let scriptName = getProp(obj, "ScriptName");
-            if (scriptName != "")
-                this.scriptObjects[scriptName] = this.objects.at(-1);
+            } else
+                this.addNewObject(obj, x, y);
         }
         this.pathfinding = new Pathfinding(this);
         this.pathfinding.recalculateOccupiedTiles(this.objects);
@@ -128,6 +111,31 @@ class World {
         }
         this.hints = ["Трава", "Вода", "Утоптанная земля", "Дремучий лес", "Камень", "Горные породы"];
         this.script = new IntroMapScript(this);
+    }
+
+    addNewObject(obj, x, y) {
+        if (obj.class == "ManaBottle")
+            this.objects.push(new ManaBottle(x, y));
+        if (obj.class == "Bones")
+            this.objects.push(new DecorativeObject(obj, x, y, bonesImage));
+        if (obj.class == "DecorativeObject")
+            this.objects.push(new DecorativeObject(obj, x, y, makeImageFor(obj)));
+        if (obj.class == "BigScaryObject")
+            this.objects.push(new BigScaryObject(obj, x, y));
+        if (obj.class == "Mob")
+            this.objects.push(new Mob(obj, x, y));
+        if (obj.class == "Message") {
+            let width = Math.floor((obj.width + halfTileSize) / tileSize);
+            let height = Math.floor((obj.height + halfTileSize) / tileSize);
+            let msg = getProp(obj, "Message");
+            if (msg == "")
+                msg = obj.name;
+            this.objects.push(new Message(msg, x, y, width, height));
+        }
+        let scriptName = getProp(obj, "ScriptName");
+        if (scriptName != "")
+            this.scriptObjects[scriptName] = this.objects.at(-1);
+        return this.objects.at(-1);
     }
 
     nextTurn(forced) {
@@ -198,7 +206,7 @@ class Message {
         return x >= this.x && y >= this.y && x < this.x + this.w && y < this.y + this.h;
     }
     onContact(player) {
-        ui.dialogUI.addMessage(this.message, speaker1, player);
+        ui.dialogUI.addMessage(this.message, playerSpeaker, player);
         this.dead = true;
     }
     draw(ctx, x, y) {
@@ -225,7 +233,7 @@ class DecorativeObject {
     }
     onContact(player) {
         if (this.foundMessage) {
-            ui.dialogUI.addMessage(this.foundMessage, speaker1, player);
+            ui.dialogUI.addMessage(this.foundMessage, playerSpeaker, player);
             this.foundMessage = null;
         }
         if (this.inventoryItem) {
@@ -352,7 +360,7 @@ class Mob {
 
     die() {
         this.dead = true;
-        ui.dialogUI.addMessage(getProp(this.meObj, "DeathComment"), speaker1, player)
+        ui.dialogUI.addMessage(getProp(this.meObj, "DeathComment"), playerSpeaker, player)
         let loot = getProp(this.meObj, "Loot");
         if (loot == "ManaBottle")
             world.objects.push(new ManaBottle(this.x, this.y));
@@ -499,6 +507,7 @@ class Player {
         this.mana = this.stats.mana;
         this.hp = this.stats.hp;
         this.img = makeImage("player");
+        this.inventory = []
     }
 
     tryMove(dx, dy) {
@@ -514,7 +523,7 @@ class Player {
             let obj = world.objects[n];
             if ('hasContact' in obj && obj.hasContact(this.x, this.y))
                 obj.onContact(this)
-            else if (obj.x == this.x && obj.y == this.y)
+            else if (obj.x == this.x && obj.y == this.y && !(obj instanceof BigScaryObject))
                 obj.onContact(this)
         }
         world.nextTurn(true)
@@ -588,19 +597,39 @@ class Player {
             ui.dialogUI.addMessage("Unknown item " + itemName, errorSpeaker);
             return false;
         }
-        let currentSlot = this[itemRpg.type];
-        if (this.shouldEquip(currentSlot, itemRpg)) {
-            itemRpg.img = makeImage(itemRpg.equip_img);
-            itemRpg.inventoryImg = makeImage(itemRpg.inventory_img);
-            this[itemRpg.type] = itemRpg;
-            if (itemRpg.message)
-                ui.dialogUI.addMessage(itemRpg.message, speaker1, player);
-            return true;
+        if (itemRpg.type) {
+            let currentSlot = this[itemRpg.type];
+            if (this.shouldEquip(currentSlot, itemRpg)) {
+                itemRpg.img = makeImage(itemRpg.equip_img);
+                itemRpg.inventoryImg = makeImage(itemRpg.inventory_img);
+                this[itemRpg.type] = itemRpg;
+                if (itemRpg.message)
+                    ui.dialogUI.addMessage(itemRpg.message, playerSpeaker, player);
+                return true;
+            } else {
+                if (itemRpg.reject)
+                    ui.dialogUI.addMessage(itemRpg.reject, playerSpeaker, player);
+                return false;
+            }
         } else {
-            if (itemRpg.reject)
-                ui.dialogUI.addMessage(itemRpg.reject, speaker1, player);
-            return false;
+            this.inventory.push(itemRpg);
+            itemRpg.inventoryImg = makeImage(itemRpg.inventory_img);
+            if (itemRpg.message)
+                ui.dialogUI.addMessage(itemRpg.message, playerSpeaker, player);
+            return true;
         }
+    }
+
+    loseItem(item) {
+        if (item == this.sword)
+            this.sword = null;
+        if (item == this.shield)
+            this.shield = null;
+        let newInventory = [];
+        for (let n = 0; n < this.inventory.length; n++)
+            if (this.inventory[n] != item)
+                newInventory.push(this.inventory[n]);
+        this.inventory = newInventory;
     }
 
     shouldEquip(current, next) {
@@ -609,22 +638,27 @@ class Player {
         return next.quality > current.quality;
     }
 
+    damageBonus() {
+        if (this.sword)
+            return this.sword.quality;
+        return 0;
+    }
+
+    defenceBonus() {
+        if (this.shield)
+            return this.shield.quality;
+        return 0;
+    }
+
     applyDamage(dmg) {
         if (this.hp <= 0) // already dead
             return;
-        if (this.shield)
-            dmg -= this.shield.quality;
+        dmg -= this.defenceBonus();
         if (dmg <= 0)
             return;
         this.hp -= dmg;
         if (this.hp <= 0) {
             world.script.onPlayerDeath();
         }
-    }
-
-    damageBonus() {
-        if (this.sword)
-            return this.sword.quality;
-        return 0;
     }
 };

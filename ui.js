@@ -4,6 +4,7 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
 const tileSize = 32;
+const halfTileSize = tileSize / 2;
 const viewInTiles = 24;
 const halfViewInTiles = 12;
 
@@ -11,6 +12,8 @@ let player = new Player();
 let world = new World("intro_map");
 
 setInterval(() => {
+        if (world.script.stopGameplayTime)
+            return;
         world.nextTurn(false);
         player.nextTurn();
     },
@@ -161,19 +164,11 @@ class DialogUI {
     }
 };
 
-let portrait1 = makeImage("portrait1");
-let portrait2 = makeImage("portrait2");
-const speaker1 = {
+const playerSpeaker = {
     color: "rgb(10, 10, 10)",
     bgColor: "rgb(255, 255, 255)",
     font: '18px sans-serif',
-    portrait: portrait1
-};
-const speaker2 = {
-    color: "rgb(10, 10, 10)",
-    bgColor: "rgb(178, 164, 165)",
-    font: '18px sans-serif',
-    portrait: portrait2
+    portrait: makeImage("portrait1")
 };
 const systemMessageSpeaker = {
     color: "rgb(140, 104, 20)",
@@ -322,7 +317,34 @@ class UI {
         this.healthBar = new ManaBar(ctx, uiWidth - 2 * barPadding, "rgb(255, 0, 40)", "rgb(255, 150, 190)")
     }
 
-    _drawStatsAndMagic() {
+    _drawTwoStatStrings(left, top, str1, str2) {
+        ctx.font = "18px sans-serif";
+        ctx.fillStyle = "rgb(140, 104, 20)";
+        ctx.fillText(str1, left, top + this.statLinesDrawn * 24);
+        if (str2) {
+            let w = ctx.measureText(str1).width;
+            ctx.fillStyle = "rgb(0, 25, 170)";
+            ctx.fillText(str2, left + w + 5, top + this.statLinesDrawn * 24);
+        }
+        this.statLinesDrawn++;
+    }
+
+    _drawStats(left, top) {
+        this.statLinesDrawn = 0;
+        if (player.stats.mana)
+            this._drawTwoStatStrings(left, top, "Магическая сила: ", player.stats.mana);
+        this._drawTwoStatStrings(left, top, "Здоровье: " + player.stats.hp, "");
+        let attackStr = "Атака: " + player.stats.attackMin + "−" + player.stats.attackMax;
+        let attackBonusStr = "";
+        if (player.damageBonus())
+            attackBonusStr = "+" + player.damageBonus();
+        this._drawTwoStatStrings(left, top, attackStr, attackBonusStr);
+        if (player.defenceBonus()) {
+            this._drawTwoStatStrings(left, top, "Защита: ", "+" + player.defenceBonus());
+        }
+    }
+
+    _drawMagic() {
         const maxSlotX = 3, maxSlotY = 4;
         for (let slotX = 0; slotX < maxSlotX; slotX++) {
             for (let slotY = 0; slotY < maxSlotY; slotY++) {
@@ -339,38 +361,40 @@ class UI {
         const y = 90;
         let slotX = Math.floor((this.mouseSelfX - x)/64);
         let slotY = Math.floor((this.mouseSelfY - y)/64);
-        let tooltip = "";
-        if (player.stats.mana >= 50 && slotX == 0 && slotY == 0)
+        let tooltip, tooltipEm;
+        if (player.stats.mana >= 50 && slotX == 0 && slotY == 0) {
             tooltip = "Создать камень";
+            tooltipEm = "10 мана";
+        }
         //else if (slotX == 1 && slotY == 0)
         //    tooltip = "Призвать огонь";
         else if (slotX >= 0 && slotX < maxSlotX && slotY >= 0 && slotY < maxSlotY)
             tooltip = "Не выученное заклинание";
         if (tooltip)
-            this._drawInventoryTooltip(tooltip, this.mouseSelfX, this.mouseSelfY);
+            this._drawInventoryTooltip(tooltip, tooltipEm, this.mouseSelfX, this.mouseSelfY);
     }
 
     _drawInventoryItem(slotX, slotY, img) {
         if (!img || !img.complete)
             return;
-        const width = canvas.width - dialogUIleftOffset;
-        const x = dialogUIleftOffset + Math.floor((width - this.inventoryImg.width) / 2);
         const y = 90;
-        ctx.drawImage(img, x + slotX * 64, y + slotY * 64);
+        ctx.drawImage(img, this._inventoryX() + slotX * 64, y + slotY * 64);
     }
 
-    _drawInventoryTooltip(text, left, top) {
+    _drawInventoryTooltip(text, secondaryText, left, top) {
         const maxWidth = 320;
         const lineHeight = 24;
         const padding = 5;
         let u = new Utterance(ctx, text, maxWidth, systemMessageSpeaker.color,
             systemMessageSpeaker.bgColor, systemMessageSpeaker.font, lineHeight, padding);
+        if (secondaryText)
+            u.addText(ctx, secondaryText, maxWidth, "rgb(0, 25, 170)");
         left -= u.textBoxWidth / 2;
         if (left <= dialogUIleftOffset)
             left = dialogUIleftOffset + 1;
         if (left + u.textBoxWidth + 6 >= canvas.width)
             left = canvas.width - u.textBoxWidth - 6;
-        u.draw(ctx, left, top - tileSize, 0, true);    
+        u.draw(ctx, left, top - u.textBoxHeight, 0, true);    
     }
 
     _inventoryX() {
@@ -385,21 +409,35 @@ class UI {
 
         let slotX = Math.floor((this.mouseSelfX - x)/64);
         let slotY = Math.floor((this.mouseSelfY - y)/64);
-        let tooltip = "";
+        let tooltip, tooltipEm;
 
         if (player.sword) {
             this._drawInventoryItem(0, 0, player.sword.inventoryImg);
-            if (slotX == 0 && slotY == 0)
+            if (slotX == 0 && slotY == 0) {
                 tooltip = player.sword.name;
+                if (player.sword.quality)
+                    tooltipEm = "Атака +" + player.sword.quality;
+            }
         }
         if (player.shield) {
             this._drawInventoryItem(2, 0, player.shield.inventoryImg);
-            if (slotX == 2 && slotY == 0)
+            if (slotX == 2 && slotY == 0) {
                 tooltip = player.shield.name;
+                tooltipEm = "Защита +" + player.shield.quality;
+            }
+        }
+        for (let n = 0; n < player.inventory.length; n++) {
+            let item = player.inventory[n];
+            let invSlotX = n % 3, invSlotY = 1 + Math.floor(n/3);
+            this._drawInventoryItem(invSlotX, invSlotY, item.inventoryImg);
+            if (slotX == invSlotX && slotY == invSlotY) {
+                tooltip = item.name;
+                tooltipEm = item.description;
+            }
         }
 
         if (tooltip)
-            this._drawInventoryTooltip(tooltip, this.mouseSelfX, this.mouseSelfY);
+            this._drawInventoryTooltip(tooltip, tooltipEm, this.mouseSelfX, this.mouseSelfY);
     }
 
     _onInventoryClick() {
@@ -412,9 +450,15 @@ class UI {
             itemToUse = player.sword;
         if (slotX == 2 && slotY == 0 && player.shield)
             itemToUse = player.shield;
-        if (itemToUse && itemToUse.use_message) {
-            if (!world.script.onItemUse(itemToUse))
-                this.dialogUI.addMessage(itemToUse.use_message, speaker1, player, true);
+        if (slotY >= 1) {
+            let n = (slotY - 1) * 3 + slotX;
+            if (n < player.inventory.length)
+                itemToUse = player.inventory[n];
+        }
+        if (itemToUse) {
+            let success = world.script.onItemUse(itemToUse);
+            if (!success && itemToUse.use_message)
+                this.dialogUI.addMessage(itemToUse.use_message, playerSpeaker, player, true);
         }
     }
 
@@ -427,6 +471,7 @@ class UI {
     }
 
     draw(ctx, offset) {
+        const dialogUItopOffset = 40;
         if (this.tileUnderCursor.needShowTooltip())
             drawTooltip(ctx, offset, this.tileUnderCursor);
 
@@ -436,15 +481,16 @@ class UI {
             const backColor = "rgb(240, 214, 175)";
             ctx.fillStyle = backColor;
             ctx.fillRect(dialogUIleftOffset, 0, uiWidth, canvas.height);
-            if (this.state == 0)
-                this._drawStatsAndMagic();
-            else
+            if (this.state == 0) {
+                this._drawMagic();
+                let statsPadding = 5;
+                this._drawStats(this._inventoryX() + statsPadding, 400);
+            } else
                 this._drawInventory();
         }
 
         let showMana = player.stats.mana > 0;
         let showHP = player.hp < player.stats.hp;
-        const dialogUItopOffset = 40;
         if (showMana || showHP) {
             ctx.fillStyle = 'rgb(240, 214, 175)';
             if (showHP)
@@ -497,6 +543,8 @@ canvas.onmousemove = function clickEvent(e) {
 canvas.onclick = function clickEvent(e) {
     updateTileUnderCursor(e);
     ui.tileUnderCursor.hideTooltip();
+    if (world.script.noControl)
+        return;
     if (ui.onclick(e))
         return;
     player.tryCast(ui.tileUnderCursor.x, ui.tileUnderCursor.y, "stone")
@@ -505,6 +553,8 @@ canvas.onclick = function clickEvent(e) {
 addEventListener("keyup", function(event) {
     ui.tileUnderCursor.hideTooltip();
     ui.goals.hidden = true;
+    if (world.script.noControl)
+        return;
     if (event.key == "ArrowLeft")
         player.tryMove(-1, 0);
     if (event.key == "ArrowUp")

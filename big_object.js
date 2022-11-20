@@ -60,23 +60,22 @@ class BigScaryObject {
     occupy(pathfinding) {
       if (!this.occupiedTiles)
         return;
-      let halfTile = tileSize/2;
       for (let dy = 0; dy < this.occupiedTiles.length; dy++) {
         let row = this.occupiedTiles[dy];
         for (let dx = 0; dx < row.length; dx++) {
           if (!row[dx])
             continue;
-          let pixelX = dx * tileSize + halfTile - this.zeroX;
-          let pixelY = dy * tileSize + halfTile - this.zeroY;
+          let pixelX = dx * tileSize + halfTileSize - this.zeroX;
+          let pixelY = dy * tileSize + halfTileSize - this.zeroY;
           this.doOccupy(pathfinding, pixelX, pixelY);
           let leftOccupied = dx + 1 < row.length && row[dx+1];
           let bottomOccupied = dy + 1 < this.occupiedTiles.length && this.occupiedTiles[dy+1][dx];
           if (leftOccupied)
-            this.doOccupy(pathfinding, pixelX + halfTile, pixelY);
+            this.doOccupy(pathfinding, pixelX + halfTileSize, pixelY);
           if (bottomOccupied)
-            this.doOccupy(pathfinding, pixelX, pixelY + halfTile);
+            this.doOccupy(pathfinding, pixelX, pixelY + halfTileSize);
           if (leftOccupied && bottomOccupied && this.occupiedTiles[dy+1][dx+1])
-            this.doOccupy(pathfinding, pixelX + halfTile, pixelY + halfTile);
+            this.doOccupy(pathfinding, pixelX + halfTileSize, pixelY + halfTileSize);
         }
       }
     }

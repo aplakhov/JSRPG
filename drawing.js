@@ -167,7 +167,6 @@ class Animations {
         this.globalTimer = Date.now() / 1000.
         if (animations.length == 0)
             return;
-        let halfTileSize = tileSize / 2;
         let newAnimations = [];
         for (let anim of this.animations) {
             let x = ('pixelX' in anim.baseTile) ? anim.baseTile.pixelX.get() : anim.baseTile.x * tileSize;
@@ -183,7 +182,6 @@ class Animations {
         this.animations = newAnimations;
     }
 };
-let animations = new Animations();
 
 class Bullet {
     constructor(direction, duration) {
@@ -255,7 +253,8 @@ class FadeToBlack {
         ctx.font = '24px sans-serif';
         let y = tileSize * halfViewInTiles - 12;
         this._draw(ctx, y, this.text1);
-        this._draw(ctx, y + 24, this.text2);
+        if (this.text2)
+            this._draw(ctx, y + 24, this.text2);
 
         return false;
     }
@@ -264,27 +263,32 @@ class FadeToBlack {
 class Utterance {
     constructor(ctx, text, maxTextWidth, color, bgColor, font, lineHeight, padding) {
         this.text = text;
-        this.color = color;
+        this.lines = [];
+        this.colors = [];
         this.bgColor = bgColor;
         this.font = font;
         this.lineHeight = lineHeight;
         this.padding = padding;
+        this.addText(ctx, text, maxTextWidth, color);
+    }
 
+    addText(ctx, text, maxTextWidth, color) {
         let words = text.split(" ");
-        this.lines = [];
         let line = "";
-        ctx.font = font;
+        ctx.font = this.font;
         for (let n = 0; n < words.length; n++) {
             let testLine = line + words[n] + " ";
             let testWidth = ctx.measureText(testLine).width;
             if (testWidth > maxTextWidth) {
-                this.lines.push(line)
+                this.lines.push(line);
+                this.colors.push(color);
                 line = words[n] + " ";
             } else {
                 line = testLine;
             }
         }
         this.lines.push(line);
+        this.colors.push(color);
 
         this.textBoxWidth = 0;
         this.textBoxHeight = this.lineHeight * this.lines.length + this.lineHeight / 2;
@@ -313,16 +317,17 @@ class Utterance {
 
     draw(ctx, textBoxLeft, textBoxTop, fixedWidth, doBorder) {
         ctx.fillStyle = this.bgColor;
-        ctx.strokeStyle = this.color;
+        ctx.strokeStyle = this.colors[0];
         let width = fixedWidth;
         if (width < this.textBoxWidth)
             width = this.textBoxWidth;
         this._roundedRect(ctx, textBoxLeft, textBoxTop,
             width + this.padding, this.textBoxHeight, 6, doBorder);
-        ctx.fillStyle = this.color;
         ctx.font = this.font;
-        for (let l = 0; l < this.lines.length; l++)
+        for (let l = 0; l < this.lines.length; l++) {
+            ctx.fillStyle = this.colors[l];
             ctx.fillText(this.lines[l], textBoxLeft + this.padding, textBoxTop + (l + 1) * this.lineHeight);
+        }
     }
 }
 
@@ -348,6 +353,8 @@ class DialogMessages {
             let left = offsetInPixels.x - msg.textBoxWidth / 2;
             if (left < 0)
                 left = 0;
+            if (n == this.msgQueue.length - 1 && y < msg.textBoxHeight + 20)
+                y = msg.textBoxHeight + 20 
             msg.draw(ctx, left, y - msg.textBoxHeight - 20, 0, true);
             y -= msg.textBoxHeight + msg.padding;
         }
@@ -356,6 +363,7 @@ class DialogMessages {
 }
 
 let renderer = new Renderer();
+let animations = new Animations();
 setInterval(() => {
         const offset = canvasOffsetInTiles();
         world.script.onDraw();
