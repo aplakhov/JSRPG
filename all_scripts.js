@@ -16,11 +16,11 @@ class AllScripts {
                 this.done[n] = true;
         }
     }
+
     _startSequence() {
         this.delay = 0;
         this.noControl = true;
         this.stopGameplayTime = true;
-        ui.goals.hidden = true;
         ui.state = 2;
     }
 
@@ -31,8 +31,12 @@ class AllScripts {
         }, this.delay * 1000);
     }
 
-    _pause(seconds) {
+    _wait(seconds) {
         this.delay += seconds;
+    }
+
+    _do(fn) {
+        setTimeout(fn, this.delay * 1000);
     }
 
     _say(text, speaker, gameplayObj) {
@@ -78,3 +82,28 @@ class AllScripts {
         }, this.delay * 1000);
     }
 }
+
+function addSmokeParticle(baseObject, pixelXobject, pixelYobject, strength, fire, offset) {
+    let pixelX = baseObject.toWorldX(pixelXobject, pixelYobject);
+    let pixelY = baseObject.toWorldY(pixelXobject, pixelYobject);
+    fire.emitParticles(pixelX, pixelY, strength, offset);
+}
+
+class EmptyScript extends AllScripts {
+    constructor(world) {
+        super();
+    }
+    initGoals(goals) {
+    }
+    nextTurn(forced) {
+    }
+    onDraw() {
+    }
+    onPlayerDeath() {
+    }
+    onCast(targetX, targetY) {
+    }
+    onItemUse(item) {
+        return false;
+    }
+};

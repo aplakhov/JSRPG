@@ -155,8 +155,8 @@
                  "rotation":0,
                  "visible":true,
                  "width":0,
-                 "x":1072,
-                 "y":754
+                 "x":1184,
+                 "y":541
                 }, 
                 {
                  "class":"ManaBottle",
@@ -167,8 +167,8 @@
                  "rotation":0,
                  "visible":true,
                  "width":0,
-                 "x":1073,
-                 "y":787
+                 "x":1154,
+                 "y":544
                 }, 
                 {
                  "class":"Message",
@@ -213,8 +213,8 @@
                  "rotation":0,
                  "visible":true,
                  "width":0,
-                 "x":847,
-                 "y":1077
+                 "x":1257,
+                 "y":617
                 }, 
                 {
                  "class":"ManaBottle",
@@ -225,8 +225,8 @@
                  "rotation":0,
                  "visible":true,
                  "width":0,
-                 "x":754,
-                 "y":1137
+                 "x":1119,
+                 "y":577
                 }, 
                 {
                  "class":"Message",
@@ -1636,6 +1636,113 @@
                  "width":0,
                  "x":1810,
                  "y":2166
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":105,
+                 "name":"",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"ScriptName",
+                         "type":"string",
+                         "value":"riverBankCrossed"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":2321,
+                 "y":1299
+                }, 
+                {
+                 "class":"BigScaryObject",
+                 "height":0,
+                 "id":108,
+                 "name":"\u0420\u0430\u0437\u0440\u0443\u0448\u0435\u043d\u043d\u0430\u044f \u043f\u0430\u0440\u043e\u043c\u043d\u0430\u044f \u043f\u0435\u0440\u0435\u043f\u0440\u0430\u0432\u0430",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"ferry"
+                        }, 
+                        {
+                         "name":"OccupiedTiles",
+                         "type":"string",
+                         "value":"[[1,1,0,0,0,0,1]]"
+                        }, 
+                        {
+                         "name":"ZeroX",
+                         "type":"int",
+                         "value":36
+                        }, 
+                        {
+                         "name":"ZeroY",
+                         "type":"int",
+                         "value":40
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":1345,
+                 "y":764
+                }, 
+                {
+                 "class":"BigScaryObject",
+                 "height":0,
+                 "id":109,
+                 "name":"\u0414\u043e\u043c\u0438\u043a \u043f\u0430\u0440\u043e\u043c\u0449\u0438\u043a\u0430",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"ferry_house"
+                        }, 
+                        {
+                         "name":"OccupiedTiles",
+                         "type":"string",
+                         "value":"[[1, 1, 1],[1,1,1]]"
+                        }, 
+                        {
+                         "name":"ZeroX",
+                         "type":"int",
+                         "value":0
+                        }, 
+                        {
+                         "name":"ZeroY",
+                         "type":"int",
+                         "value":0
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":1153,
+                 "y":580
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":110,
+                 "name":"\u041a\u043e\u043b\u043e\u0434\u0435\u0446",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Blocker",
+                         "type":"string",
+                         "value":"true"
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"water_well"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":1813,
+                 "y":111
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -1644,7 +1751,7 @@
          "y":0
         }],
  "nextlayerid":4,
- "nextobjectid":105,
+ "nextobjectid":111,
  "orientation":"orthogonal",
  "renderorder":"left-down",
  "tiledversion":"1.9.2",

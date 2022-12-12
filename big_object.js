@@ -2,7 +2,7 @@ class BigScaryObject {
     constructor(obj, x, y) {
       this.x = x;
       this.y = y;
-      this.image = makeImageFor(obj);
+      this.image = prepareImageFor(obj);
       this.zeroX = getProp(obj, "ZeroX");
       this.zeroY = getProp(obj, "ZeroY");
       this.hint = obj.name;
@@ -10,22 +10,25 @@ class BigScaryObject {
       this.pixelY = new SmoothlyChangingNumber(this.y * tileSize);
       this.rotation = new SmoothlyChangingNumber(0);
       this.visualR = halfViewInTiles; // TODO - can be estimated better
+      let occupiedTiles = getProp(obj, "OccupiedTiles");
+      if (occupiedTiles)
+        this.occupiedTiles = eval(occupiedTiles);
     }
     draw(ctx, x, y) {
       let rotation = this.rotation.get() * Math.PI / 180;
       this.sin = Math.sin(rotation);
       this.cos = Math.cos(rotation);
-      if (this.image && this.image.complete) {
+      if (this.image) {
         x += this.pixelX.get() - this.x * tileSize;
         y += this.pixelY.get() - this.y * tileSize;
         if (rotation) {
           ctx.save();
           ctx.translate(x, y);
           ctx.rotate(rotation);
-          ctx.drawImage(this.image, -this.zeroX, -this.zeroY);
+          images.draw(ctx, this.image, -this.zeroX, -this.zeroY);
           ctx.restore();
         } else {
-          ctx.drawImage(this.image, x - this.zeroX, y - this.zeroY);
+          images.draw(ctx, this.image, x - this.zeroX, y - this.zeroY);
         }
       }
     }

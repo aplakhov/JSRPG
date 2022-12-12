@@ -1,9 +1,3 @@
-function addSmokeParticle(baseObject, pixelXobject, pixelYobject, fire, offset) {
-    let pixelX = baseObject.toWorldX(pixelXobject, pixelYobject);
-    let pixelY = baseObject.toWorldY(pixelXobject, pixelYobject);
-    fire.emitParticles(pixelX, pixelY, 10, offset);
-}
-
 class IntroMapScript extends AllScripts {
     constructor(world) {
         super();
@@ -23,7 +17,7 @@ class IntroMapScript extends AllScripts {
         });
         let dragon = world.scriptObjects.dragon;
         dragon.sleepingImage = dragon.image;
-        dragon.awakeImage = makeImage("dragon");
+        dragon.awakeImage = images.prepare("dragon");
         dragon.occupiedTiles = [
             [1, 1, 0, 1, 1, 0, 0, 0, 0],
             [1, 1, 1, 1, 1, 1, 1, 0, 0],
@@ -35,8 +29,8 @@ class IntroMapScript extends AllScripts {
         dragon.hint = "Что-то непонятное";
         fire.emitters.push((fire, offset) => {
             if (dragon.awake) {
-                addSmokeParticle(dragon, 6*tileSize - 4, tileSize - 4, fire, offset);
-                addSmokeParticle(dragon, 6*tileSize - 4, - tileSize + 4, fire, offset);
+                addSmokeParticle(dragon, 6*tileSize - 4, tileSize - 4, 10, fire, offset);
+                addSmokeParticle(dragon, 6*tileSize - 4, - tileSize + 4, 10, fire, offset);
             }
             return false;
         });
@@ -60,7 +54,10 @@ class IntroMapScript extends AllScripts {
                         temperature: 20
                     })
                 }
-                player.applyDamage(2);
+                if (player.defenceBonus() > 1)
+                    player.applyDamage(player.defenceBonus() + 1);
+                else
+                    player.applyDamage(2);
             }
         });
         dragon.zLayer = 2;
@@ -68,7 +65,7 @@ class IntroMapScript extends AllScripts {
             color: "rgb(252, 221, 118)",
             bgColor: "rgb(0, 0, 0)",
             font: '24px sans-serif',
-            portrait: makeImage("dragon_portrait")
+            portrait: images.prepare("dragon_portrait")
         };
         dragon.initialX = dragon.x;
         dragon.onContact = (player) => {
@@ -87,6 +84,23 @@ class IntroMapScript extends AllScripts {
         }
         player.takeItem("wooden_stick");
     }
+
+    initGoals(goals) {
+        goals.addGoal("1. Перебраться через речку под названием Мокрая", () => {
+            return player.y >= world.scriptObjects.riverBankCrossed.y
+        });
+        goals.addGoal("2. Дойти до горы под названием Высокая", () => { 
+            return !world.vision.everythingVisible()
+        });
+        goals.addGoal("3. Найти вход в пещеру под названием Тёмная", () => { 
+            return !world.vision.everythingVisible() 
+        });
+        goals.addGoal("4. Добыть сокровища подземных королей", () => { 
+            return player.inventory.indexOf(rpg.treasureChest) >= 0
+        });
+        goals.addGoal("5. Вернуться в город и кутить")
+    }
+
     nextTurn(forced) {
         this._executeTriggers();
 
@@ -235,7 +249,7 @@ class IntroMapScript extends AllScripts {
                     "Щит, конечно, жаль использовать в качестве подпорки, но очень уж хочется посмотреть, что там за воротами"; 
                 ui.dialogUI.addMessage(msg, playerSpeaker, player);
                 player.loseItem(item);
-                lever.image = makeImage("lever_on");
+                lever.image = images.prepare("lever_on");
                 lever.hint = "Подпёртый рычаг";
                 lever.alwaysOn = true;
             } else {
@@ -246,17 +260,16 @@ class IntroMapScript extends AllScripts {
         return false;
     }
     playFinalScript() {
-        let scriptPlace = world.scriptObjects.lastScriptPlace;
-        animations.add(new FadeToBlack(4, "После утомительной дороги с тяжелым сундуком..."), player);
-        this.noControl = true;
-        this.stopGameplayTime = true;
-        ui.state = 2;
+        this._startSequence();
+        this._fade("После утомительной дороги с тяжелым сундуком...", 4);
 
-        setTimeout(() => {
+        let scriptPlace = world.scriptObjects.lastScriptPlace;
+        this._wait(1.5);
+        this._do(() => {
           player.x = scriptPlace.x + 7;
           player.y = scriptPlace.y;
           world.vision.recalculateLocalVisibility();
-        }, 1500);
+        });
 
         let kirael = this._addMob(scriptPlace.x - 2, scriptPlace.y - 2, "Кираэль", "kirael");
         let thug1 = this._addMob(scriptPlace.x - 3, scriptPlace.y, "Первый громила", "thug");
@@ -265,54 +278,54 @@ class IntroMapScript extends AllScripts {
             color: "rgb(10, 10, 10)",
             bgColor: "rgb(178, 164, 165)",
             font: '18px sans-serif',
-            portrait: makeImage("portrait2")
+            portrait: images.prepare("portrait2")
         };
         thug1.speaker = {
             color: "rgb(252, 221, 118)",
             bgColor: "rgb(0, 0, 0)",
             font: '18px sans-serif',
-            portrait: makeImage("Thug_portrait")
+            portrait: images.prepare("Thug_portrait")
         };
         thug2.speaker = {
             color: "rgb(252, 221, 118)",
             bgColor: "rgb(0, 0, 0)",
             font: '18px sans-serif',
-            portrait: makeImage("Thug2_portrait")
+            portrait: images.prepare("Thug2_portrait")
         };
 
-        setTimeout(() => {
+        this._wait(2.5)
+        this._do(() => {
             player.loseItem(rpg.treasureChest);
-            this._startSequence();
-            for (let n = 0; n < 7; n++)
-                this._movePlayer(-1, 0);
-            this._pause(0.5);
-            this._say("О, привет, Кираэль. Что ты здесь делаешь?", playerSpeaker, player);
-            this._say("И что это рядом с тобой за громилы?", playerSpeaker, player);
-            this._say("Привет, неудачник. Отдавай сундук", kirael.speaker, kirael);
-            this._say("А не то", kirael.speaker, kirael);
-            this._say("Это нечестно! Я его с таким трудом украл!", playerSpeaker, player);
-            this._say("Пришлось разгадывать головоломки и драться!", playerSpeaker, player);
-            this._say("Ага, ты еще выдумай, что победил дракона", kirael.speaker, kirael);
-            this._say("Вообще-то победил", playerSpeaker, player);
-            this._say("Что ж тогда никто, кроме тебя, никаких драконов там не видел?", kirael.speaker, kirael);
-            this._say("Во-первых, никто, кроме меня, и сокровище не нашел. Во-вторых, дракон замаскировался", playerSpeaker, player);
-            this._say("ДРАКОН ЗАМАСКИРОВАЛСЯ?", kirael.speaker, kirael);
-            this._say("Ха-ха-ха", thug1.speaker, thug1);
-            this._say("У-хо-хо", thug2.speaker, thug2);
-            this._say("Ты такой же болтун, как и всегда, Боб", kirael.speaker, kirael);
-            this._say("Как-как его зовут?!", thug1.speaker, thug1);
-            this._say("Представляешь, Горзаниал, его зовут Боб", kirael.speaker, kirael);
-            this._say("Хе, ну и имечко, скажи, Дзиродиал?", thug1.speaker, thug1);
-            this._say('Согласен, Горзаниал. Кому придет в голову назвать сына "Боб"?', thug2.speaker, thug2);
-            this._say("В общем, так. Отдавай сокровище или ребята из тебя решето сделают. Считаю до пяти", kirael.speaker, kirael);
-            this._say("Четыре", kirael.speaker, kirael);
-            this._moveMob(thug1, 1, 0);
-            this._moveMob(thug2, 0, 1);
-            this._moveMob(thug1, 1, 0);
-            this._moveMob(thug2, 0, 1);
-            this._say("Вот блин", playerSpeaker, player);
-            this._fade("Конец первой главы", 10000);
-            this._finishSequence();
-        }, 4000);
+        });
+        for (let n = 0; n < 7; n++)
+            this._movePlayer(-1, 0);
+        this._wait(0.5);
+        this._say("О, привет, Кираэль. Что ты здесь делаешь?", playerSpeaker, player);
+        this._say("И что это рядом с тобой за громилы?", playerSpeaker, player);
+        this._say("Привет, неудачник. Отдавай сундук", kirael.speaker, kirael);
+        this._say("А не то", kirael.speaker, kirael);
+        this._say("Это нечестно! Я его с таким трудом украл!", playerSpeaker, player);
+        this._say("Пришлось разгадывать головоломки и драться!", playerSpeaker, player);
+        this._say("Ага, ты еще выдумай, что победил дракона", kirael.speaker, kirael);
+        this._say("Вообще-то победил", playerSpeaker, player);
+        this._say("Что ж тогда никто, кроме тебя, никаких драконов там не видел?", kirael.speaker, kirael);
+        this._say("Во-первых, никто, кроме меня, и сокровище не нашел. Во-вторых, дракон замаскировался", playerSpeaker, player);
+        this._say("ДРАКОН ЗАМАСКИРОВАЛСЯ?", kirael.speaker, kirael);
+        this._say("Ха-ха-ха", thug1.speaker, thug1);
+        this._say("У-хо-хо", thug2.speaker, thug2);
+        this._say("Ты такой же болтун, как и всегда, Боб", kirael.speaker, kirael);
+        this._say("Как-как его зовут?!", thug1.speaker, thug1);
+        this._say("Представляешь, Горзаниал, его зовут Боб", kirael.speaker, kirael);
+        this._say("Хе, ну и имечко, скажи, Дзиродиал?", thug1.speaker, thug1);
+        this._say('Согласен, Горзаниал. Кому придет в голову назвать сына "Боб"?', thug2.speaker, thug2);
+        this._say("В общем, так. Отдавай сокровище или ребята из тебя решето сделают. Считаю до пяти", kirael.speaker, kirael);
+        this._say("Четыре", kirael.speaker, kirael);
+        this._moveMob(thug1, 1, 0);
+        this._moveMob(thug2, 0, 1);
+        this._moveMob(thug1, 1, 0);
+        this._moveMob(thug2, 0, 1);
+        this._say("Вот блин", playerSpeaker, player);
+        this._fade("Конец первой главы", 10000);
+        this._finishSequence();
     }
 };

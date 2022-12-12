@@ -2,25 +2,47 @@
 
 class Renderer {
     constructor() {
+        this.setBiome(world.biome);
+
+        this.stoneTiles = makeImage("stone_tile2");
+        this.stoneGroundTile = makeImage("stone_wall_ground_tile");
+        this.darknessVeil = makeImage("darkness_veil");
+
         this.stableRandom = []
         for (let dx = 0; dx < viewInTiles; dx++) {
             for (let dy = 0; dy < viewInTiles; dy++) {
                 this.stableRandom.push(Math.floor(Math.random() * 12000));
             }
         }
-        this.sandTiles = makeImage("sand_tiles");
-        this.grassTiles = makeImage("grass_tiles");
-        this.groundTiles = makeImage("ground_tiles");
-        this.forestTiles = makeImage("forest_tiles2");
-        this.stoneTile = makeImage("stone_tile");
-        this.stoneGroundTile = makeImage("stone_wall_ground_tile");
-        this.rockTiles = makeImage("rock_tiles");
-        this.rockGroundTiles = makeImage("rock_ground_tiles");
-        this.animatedWater = makeImage("animated_water");
-        this.darknessVeil = makeImage("darkness_veil");        
+    }   
+    
+    setBiome(biome) {
+        this.sandTiles = makeImage(biome + "sand_tiles");
+        this.grassTiles = makeImage(biome + "grass_tiles");
+        this.darkGrassBorderTiles = makeImage(biome + "dark_grass_border");
+        this.groundTiles = makeImage(biome + "ground_tiles");
+        this.treeImages = makeImage(biome + "trees");
+        this.rockTiles = makeImage(biome + "rock_tiles");
+        this.rockGroundTiles = makeImage(biome + "rock_ground_tiles");
+        this.pavementTiles = makeImage(biome + "pavement_tiles");
+        this.animatedWater = makeImage(biome + "animated_water");
     }
 
-    _drawTerrainLayerNewStyle(ctx, offset, world, tile, tileImages) {
+    _drawTrees(ctx, offset, world) {
+        let variationsNum = this.treeImages.width / 64;
+        for (let tree of world.trees) {
+            let dx = tree.x - offset.x;
+            if (dx < 0 || dx >= viewInTiles)
+                continue;
+            let dy = tree.y - offset.y;
+            if (dy < 0 || dy >= viewInTiles)
+                continue;
+            let variation = tree.variation % variationsNum;
+            ctx.drawImage(this.treeImages, variation * 64, 0, 64, 64, dx * tileSize - 16 + tree.sx, dy * tileSize-16 + tree.sy, 64, 64); 
+        }
+    }
+
+    _drawTerrainLayer(ctx, offset, world, tile, tileImages) {
         let variationsNum = tileImages.width / 64;
         let stableRandomLen = this.stableRandom.length;
         for (let dy = 0; dy < viewInTiles; dy++) {
@@ -35,7 +57,43 @@ class Renderer {
         }
     }
 
-    _drawTerrainNewStyle(ctx, offset, world) {
+    _drawTerrainBorder(ctx, offset, world, tile1, tile2, tileImages) {
+        let variationsNum = tileImages.width / 64;
+        let stableRandomLen = this.stableRandom.length;
+        for (let dy = 0; dy < viewInTiles; dy++) {
+            for (let dx = 0; dx < viewInTiles; dx++) {
+                let x = offset.x + dx;
+                let y = offset.y + dy;
+                if (world.terrain[x][y] != tile1)
+                    continue;
+                let hasBorder = (x > 0 && world.terrain[x-1][y] == tile2) ||
+                    (y > 0 && world.terrain[x][y-1] == tile2) || 
+                    (x + 1 < world.width && world.terrain[x+1][y] == tile2) || 
+                    (y + 1 < world.height && world.terrain[x][y+1] == tile2);
+                if (hasBorder) {
+                    let variation = this.stableRandom[(x + y * viewInTiles) % stableRandomLen] % variationsNum;
+                    ctx.drawImage(tileImages, variation*64, 0, 64, 64, dx*tileSize-16, dy*tileSize-16, 64, 64);
+                } 
+            }
+        }
+    }
+
+    _drawTerrainLayer32(ctx, offset, world, tile, tileImages) {
+        let stoneVariationsNum = tileImages.width / 32;
+        let stableRandomLen = this.stableRandom.length;
+        for (let dy = 0; dy < viewInTiles; dy++) {
+            for (let dx = 0; dx < viewInTiles; dx++) {
+                let x = offset.x + dx;
+                let y = offset.y + dy;
+                if (tile == world.terrain[x][y]) {
+                    let variation = this.stableRandom[(x + y * viewInTiles) % stableRandomLen] % stoneVariationsNum;
+                    ctx.drawImage(tileImages, variation*32, 0, 32, 32, dx*tileSize, dy*tileSize, 32, 32); 
+                }
+            }
+        }
+    }
+
+    _drawTerrain(ctx, offset, world) {
         let numWaterFrames = this.animatedWater.width/32
         for (let dy = 0; dy < viewInTiles; dy++) {
             for (let dx = 0; dx < viewInTiles; dx++) {
@@ -47,22 +105,20 @@ class Renderer {
                 }
             }
         }
-        this._drawTerrainLayerNewStyle(ctx, offset, world, TERRAIN_SAND, this.groundTiles);
-        this._drawTerrainLayerNewStyle(ctx, offset, world, TERRAIN_GRASS, this.groundTiles);
-        this._drawTerrainLayerNewStyle(ctx, offset, world, TERRAIN_STONE, this.stoneGroundTile);
-        for (let dy = 0; dy < viewInTiles; dy++) {
-            for (let dx = 0; dx < viewInTiles; dx++) {
-                let x = offset.x + dx;
-                let y = offset.y + dy;
-                if (TERRAIN_STONE == world.terrain[x][y]) {
-                    ctx.drawImage(this.stoneTile, dx*tileSize, dy*tileSize); 
-                }
-            }
-        }
-        this._drawTerrainLayerNewStyle(ctx, offset, world, TERRAIN_SAND, this.sandTiles);
-        this._drawTerrainLayerNewStyle(ctx, offset, world, TERRAIN_GRASS, this.grassTiles);
-        this._drawTerrainLayerNewStyle(ctx, offset, world, TERRAIN_STONE_WALL, this.rockGroundTiles);
-        this._drawTerrainLayerNewStyle(ctx, offset, world, TERRAIN_STONE_WALL, this.rockTiles);
+        this._drawTerrainBorder(ctx, offset, world, TERRAIN_SAND, TERRAIN_WATER, this.groundTiles);
+        this._drawTerrainBorder(ctx, offset, world, TERRAIN_GRASS, TERRAIN_WATER, this.groundTiles);
+        this._drawTerrainBorder(ctx, offset, world, TERRAIN_STONE, TERRAIN_WATER, this.stoneGroundTile);
+
+        this._drawTerrainLayer32(ctx, offset, world, TERRAIN_STONE, this.stoneTiles);
+        this._drawTerrainLayer(ctx, offset, world, TERRAIN_SAND, this.sandTiles);
+        this._drawTerrainLayer32(ctx, offset, world, TERRAIN_PAVEMENT, this.pavementTiles);
+
+        this._drawTerrainBorder(ctx, offset, world, TERRAIN_GRASS, TERRAIN_PAVEMENT, this.darkGrassBorderTiles);
+        this._drawTerrainBorder(ctx, offset, world, TERRAIN_GRASS, TERRAIN_SAND, this.darkGrassBorderTiles);        
+        this._drawTerrainLayer(ctx, offset, world, TERRAIN_GRASS, this.grassTiles);
+
+        this._drawTerrainLayer(ctx, offset, world, TERRAIN_STONE_WALL, this.rockGroundTiles);
+        this._drawTerrainLayer(ctx, offset, world, TERRAIN_STONE_WALL, this.rockTiles);
     } 
 
     _drawObj(ctx, offset, obj) {
@@ -85,6 +141,9 @@ class Renderer {
             if (obj.zLayer == 1)
                 this._drawObj(ctx, offset, obj)
         };
+    }
+
+    _drawHighObjects(ctx, offset, world) {
         for (let obj of world.objects) {
             if (obj.zLayer == 2)
                 this._drawObj(ctx, offset, obj)
@@ -108,9 +167,11 @@ class Renderer {
     }        
 
     drawWorld(ctx, offset, world) {
-        this._drawTerrainNewStyle(ctx, offset, world);
+        //ctx.fillRect(0, 0, 768, 768);
+        this._drawTerrain(ctx, offset, world);
         this._drawObjects(ctx, offset, world);
-        this._drawTerrainLayerNewStyle(ctx, offset, world, TERRAIN_DARK_FOREST, this.forestTiles);
+        this._drawTrees(ctx, offset, world);
+        this._drawHighObjects(ctx, offset, world);
         this._drawDarkness(ctx, offset, world);
         if (drawAI) {
             ctx.fillStyle = 'rgba(255, 0, 0, 0.25)';
@@ -124,9 +185,40 @@ class Renderer {
             }
         }
     }
+
+    _drawCoolImageIfNeeded(ctx, offset, dx, dy, world) {
+        let x = player.x + dx;
+        if (x < 0 || x >= world.width)
+            return false;
+        let y = player.y + dy;
+        if (y < 0 || y >= world.height)
+            return false;
+        let gameObj = world.pathfinding.isOccupied(x, y);
+        if (gameObj && gameObj.coolImage) {
+            ctx.fillStyle = "rgba(0,0,0,0.6)";
+            ctx.fillRect(0, 0, 768, 768);
+            let centerX = (player.x - offset.x) * tileSize
+            let centerY = (player.y - offset.y - 2) * tileSize - gameObj.coolImage.height / 2
+            let left = centerX - gameObj.coolImage.width/2;
+            let top = centerY - gameObj.coolImage.height/2;
+            ctx.drawImage(gameObj.coolImage, left, top);
+            return true;
+        }
+        return false;
+    }
+    drawCoolImage(ctx, offset, world) {
+        this._drawCoolImageIfNeeded(ctx, offset, 0, -1, world) ||
+        this._drawCoolImageIfNeeded(ctx, offset, 1, 0, world) ||
+        this._drawCoolImageIfNeeded(ctx, offset, -1, 0, world) ||
+        this._drawCoolImageIfNeeded(ctx, offset, 0, 1, world);
+    }
 }
 
 function drawTooltip(ctx, offset, tileUnderCursor) {
+    if (tileUnderCursor.x < 0 || tileUnderCursor.x >= world.width)
+        return;
+    if (tileUnderCursor.y < 0 || tileUnderCursor.y >= world.height)
+        return;
     if (!world.vision.isVisible(tileUnderCursor.x, tileUnderCursor.y))
         return;
     let left = (tileUnderCursor.x - offset.x + 0.5) * tileSize;
@@ -371,6 +463,7 @@ setInterval(() => {
         fire.step(canvasOffsetInTiles());
         fire.draw(ctx, offset);
         animations.draw(ctx, offset);
+        renderer.drawCoolImage(ctx, offset, world);
         ui.draw(ctx, offset);
     },
     20

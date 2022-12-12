@@ -9,13 +9,17 @@ const viewInTiles = 24;
 const halfViewInTiles = 12;
 
 let player = new Player();
-let world = new World("intro_map");
+//let world = new World("intro_map", "Europe/");
+//let world = new World("town_map", "Europe/");
+//let world = new World("desert_test_map", "Desert/");
+let world = new World("snow_test_map", "Snow/");
 
 setInterval(() => {
         if (world.script.stopGameplayTime)
             return;
         world.nextTurn(false);
         player.nextTurn();
+        ui.goals.nextTurn();
     },
     1000
 );
@@ -59,7 +63,9 @@ class TileUnderCursor {
 
     needShowTooltip() {
         let now = Date.now() / 1000.;
-        if (now < this.changed + 0.5 || now > this.changed + 3)
+        if (world.script.noControl)
+            return false;
+        if (now < this.changed + 0.5 || now > this.changed + 4)
             return false;
         return true;
     }
@@ -145,10 +151,10 @@ class DialogUI {
                 if (timeFromLastMessage < 0.3)
                     bottomOfMessage += (0.3 - timeFromLastMessage) * 3.33 * msg.textBoxHeight;
             }
-            if (msg.portrait && msg.portrait != oldPortrait && msg.portrait.complete) {
+            if (msg.portrait && msg.portrait != oldPortrait) {
                 if (bottomOfMessage > oldPortraitTop - this.padding)
                     bottomOfMessage = oldPortraitTop - this.padding;
-                this.ctx.drawImage(msg.portrait, this.left + this.padding, bottomOfMessage - this.portraitSize);
+                images.draw(this.ctx, msg.portrait, this.left + this.padding, bottomOfMessage - this.portraitSize);
                 oldPortrait = msg.portrait;
                 oldPortraitTop = bottomOfMessage - this.portraitSize;
             }
@@ -168,7 +174,7 @@ const playerSpeaker = {
     color: "rgb(10, 10, 10)",
     bgColor: "rgb(255, 255, 255)",
     font: '18px sans-serif',
-    portrait: makeImage("portrait1")
+    portrait: images.prepare("portrait1")
 };
 const systemMessageSpeaker = {
     color: "rgb(140, 104, 20)",
@@ -225,14 +231,30 @@ class Goals {
         this.headerWidth = ctx.measureText(this.header).width;
         this.maxGoalWidth = 0;
         this.goals = []
+        this.triggers = []
+        this.done = []
     }
 
-    addGoal(line) {
+    addGoal(line, trigger) {
         this.ctx.font = this.font;
         let width = ctx.measureText(line).width;
         if (this.maxGoalWidth < width)
             this.maxGoalWidth = width;
         this.goals.push(line);
+        this.triggers.push(trigger);
+        this.done.push(false);
+    }
+
+    nextTurn() {
+        for (let n = 0; n < this.triggers.length; n++) {
+            if (this.done[n])
+                continue;
+            let t = this.triggers[n];
+            if (!t)
+                continue;
+            if (t())
+                this.done[n] = true;
+        }
     }
 
     draw() {
@@ -253,7 +275,11 @@ class Goals {
             this.ctx.font = this.font;
             for (let n = 0; n < this.goals.length; ++n) {
                 let goal = this.goals[n];
-                this.ctx.fillText(goal, x + (w - this.maxGoalWidth) / 2, y + 64 + 48 + 24 * n);
+                let left = x + (w - this.maxGoalWidth) / 2;
+                let top = y + 64 + 48 + 24 * n;
+                this.ctx.fillText(goal, left, top);
+                if (this.done[n])
+                    ui._line(ctx, left, top - 6, left + ctx.measureText(goal).width, top - 6);
             }
         }
         if (this.button.complete) {
@@ -262,6 +288,7 @@ class Goals {
             this.ctx.drawImage(this.button, this.buttonX, this.buttonY)
         }
     }
+
     onclick(mouseEvent) {
         const rect = mouseEvent.target.getBoundingClientRect();
         const x = mouseEvent.clientX - rect.left;
@@ -297,18 +324,13 @@ class UI {
             makeImage("icons3"),
         ];
         this.spellImages = {
-            none: makeImage("spell_none"),
-            stone: makeImage("spell_stone"),
-            fire: makeImage("spell_fire"),
+            none: images.prepare("spell_none"),
+            stone: images.prepare("spell_stone"),
+            fire: images.prepare("spell_fire"),
         };
 
         this.goals = new Goals(ctx);
-        // TODO: move to script
-        this.goals.addGoal("1. Перебраться через речку под названием Мокрая")
-        this.goals.addGoal("2. Дойти до горы под названием Высокая")
-        this.goals.addGoal("3. Найти вход в пещеру под названием Тёмная")
-        this.goals.addGoal("4. Добыть сокровища подземных королей")
-        this.goals.addGoal("5. Вернуться в город и кутить")
+        world.script.initGoals(this.goals);
         setTimeout(() => {
             this.goals.hidden = false
         }, 500)
@@ -375,10 +397,10 @@ class UI {
     }
 
     _drawInventoryItem(slotX, slotY, img) {
-        if (!img || !img.complete)
+        if (!img)
             return;
         const y = 90;
-        ctx.drawImage(img, this._inventoryX() + slotX * 64, y + slotY * 64);
+        images.draw(ctx, img, this._inventoryX() + slotX * 64, y + slotY * 64);
     }
 
     _drawInventoryTooltip(text, secondaryText, left, top) {
@@ -510,7 +532,9 @@ class UI {
         if (stateImg.complete)
             ctx.drawImage(stateImg, dialogUIleftOffset, dialogUIheight);
         this._line(ctx, dialogUIleftOffset, 0, dialogUIleftOffset, canvas.height);
-        this.goals.draw();
+
+        if (!world.script.noControl)
+            this.goals.draw();
     }
 
     onclick(mouseEvent) {
@@ -567,4 +591,6 @@ addEventListener("keyup", function(event) {
         animations.add(new FadeToBlack(4, "Тем временем..."), player);
     if (event.key == "`")
         drawAI = !drawAI;
+    if (event.key == "s")
+        saveGameState(world, player, ui);
 });

@@ -12,16 +12,6 @@ function getProp(obj, name) {
     return "";
 }
 
-function makeImage(imageName) {
-    if (!imageName)
-        return null;
-    if (!imageName.endsWith(".png"))
-        imageName += ".png";
-    let image = new Image();
-    image.src = "Assets/" + imageName;
-    return image;
-}
-
 function randomFrom(array) {
     let n = Math.floor(Math.random() * array.length);
     return array[n];
@@ -39,12 +29,9 @@ function randomNoRepeatFrom(array) {
     return null;
 }
 
-let manaImage = makeImage("mana1");
-let bonesImage = makeImage("bones");
-
-function makeImageFor(obj) {
+function prepareImageFor(obj) {
     let imageName = getProp(obj, "Image");
-    return makeImage(imageName);
+    return images.prepare(imageName);
 }
 
 let drawAI = false;
@@ -55,25 +42,45 @@ const TERRAIN_SAND = 2;
 const TERRAIN_DARK_FOREST = 3;
 const TERRAIN_STONE = 4;
 const TERRAIN_STONE_WALL = 5;
+const TERRAIN_PAVEMENT = 6;
+
+function intRandom(max) { // a random number from [0..max)
+    return Math.floor(Math.random() * max)
+}
+
+function shuffle(array) {
+    let currentIndex = array.length,  randomIndex;
+    while (currentIndex != 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex], array[currentIndex]];
+    }
+}
 
 class World {
-    constructor(name) {
+    constructor(name, biome) {
         let map = TileMaps[name]
         let data = map["layers"][0]["data"]
         this.height = map.height;
         this.width = map.width;
+        this.biome = biome;
         this.terrain = [];
         this.objects = [];
         this.scriptObjects = {};
+        this.trees = [];
         let darknessAreas = [];
         for (let x = 0; x < this.width; x++) {
             let row = [];
             for (let y = 0; y < this.height; y++) {
                 let tile = data[x + y * this.width] - 1
+                if (tile == TERRAIN_DARK_FOREST)
+                    this.trees.push({x : x, y : y, variation : intRandom(2400), sx : intRandom(9) - 4, sy : intRandom(9) - 4});
                 row.push(tile)
             }
             this.terrain.push(row)
         }
+        shuffle(this.trees);
         let objects = map["layers"][1]["objects"];
         for (let n = 0; n < objects.length; n++) {
             let obj = objects[n];
@@ -92,6 +99,9 @@ class World {
                     height: height,
                     radius: radius
                 });
+            } else if (obj.class == "Player") {
+                player.x = x;
+                player.y = y;
             } else
                 this.addNewObject(obj, x, y);
         }
@@ -106,20 +116,25 @@ class World {
             if (fireEmitter != "") {
                 let strength = Number(fireEmitter);
                 fire.addConstantEmitter(x, y, strength);
-                this.vision.addLightSource(x, y, strength / 20);
+                this.vision.addLightSource(x, y, Math.floor(strength / 20));
             }
         }
-        this.hints = ["Трава", "Вода", "Утоптанная земля", "Дремучий лес", "Камень", "Горные породы"];
-        this.script = new IntroMapScript(this);
+        this.hints = ["Трава", "Вода", "Утоптанная земля", "Деревья", "Камень", "Горные породы", "Брусчатка"];
+        if (name == "intro_map")
+            this.script = new IntroMapScript(this);
+        else if (name == "town_map")
+            this.script = new TownMapScript(this);
+        else
+            this.script = new EmptyScript(this);
     }
 
     addNewObject(obj, x, y) {
         if (obj.class == "ManaBottle")
             this.objects.push(new ManaBottle(x, y));
         if (obj.class == "Bones")
-            this.objects.push(new DecorativeObject(obj, x, y, bonesImage));
+            this.objects.push(new DecorativeObject(obj, x, y, images.prepare("bones")));
         if (obj.class == "DecorativeObject")
-            this.objects.push(new DecorativeObject(obj, x, y, makeImageFor(obj)));
+            this.objects.push(new DecorativeObject(obj, x, y, prepareImageFor(obj)));
         if (obj.class == "BigScaryObject")
             this.objects.push(new BigScaryObject(obj, x, y));
         if (obj.class == "Mob")
@@ -133,8 +148,10 @@ class World {
             this.objects.push(new Message(msg, x, y, width, height));
         }
         let scriptName = getProp(obj, "ScriptName");
-        if (scriptName != "")
+        if (scriptName != "") {
+            console.log("Found object with name ", scriptName);
             this.scriptObjects[scriptName] = this.objects.at(-1);
+        }
         return this.objects.at(-1);
     }
 
@@ -180,7 +197,8 @@ class ManaBottle {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.hint = "Бутылочка синей жидкости"
+        this.img = images.prepare("mana1");
+        this.hint = "Бутылочка синей жидкости";
     }
     onContact(player) {
         this.dead = true;
@@ -189,8 +207,7 @@ class ManaBottle {
         player.mana += 3;
     }
     draw(ctx, x, y) {
-        if (manaImage.complete)
-            ctx.drawImage(manaImage, x, y);
+        images.draw(ctx, this.img, x, y);
     }
 };
 
@@ -244,8 +261,8 @@ class DecorativeObject {
         }
     }
     draw(ctx, x, y) {
-        if (this.image && this.image.complete)
-            ctx.drawImage(this.image, x, y);
+        if (this.image)
+            images.draw(ctx, this.image, x, y);
     }
 };
 
@@ -303,6 +320,8 @@ class SmoothlyChangingNumber {
         this.timeAtTarget = animations.globalTimer + delay;
     }
     get() {
+        if (!this.timeAtTarget)
+            return this.target;
         if (animations.globalTimer > this.timeAtTarget)
             return this.target;
         return this.val + (this.target - this.val) * (animations.globalTimer - this.timeAtVal) / (this.timeAtTarget - this.timeAtVal);
@@ -318,6 +337,7 @@ class Mob {
         this.pixelX = new SmoothlyChangingNumber(x * tileSize);
         this.pixelY = new SmoothlyChangingNumber(y * tileSize);
         this.zLayer = 1;
+        this.rotation = 0;
 
         this.rules = getProp(obj, "Rules");
         if (this.rules) {
@@ -331,15 +351,21 @@ class Mob {
                 this.startingY = y;
             }
         }
+        this.img = prepareImageFor(obj);
 
-        this.img = makeImageFor(obj);
+        const rotatedImages = {"duck" : 1, "scorpion_king" : 1, "dust_scorpio" : 1, "black_scorpio" : 1}
+        this.rotatedDrawing = rotatedImages[this.img];
     }
 
     draw(ctx, x, y) {
         x += this.pixelX.get() - this.x * tileSize;
         y += this.pixelY.get() - this.y * tileSize;
-        if (!this.dead && this.img && this.img.complete)
-            ctx.drawImage(this.img, x, y);
+        if (!this.dead && this.img) {
+            if (this.rotatedDrawing)
+                images.drawRotated(ctx, this.img, Math.PI - this.rotation, x + halfTileSize, y + halfTileSize);
+            else
+                images.draw(ctx, this.img, x, y);
+        }
         if (this.stats && this.hp < this.stats.hp)
             drawHPbar(ctx, this.hp, this.stats.hp, x, y)
     }
@@ -367,7 +393,7 @@ class Mob {
         else
             world.objects.push(new DecorativeObject({
                 name: "Останки"
-            }, this.x, this.y, bonesImage))
+            }, this.x, this.y, images.prepare("bones")))
     }
 
     isEnemy() {
@@ -387,16 +413,25 @@ class Mob {
                 this.checkAggro();
                 if (this.stats.attackRadius) {
                     let attacked = attackIfNear(this, player);
-                    if (attacked)
+                    if (attacked) {
+                        this.rotation = Math.atan2(player.x - this.x, player.y - this.y);
                         canMove = false;
+                    }
                 }
             }
         }
         if (canMove) {
             this.move(forced);
             this.occupy(world.pathfinding);
-            this.pixelX.set(this.x * tileSize, 1);
-            this.pixelY.set(this.y * tileSize, 1);
+            let currentPixelX = this.pixelX.get();
+            let currentPixelY = this.pixelY.get();
+            let nextPixelX = this.x * tileSize;
+            let nextPixelY = this.y * tileSize;
+            if (nextPixelX != currentPixelX || nextPixelY != currentPixelY) {
+                this.rotation = Math.atan2(nextPixelX - currentPixelX, nextPixelY - currentPixelY);
+                this.pixelX.set(nextPixelX, 1);
+                this.pixelY.set(nextPixelY, 1);
+            }
         }
     }
 
@@ -409,7 +444,7 @@ class Mob {
                     color: this.stats.speaker.color,
                     bgColor: this.stats.speaker.bgColor,
                     font: this.stats.speaker.font,
-                    portrait: makeImage(randomNoRepeatFrom(this.stats.speaker.portraits))
+                    portrait: images.prepare(randomNoRepeatFrom(this.stats.speaker.portraits))
                 };
                 if (msg && speaker.portrait)
                     ui.dialogUI.addMessage(msg, speaker, this);
@@ -506,7 +541,7 @@ class Player {
         this.stats = rpg.player_start;
         this.mana = this.stats.mana;
         this.hp = this.stats.hp;
-        this.img = makeImage("player");
+        this.img = images.prepare("player");
         this.inventory = []
     }
 
@@ -559,15 +594,14 @@ class Player {
 
     draw(ctx, x, y) {
         if (this.hp <= 0) {
-            ctx.drawImage(bonesImage, x, y);
+            images.draw(ctx, "bones", x, y);
             return;
         }
-        if (this.img.complete)
-            ctx.drawImage(this.img, x, y);
+        images.draw(ctx, this.img, x, y);
         if (this.sword && this.sword.img)
-            ctx.drawImage(this.sword.img, x, y);
+            images.draw(ctx, this.sword.img, x, y);
         if (this.shield && this.shield.img)
-            ctx.drawImage(this.shield.img, x, y);
+            images.draw(ctx, this.shield.img, x, y);
         if (this.inCombat)
             drawHPbar(ctx, this.hp, this.stats.hp, x, y)
     }
@@ -600,8 +634,8 @@ class Player {
         if (itemRpg.type) {
             let currentSlot = this[itemRpg.type];
             if (this.shouldEquip(currentSlot, itemRpg)) {
-                itemRpg.img = makeImage(itemRpg.equip_img);
-                itemRpg.inventoryImg = makeImage(itemRpg.inventory_img);
+                itemRpg.img = images.prepare(itemRpg.equip_img);
+                itemRpg.inventoryImg = images.prepare(itemRpg.inventory_img);
                 this[itemRpg.type] = itemRpg;
                 if (itemRpg.message)
                     ui.dialogUI.addMessage(itemRpg.message, playerSpeaker, player);
@@ -613,7 +647,7 @@ class Player {
             }
         } else {
             this.inventory.push(itemRpg);
-            itemRpg.inventoryImg = makeImage(itemRpg.inventory_img);
+            itemRpg.inventoryImg = images.prepare(itemRpg.inventory_img);
             if (itemRpg.message)
                 ui.dialogUI.addMessage(itemRpg.message, playerSpeaker, player);
             return true;
