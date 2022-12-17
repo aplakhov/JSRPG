@@ -552,14 +552,18 @@ class Player {
     tryMove(dx, dy) {
         if (this.hp <= 0)
             return false;
-        const newx = this.x + dx;
-        const newy = this.y + dy;
+        const x = Math.round(this.pixelX.get() / tileSize);
+        const y = Math.round(this.pixelY.get() / tileSize);
+        const newx = x + dx;
+        const newy = y + dy;
         if (!world.pathfinding.isPassable(newx, newy, this))
             return false;
         this.x = newx;
         this.y = newy;
-        this.pixelX.set(this.x * tileSize, 0.5);
-        this.pixelY.set(this.y * tileSize, 0.5);
+        if (dx != 0)
+            this.pixelX.set(this.x * tileSize, 0.2);
+        if (dy != 0)
+            this.pixelY.set(this.y * tileSize, 0.2);
         for (let n = 0; n < world.objects.length; n++) {
             let obj = world.objects[n];
             if ('hasContact' in obj && obj.hasContact(this.x, this.y))
