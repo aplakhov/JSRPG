@@ -46,10 +46,22 @@ class AllScripts {
         this.delay += (text.length + 80) / 40
     }
 
+    _teleportPlayer(x, y) {
+        setTimeout(() => {
+            player.x = x;
+            player.y = y;
+            player.pixelX = new SmoothlyChangingNumber(x * tileSize);
+            player.pixelY = new SmoothlyChangingNumber(y * tileSize);
+            world.vision.recalculateLocalVisibility();
+        }, this.delay * 1000);
+    }
+
     _movePlayer(dx, dy) {
         setTimeout(() => {
             player.x += dx;
             player.y += dy;
+            player.pixelX.set(player.x * tileSize, 0.5);
+            player.pixelY.set(player.y * tileSize, 0.5);
             world.vision.recalculateLocalVisibility();
         }, this.delay * 1000);
         this.delay += 0.5
@@ -83,10 +95,10 @@ class AllScripts {
     }
 }
 
-function addSmokeParticle(baseObject, pixelXobject, pixelYobject, strength, fire, offset) {
+function addSmokeParticle(baseObject, pixelXobject, pixelYobject, strength, fire, pixelOffset) {
     let pixelX = baseObject.toWorldX(pixelXobject, pixelYobject);
     let pixelY = baseObject.toWorldY(pixelXobject, pixelYobject);
-    fire.emitParticles(pixelX, pixelY, strength, offset);
+    fire.emitParticles(pixelX, pixelY, strength, pixelOffset);
 }
 
 class EmptyScript extends AllScripts {

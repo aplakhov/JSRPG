@@ -102,6 +102,8 @@ class World {
             } else if (obj.class == "Player") {
                 player.x = x;
                 player.y = y;
+                player.pixelX = new SmoothlyChangingNumber(x * tileSize);
+                player.pixelY = new SmoothlyChangingNumber(y * tileSize);
             } else
                 this.addNewObject(obj, x, y);
         }
@@ -538,6 +540,8 @@ class Player {
     constructor() {
         this.x = 0;
         this.y = 0;
+        this.pixelX = new SmoothlyChangingNumber(0);
+        this.pixelY = new SmoothlyChangingNumber(0);
         this.stats = rpg.player_start;
         this.mana = this.stats.mana;
         this.hp = this.stats.hp;
@@ -554,6 +558,8 @@ class Player {
             return false;
         this.x = newx;
         this.y = newy;
+        this.pixelX.set(this.x * tileSize, 0.5);
+        this.pixelY.set(this.y * tileSize, 0.5);
         for (let n = 0; n < world.objects.length; n++) {
             let obj = world.objects[n];
             if ('hasContact' in obj && obj.hasContact(this.x, this.y))
@@ -592,7 +598,9 @@ class Player {
         }
     }
 
-    draw(ctx, x, y) {
+    draw(ctx, pixelOffset) {
+        let x = this.pixelX.get() - pixelOffset.x;
+        let y = this.pixelY.get() - pixelOffset.y;
         if (this.hp <= 0) {
             images.draw(ctx, "bones", x, y);
             return;

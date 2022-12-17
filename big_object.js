@@ -9,7 +9,7 @@ class BigScaryObject {
       this.pixelX = new SmoothlyChangingNumber(this.x * tileSize);
       this.pixelY = new SmoothlyChangingNumber(this.y * tileSize);
       this.rotation = new SmoothlyChangingNumber(0);
-      this.visualR = halfViewInTiles; // TODO - can be estimated better
+      this.visualR = halfViewInPixels; // TODO - can be estimated better
       let occupiedTiles = getProp(obj, "OccupiedTiles");
       if (occupiedTiles)
         this.occupiedTiles = eval(occupiedTiles);
@@ -32,14 +32,16 @@ class BigScaryObject {
         }
       }
     }
-    isVisible(offset) {
-      if (this.x + this.visualR < offset.x)
+    isVisible(pixelOffset) {
+      const x = this.pixelX.get();
+      const y = this.pixelY.get();
+      if (x + this.visualR < pixelOffset.x)
         return false;
-      if (this.y + this.visualR < offset.y)
+      if (y + this.visualR < pixelOffset.y)
         return false;
-      if (this.x - this.visualR >= offset.x + viewInTiles)
+      if (x - this.visualR >= pixelOffset.x + viewInPixels)
         return false;
-      if (this.y - this.visualR >= offset.y + viewInTiles)
+      if (y - this.visualR >= pixelOffset.y + viewInPixels)
         return false;
       return true;
     }

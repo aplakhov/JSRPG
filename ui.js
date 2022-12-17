@@ -5,7 +5,9 @@ const ctx = canvas.getContext("2d");
 
 const tileSize = 32;
 const halfTileSize = tileSize / 2;
+const viewInPixels = 768;
 const viewInTiles = 24;
+const halfViewInPixels = 384;
 const halfViewInTiles = 12;
 
 let player = new Player();
@@ -33,12 +35,14 @@ function tileAt(x, y) {
     return r2 < 2500 ? 1 : 0;
 };
 
-function canvasOffsetInTiles() {
-    const minx = clamp(player.x - halfViewInTiles, 0, world.width - viewInTiles);
-    const miny = clamp(player.y - halfViewInTiles, 0, world.height - viewInTiles);
+function canvasOffset() {
+    const leftX = player.pixelX.get() - halfViewInPixels;
+    const topY = player.pixelY.get() - halfViewInPixels;
+    const minx = clamp(leftX, 0, world.width * tileSize - viewInPixels);
+    const miny = clamp(topY, 0, world.height * tileSize - viewInPixels);
     return {
-        x: minx,
-        y: miny
+        x: Math.floor(minx),
+        y: Math.floor(miny)
     };
 }
 
@@ -73,11 +77,11 @@ class TileUnderCursor {
 
 function updateTileUnderCursor(mouseEvent) {
     const rect = mouseEvent.target.getBoundingClientRect();
-    const offset = canvasOffsetInTiles();
+    const pixelOffset = canvasOffset();
     if (mouseEvent.clientX >= rect.left + dialogUIleftOffset)
         ui.tileUnderCursor.hideTooltip();
-    const tileX = offset.x + ((mouseEvent.clientX - rect.left) / tileSize) >> 0;
-    const tileY = offset.y + ((mouseEvent.clientY - rect.top) / tileSize) >> 0;
+    const tileX = ((pixelOffset.x + mouseEvent.clientX - rect.left) / tileSize) >> 0;
+    const tileY = ((pixelOffset.y + mouseEvent.clientY - rect.top) / tileSize) >> 0;
     ui.tileUnderCursor.set(tileX, tileY);
 };
 
@@ -492,11 +496,12 @@ class UI {
         ctx.stroke();
     }
 
-    draw(ctx, offset) {
-        const dialogUItopOffset = 40;
+    drawTooltip(ctx, pixelOffset) {
         if (this.tileUnderCursor.needShowTooltip())
-            drawTooltip(ctx, offset, this.tileUnderCursor);
+            drawTooltip(ctx, pixelOffset, this.tileUnderCursor);
+    }
 
+    draw(ctx) {
         if (this.state == 2) {
             this.dialogUI.draw();
         } else {
@@ -511,6 +516,7 @@ class UI {
                 this._drawInventory();
         }
 
+        const dialogUItopOffset = 40;
         let showMana = player.stats.mana > 0;
         let showHP = player.hp < player.stats.hp;
         if (showMana || showHP) {

@@ -28,42 +28,48 @@ class Renderer {
         this.animatedWater = makeImage(biome + "animated_water");
     }
 
-    _drawTrees(ctx, offset, world) {
+    _drawTrees(ctx, pixelOffset, world) {
         let variationsNum = this.treeImages.width / 64;
         for (let tree of world.trees) {
-            let dx = tree.x - offset.x;
-            if (dx < 0 || dx >= viewInTiles)
-                continue;
-            let dy = tree.y - offset.y;
-            if (dy < 0 || dy >= viewInTiles)
-                continue;
             let variation = tree.variation % variationsNum;
-            ctx.drawImage(this.treeImages, variation * 64, 0, 64, 64, dx * tileSize - 16 + tree.sx, dy * tileSize-16 + tree.sy, 64, 64); 
+            let x = tree.x * tileSize - 16 + tree.sx;
+            let y = tree.y * tileSize - 16 + tree.sy;
+            let dx = x - pixelOffset.x;
+            if (dx < -64 || dx > viewInPixels)
+                continue;
+            let dy = y - pixelOffset.y;
+            if (dy < -64 || dy > viewInPixels)
+                continue;
+            ctx.drawImage(this.treeImages, variation * 64, 0, 64, 64, dx, dy, 64, 64); 
         }
     }
 
-    _drawTerrainLayer(ctx, offset, world, tile, tileImages) {
-        let variationsNum = tileImages.width / 64;
-        let stableRandomLen = this.stableRandom.length;
-        for (let dy = 0; dy < viewInTiles; dy++) {
-            for (let dx = 0; dx < viewInTiles; dx++) {
-                let x = offset.x + dx;
-                let y = offset.y + dy;
+    _drawTerrainLayer(ctx, pixelOffset, world, tile, tileImages) {
+        const variationsNum = tileImages.width / 64;
+        const stableRandomLen = this.stableRandom.length;
+        const fromX = Math.floor(pixelOffset.x / tileSize);
+        const fromY = Math.floor(pixelOffset.y / tileSize);
+        const toX = (pixelOffset.x + viewInPixels) / tileSize;
+        const toY = (pixelOffset.y + viewInPixels) / tileSize;
+        for (let y = fromY; y < toY; y++) {
+            for (let x = fromX; x < toX; x++) {
                 if (tile == world.terrain[x][y]) {
                     let variation = this.stableRandom[(x + y * viewInTiles) % stableRandomLen] % variationsNum;
-                    ctx.drawImage(tileImages, variation*64, 0, 64, 64, dx*tileSize-16, dy*tileSize-16, 64, 64); 
+                    ctx.drawImage(tileImages, variation*64, 0, 64, 64, x*tileSize - pixelOffset.x - 16, y*tileSize - pixelOffset.y - 16, 64, 64); 
                 }
             }
         }
     }
 
-    _drawTerrainBorder(ctx, offset, world, tile1, tile2, tileImages) {
-        let variationsNum = tileImages.width / 64;
-        let stableRandomLen = this.stableRandom.length;
-        for (let dy = 0; dy < viewInTiles; dy++) {
-            for (let dx = 0; dx < viewInTiles; dx++) {
-                let x = offset.x + dx;
-                let y = offset.y + dy;
+    _drawTerrainBorder(ctx, pixelOffset, world, tile1, tile2, tileImages) {
+        const variationsNum = tileImages.width / 64;
+        const stableRandomLen = this.stableRandom.length;
+        const fromX = Math.floor(pixelOffset.x / tileSize);
+        const fromY = Math.floor(pixelOffset.y / tileSize);
+        const toX = (pixelOffset.x + viewInPixels) / tileSize;
+        const toY = (pixelOffset.y + viewInPixels) / tileSize;
+        for (let y = fromY; y < toY; y++) {
+            for (let x = fromX; x < toX; x++) {
                 if (world.terrain[x][y] != tile1)
                     continue;
                 let hasBorder = (x > 0 && world.terrain[x-1][y] == tile2) ||
@@ -72,121 +78,130 @@ class Renderer {
                     (y + 1 < world.height && world.terrain[x][y+1] == tile2);
                 if (hasBorder) {
                     let variation = this.stableRandom[(x + y * viewInTiles) % stableRandomLen] % variationsNum;
-                    ctx.drawImage(tileImages, variation*64, 0, 64, 64, dx*tileSize-16, dy*tileSize-16, 64, 64);
+                    ctx.drawImage(tileImages, variation*64, 0, 64, 64, x*tileSize - pixelOffset.x - 16, y*tileSize - pixelOffset.y - 16, 64, 64);
                 } 
             }
         }
     }
 
-    _drawTerrainLayer32(ctx, offset, world, tile, tileImages) {
-        let stoneVariationsNum = tileImages.width / 32;
-        let stableRandomLen = this.stableRandom.length;
-        for (let dy = 0; dy < viewInTiles; dy++) {
-            for (let dx = 0; dx < viewInTiles; dx++) {
-                let x = offset.x + dx;
-                let y = offset.y + dy;
+    _drawTerrainLayer32(ctx, pixelOffset, world, tile, tileImages) {
+        const variationsNum = tileImages.width / 64;
+        const stableRandomLen = this.stableRandom.length;
+        const fromX = Math.floor(pixelOffset.x / tileSize);
+        const fromY = Math.floor(pixelOffset.y / tileSize);
+        const toX = (pixelOffset.x + viewInPixels) / tileSize;
+        const toY = (pixelOffset.y + viewInPixels) / tileSize;
+        for (let y = fromY; y < toY; y++) {
+            for (let x = fromX; x < toX; x++) {
                 if (tile == world.terrain[x][y]) {
-                    let variation = this.stableRandom[(x + y * viewInTiles) % stableRandomLen] % stoneVariationsNum;
-                    ctx.drawImage(tileImages, variation*32, 0, 32, 32, dx*tileSize, dy*tileSize, 32, 32); 
+                    let variation = this.stableRandom[(x + y * viewInTiles) % stableRandomLen] % variationsNum;
+                    ctx.drawImage(tileImages, variation*32, 0, 32, 32, x*tileSize - pixelOffset.x, y*tileSize - pixelOffset.y, 32, 32); 
                 }
             }
         }
     }
 
-    _drawTerrain(ctx, offset, world) {
+    _drawTerrain(ctx, pixelOffset, world) {
         let numWaterFrames = this.animatedWater.width/32
-        for (let dy = 0; dy < viewInTiles; dy++) {
-            for (let dx = 0; dx < viewInTiles; dx++) {
-                let x = offset.x + dx;
-                let y = offset.y + dy;
+        const fromX = Math.floor(pixelOffset.x / tileSize);
+        const fromY = Math.floor(pixelOffset.y / tileSize);
+        const toX = (pixelOffset.x + viewInPixels) / tileSize;
+        const toY = (pixelOffset.y + viewInPixels) / tileSize;
+        for (let y = fromY; y < toY; y++) {
+            for (let x = fromX; x < toX; x++) {
                 if (TERRAIN_WATER == world.terrain[x][y]) {
                     let animatedWaterFrame = Math.floor(animations.globalTimer*8) % numWaterFrames;
-                    ctx.drawImage(this.animatedWater, animatedWaterFrame*32, 0, 32, 32, dx*tileSize, dy*tileSize, 32, 32); 
+                    ctx.drawImage(this.animatedWater, animatedWaterFrame*32, 0, 32, 32, x*tileSize - pixelOffset.x, y*tileSize - pixelOffset.y, 32, 32); 
                 }
             }
         }
-        this._drawTerrainBorder(ctx, offset, world, TERRAIN_SAND, TERRAIN_WATER, this.groundTiles);
-        this._drawTerrainBorder(ctx, offset, world, TERRAIN_GRASS, TERRAIN_WATER, this.groundTiles);
-        this._drawTerrainBorder(ctx, offset, world, TERRAIN_STONE, TERRAIN_WATER, this.stoneGroundTile);
+        this._drawTerrainBorder(ctx, pixelOffset, world, TERRAIN_SAND, TERRAIN_WATER, this.groundTiles);
+        this._drawTerrainBorder(ctx, pixelOffset, world, TERRAIN_GRASS, TERRAIN_WATER, this.groundTiles);
+        this._drawTerrainBorder(ctx, pixelOffset, world, TERRAIN_STONE, TERRAIN_WATER, this.stoneGroundTile);
 
-        this._drawTerrainLayer32(ctx, offset, world, TERRAIN_STONE, this.stoneTiles);
-        this._drawTerrainLayer(ctx, offset, world, TERRAIN_SAND, this.sandTiles);
-        this._drawTerrainLayer32(ctx, offset, world, TERRAIN_PAVEMENT, this.pavementTiles);
+        this._drawTerrainLayer32(ctx, pixelOffset, world, TERRAIN_STONE, this.stoneTiles);
+        this._drawTerrainLayer(ctx, pixelOffset, world, TERRAIN_SAND, this.sandTiles);
+        this._drawTerrainLayer32(ctx, pixelOffset, world, TERRAIN_PAVEMENT, this.pavementTiles);
 
-        this._drawTerrainBorder(ctx, offset, world, TERRAIN_GRASS, TERRAIN_PAVEMENT, this.darkGrassBorderTiles);
-        this._drawTerrainBorder(ctx, offset, world, TERRAIN_GRASS, TERRAIN_SAND, this.darkGrassBorderTiles);        
-        this._drawTerrainLayer(ctx, offset, world, TERRAIN_GRASS, this.grassTiles);
+        this._drawTerrainBorder(ctx, pixelOffset, world, TERRAIN_GRASS, TERRAIN_PAVEMENT, this.darkGrassBorderTiles);
+        this._drawTerrainBorder(ctx, pixelOffset, world, TERRAIN_GRASS, TERRAIN_SAND, this.darkGrassBorderTiles);        
+        this._drawTerrainLayer(ctx, pixelOffset, world, TERRAIN_GRASS, this.grassTiles);
 
-        this._drawTerrainLayer(ctx, offset, world, TERRAIN_STONE_WALL, this.rockGroundTiles);
-        this._drawTerrainLayer(ctx, offset, world, TERRAIN_STONE_WALL, this.rockTiles);
+        this._drawTerrainLayer(ctx, pixelOffset, world, TERRAIN_STONE_WALL, this.rockGroundTiles);
+        this._drawTerrainLayer(ctx, pixelOffset, world, TERRAIN_STONE_WALL, this.rockTiles);
     } 
 
-    _drawObj(ctx, offset, obj) {
+    _drawObj(ctx, pixelOffset, obj) {
         if ('draw' in obj) {
             let x = obj.x
             let y = obj.y
-            let visible = 'isVisible' in obj ? obj.isVisible(offset) : world.vision.isVisibleSafe(x, y, offset);
+            let visible = 'isVisible' in obj ? obj.isVisible(pixelOffset) : world.vision.isVisibleSafe(x, y);
+            //TODO: check viewport for second case
             if (visible)
-                obj.draw(ctx, (x - offset.x) * tileSize, (y - offset.y) * tileSize);
+                obj.draw(ctx, x * tileSize - pixelOffset.x, y * tileSize - pixelOffset.y);
         }
     }
     
-    _drawObjects(ctx, offset, world) {
+    _drawObjects(ctx, pixelOffset, world) {
         for (let obj of world.objects) {
             if (!obj.zLayer)
-                this._drawObj(ctx, offset, obj)
+                this._drawObj(ctx, pixelOffset, obj)
         };
-        player.draw(ctx, (player.x - offset.x) * tileSize, (player.y - offset.y) * tileSize);
+        player.draw(ctx, pixelOffset);
         for (let obj of world.objects) {
             if (obj.zLayer == 1)
-                this._drawObj(ctx, offset, obj)
+                this._drawObj(ctx, pixelOffset, obj)
         };
     }
 
-    _drawHighObjects(ctx, offset, world) {
+    _drawHighObjects(ctx, pixelOffset, world) {
         for (let obj of world.objects) {
             if (obj.zLayer == 2)
-                this._drawObj(ctx, offset, obj)
+                this._drawObj(ctx, pixelOffset, obj)
         };
     }
         
-    _drawDarkness(ctx, offset, world) {
-        for (let dx = -1; dx < viewInTiles; dx++) {
-            for (let dy = -1; dy < viewInTiles; dy++) {
-                let x = offset.x + dx;
-                let y = offset.y + dy;
+    _drawDarkness(ctx, pixelOffset, world) {
+        const fromX = Math.floor(pixelOffset.x / tileSize) - 1;
+        const fromY = Math.floor(pixelOffset.y / tileSize) - 1;
+        const toX = (pixelOffset.x + viewInPixels) / tileSize;
+        const toY = (pixelOffset.y + viewInPixels) / tileSize;    
+        for (let y = fromY; y < toY; y++) {
+            for (let x = fromX; x < toX; x++) {
                 let upleftVisible = world.vision.isVisibleSafe(x, y)
                 let uprightVisible = world.vision.isVisibleSafe(x+1, y)
                 let downleftVisible = world.vision.isVisibleSafe(x, y+1)
                 let downrightVisible = world.vision.isVisibleSafe(x+1, y+1)
                 let tile = (upleftVisible? 1: 0) + (uprightVisible? 2: 0) + (downleftVisible? 4: 0) + (downrightVisible? 8: 0)
                 if (tile < 15)
-                    ctx.drawImage(this.darknessVeil, 32*tile, 0, 32, 32, dx*tileSize+16, dy*tileSize+16, 32, 32)
+                    ctx.drawImage(this.darknessVeil, 32*tile, 0, 32, 32, x*tileSize+16-pixelOffset.x, y*tileSize+16-pixelOffset.y, 32, 32)
             }
         }
     }        
 
-    drawWorld(ctx, offset, world) {
-        //ctx.fillRect(0, 0, 768, 768);
-        this._drawTerrain(ctx, offset, world);
-        this._drawObjects(ctx, offset, world);
-        this._drawTrees(ctx, offset, world);
-        this._drawHighObjects(ctx, offset, world);
-        this._drawDarkness(ctx, offset, world);
+    drawWorld(ctx, pixelOffset, world) {
+        ctx.fillRect(0, 0, 768, 768);
+        this._drawTerrain(ctx, pixelOffset, world);
+        this._drawObjects(ctx, pixelOffset, world);
+        this._drawTrees(ctx, pixelOffset, world);
+        this._drawHighObjects(ctx, pixelOffset, world);
+        this._drawDarkness(ctx, pixelOffset, world);
         if (drawAI) {
             ctx.fillStyle = 'rgba(255, 0, 0, 0.25)';
-            for (let dx = 0; dx < viewInTiles; dx++) {
-                for (let dy = 0; dy < viewInTiles; dy++) {
-                    let x = offset.x + dx;
-                    let y = offset.y + dy;
+            const fromX = Math.floor(pixelOffset.x / tileSize);
+            const fromY = Math.floor(pixelOffset.y / tileSize);
+            const toX = (pixelOffset.x + viewInPixels) / tileSize;
+            const toY = (pixelOffset.y + viewInPixels) / tileSize;    
+            for (let y = fromY; y < toY; y++) {
+                for (let x = fromX; x < toX; x++) {
                     if (!world.pathfinding.isPassable(x, y, null))
-                        ctx.fillRect(dx * tileSize, dy * tileSize, tileSize, tileSize);
+                        ctx.fillRect(x * tileSize - pixelOffset.x, y * tileSize - pixelOffset.y, tileSize, tileSize);
                 }
             }
         }
     }
 
-    _drawCoolImageIfNeeded(ctx, offset, dx, dy, world) {
+    _drawCoolImageIfNeeded(ctx, pixelOffset, dx, dy, world) {
         let x = player.x + dx;
         if (x < 0 || x >= world.width)
             return false;
@@ -197,8 +212,8 @@ class Renderer {
         if (gameObj && gameObj.coolImage) {
             ctx.fillStyle = "rgba(0,0,0,0.6)";
             ctx.fillRect(0, 0, 768, 768);
-            let centerX = (player.x - offset.x) * tileSize
-            let centerY = (player.y - offset.y - 2) * tileSize - gameObj.coolImage.height / 2
+            let centerX = player.pixelX.get() - pixelOffset.x;
+            let centerY = player.pixelY.get() - 2 * tileSize - pixelOffset.y - gameObj.coolImage.height / 2;
             let left = centerX - gameObj.coolImage.width/2;
             let top = centerY - gameObj.coolImage.height/2;
             ctx.drawImage(gameObj.coolImage, left, top);
@@ -206,23 +221,23 @@ class Renderer {
         }
         return false;
     }
-    drawCoolImage(ctx, offset, world) {
-        this._drawCoolImageIfNeeded(ctx, offset, 0, -1, world) ||
-        this._drawCoolImageIfNeeded(ctx, offset, 1, 0, world) ||
-        this._drawCoolImageIfNeeded(ctx, offset, -1, 0, world) ||
-        this._drawCoolImageIfNeeded(ctx, offset, 0, 1, world);
+    drawCoolImage(ctx, pixelOffset, world) {
+        this._drawCoolImageIfNeeded(ctx, pixelOffset, 0, -1, world) ||
+        this._drawCoolImageIfNeeded(ctx, pixelOffset, 1, 0, world) ||
+        this._drawCoolImageIfNeeded(ctx, pixelOffset, -1, 0, world) ||
+        this._drawCoolImageIfNeeded(ctx, pixelOffset, 0, 1, world);
     }
 }
 
-function drawTooltip(ctx, offset, tileUnderCursor) {
+function drawTooltip(ctx, pixelOffset, tileUnderCursor) {
     if (tileUnderCursor.x < 0 || tileUnderCursor.x >= world.width)
         return;
     if (tileUnderCursor.y < 0 || tileUnderCursor.y >= world.height)
         return;
     if (!world.vision.isVisible(tileUnderCursor.x, tileUnderCursor.y))
         return;
-    let left = (tileUnderCursor.x - offset.x + 0.5) * tileSize;
-    let top = (tileUnderCursor.y - offset.y + 0.5) * tileSize;
+    let left = (tileUnderCursor.x + 0.5) * tileSize - pixelOffset.x;
+    let top = (tileUnderCursor.y + 0.5) * tileSize - pixelOffset.y;
     let text = world.hint(tileUnderCursor.x, tileUnderCursor.y);
 
     const maxWidth = 320;
@@ -255,7 +270,7 @@ class Animations {
         this.animations.push(animation)
     }
 
-    draw(ctx, offsetInTiles) {
+    draw(ctx, pixelOffset) {
         this.globalTimer = Date.now() / 1000.
         if (animations.length == 0)
             return;
@@ -264,8 +279,8 @@ class Animations {
             let x = ('pixelX' in anim.baseTile) ? anim.baseTile.pixelX.get() : anim.baseTile.x * tileSize;
             let y = ('pixelY' in anim.baseTile) ? anim.baseTile.pixelY.get() : anim.baseTile.y * tileSize;
             let offsetInPixels = {
-                x: x - offsetInTiles.x * tileSize + halfTileSize,
-                y: y - offsetInTiles.y * tileSize + halfTileSize
+                x: x - pixelOffset.x + halfTileSize,
+                y: y - pixelOffset.y + halfTileSize
             }
             let finished = anim.draw(ctx, offsetInPixels, this.globalTimer - anim.startTime);
             if (!finished)
@@ -457,14 +472,15 @@ class DialogMessages {
 let renderer = new Renderer();
 let animations = new Animations();
 setInterval(() => {
-        const offset = canvasOffsetInTiles();
+        const pixelOffset = canvasOffset();
         world.script.onDraw();
-        renderer.drawWorld(ctx, offset, world);
-        fire.step(canvasOffsetInTiles());
-        fire.draw(ctx, offset);
-        animations.draw(ctx, offset);
-        renderer.drawCoolImage(ctx, offset, world);
-        ui.draw(ctx, offset);
+        renderer.drawWorld(ctx, pixelOffset, world);
+        fire.step(pixelOffset);
+        fire.draw(ctx, pixelOffset);
+        animations.draw(ctx, pixelOffset);
+        renderer.drawCoolImage(ctx, pixelOffset, world);
+        ui.drawTooltip(ctx, pixelOffset);
+        ui.draw(ctx);
     },
     20
 );

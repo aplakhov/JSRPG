@@ -27,14 +27,14 @@ class IntroMapScript extends AllScripts {
             [1, 1, 0, 1, 1, 0, 0, 0, 0],
         ];
         dragon.hint = "Что-то непонятное";
-        fire.emitters.push((fire, offset) => {
+        fire.emitters.push((fire, pixelOffset) => {
             if (dragon.awake) {
-                addSmokeParticle(dragon, 6*tileSize - 4, tileSize - 4, 10, fire, offset);
-                addSmokeParticle(dragon, 6*tileSize - 4, - tileSize + 4, 10, fire, offset);
+                addSmokeParticle(dragon, 6*tileSize - 4, tileSize - 4, 10, fire, pixelOffset);
+                addSmokeParticle(dragon, 6*tileSize - 4, - tileSize + 4, 10, fire, pixelOffset);
             }
             return false;
         });
-        fire.emitters.push((fire, offset) => {
+        fire.emitters.push((fire, pixelOffset) => {
             if (dragon.awake && dragon.aggro) {
                 for (let n = 0; n < 7; n++) {
                     let mouthX = 6*tileSize;
@@ -263,13 +263,9 @@ class IntroMapScript extends AllScripts {
         this._startSequence();
         this._fade("После утомительной дороги с тяжелым сундуком...", 4);
 
-        let scriptPlace = world.scriptObjects.lastScriptPlace;
         this._wait(1.5);
-        this._do(() => {
-          player.x = scriptPlace.x + 7;
-          player.y = scriptPlace.y;
-          world.vision.recalculateLocalVisibility();
-        });
+        let scriptPlace = world.scriptObjects.lastScriptPlace;
+        this._teleportPlayer(scriptPlace.x + 7, scriptPlace.y);
 
         let kirael = this._addMob(scriptPlace.x - 2, scriptPlace.y - 2, "Кираэль", "kirael");
         let thug1 = this._addMob(scriptPlace.x - 3, scriptPlace.y, "Первый громила", "thug");

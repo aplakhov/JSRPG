@@ -17,11 +17,12 @@ class Fire {
         ]
     }
 
-    emitParticles(pixelX, pixelY, size, offset) {
+    emitParticles(pixelX, pixelY, size, pixelOffset) {
+        if (pixelX < pixelOffset.x || pixelY < pixelOffset.y || 
+            pixelX > pixelOffset.x + viewInPixels || pixelY > pixelOffset.y + viewInPixels)
+            return;
         let x = Math.floor(pixelX/tileSize);
         let y = Math.floor(pixelY/tileSize);
-        if (x < offset.x || y < offset.y || x > offset.x + viewInTiles || y > offset.y + viewInTiles)
-            return;
         if (!world.vision.isVisible(x, y))
             return;
         let nBigParticles = Math.floor(size/20);
@@ -35,18 +36,18 @@ class Fire {
     }
 
     addConstantEmitter(x, y, size) {
-        this.emitters.push((fire, offset) => {
-            fire.emitParticles(x * tileSize + tileSize/2, y * tileSize + 15, size, offset);
+        this.emitters.push((fire, pixelOffset) => {
+            fire.emitParticles(x * tileSize + tileSize/2, y * tileSize + 15, size, pixelOffset);
             return false;
         })
     }
 
-    step(offset) {
+    step(pixelOffset) {
         let newParticles = [];
         let newEmitters = [];
         for (let n = 0; n < this.emitters.length; n++) {
             let e = this.emitters[n];
-            let emitterEnded = e(this, offset);
+            let emitterEnded = e(this, pixelOffset);
             if (!emitterEnded)
                 newEmitters.push(e);
         }
@@ -75,16 +76,14 @@ class Fire {
         this.particles = newParticles;
     }
 
-    draw(ctx, offset) {
-        let x = offset.x * tileSize;
-        let y = offset.y * tileSize;
-        let maxx = x + dialogUIleftOffset;
-        let maxy = y + ctx.canvas.height;
+    draw(ctx, pixelOffset) {
+        let maxx = pixelOffset.x + viewInPixels;
+        let maxy = pixelOffset.y + viewInPixels;
         for (let n = this.particles.length - 1; n >= 0; n--) {
             let p = this.particles[n];
-            if (p.x >= x && p.y >= y && p.x < maxx && p.y < maxy) {
+            if (p.x >= pixelOffset.x && p.y >= pixelOffset.y && p.x < maxx && p.y < maxy) {
                 ctx.fillStyle = this.colors[Math.floor(p.temperature/2)];
-                ctx.fillRect(p.x - x, p.y - y, 2, 2);
+                ctx.fillRect(p.x - pixelOffset.x, p.y - pixelOffset.y, 2, 2);
             }
         }
     }
