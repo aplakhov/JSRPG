@@ -23,6 +23,12 @@ class ImageCache {
         this.images[imageName] = image;
         return imageName;
     }
+    get(imageName) {
+        const res = this.images[imageName];
+        if (res && res.complete)
+            return res;
+        return null;
+    }
     draw(ctx, imageName, ...restArgs) {
         let res = this.images[imageName];
         if (!res) {

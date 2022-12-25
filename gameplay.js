@@ -545,7 +545,7 @@ class Player {
         this.stats = rpg.player_start;
         this.mana = this.stats.mana;
         this.hp = this.stats.hp;
-        this.img = images.prepare("player");
+        this.img = images.prepare("player_anim");
         this.inventory = []
     }
 
@@ -603,13 +603,40 @@ class Player {
     }
 
     draw(ctx, pixelOffset) {
-        let x = this.pixelX.get() - pixelOffset.x;
-        let y = this.pixelY.get() - pixelOffset.y;
+        const pixelX = this.pixelX.get(), pixelY = this.pixelY.get();
+        let x = pixelX - pixelOffset.x;
+        let y = pixelY - pixelOffset.y;
         if (this.hp <= 0) {
             images.draw(ctx, "bones", x, y);
             return;
         }
-        images.draw(ctx, this.img, x, y);
+        let frameY = 0;
+        let dx = this.pixelX.target - pixelX;
+        let dy = this.pixelY.target - pixelY;
+        const img = images.get(this.img);
+        if (!img)
+            return;
+        const frameCount = img.height / 32;
+        if (dy < 0 && -dy > dx && -dy > -dx) {
+            // up
+            this.frameX = 1;
+            frameY = Math.floor((pixelY % 64)/16) % frameCount;
+        } else if (dy > 0 && dy > dx && dy > -dx) {
+            // down
+            this.frameX = 0;
+            frameY = Math.floor((pixelY % 64)/16) % frameCount;
+        } else if (dx > 0) {
+            // right
+            this.frameX = 2;
+            frameY = Math.floor((pixelX % 64)/16) % frameCount;
+        } else if (dx < 0) {
+            // left
+            this.frameX = 3;
+            frameY = Math.floor((pixelX % 64)/16) % frameCount;
+        } else {
+            this.frameX = 0;
+        }
+        images.draw(ctx, this.img, this.frameX * 32, frameY * 32, 32, 32, x, y, 32, 32);
         if (this.sword && this.sword.img)
             images.draw(ctx, this.sword.img, x, y);
         if (this.shield && this.shield.img)
