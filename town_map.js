@@ -53,8 +53,8 @@
             1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 2, 2, 1, 1, 1, 4, 4, 4, 4, 4, 4, 1, 1, 2,
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1,
             1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-            1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-            1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+            1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+            1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
          "height":42,
          "id":1,
          "name":"Tile Layer 1",
@@ -77,6 +77,11 @@
                  "name":"\u0422\u0430\u0432\u0435\u0440\u043d\u0430",
                  "point":true,
                  "properties":[
+                        {
+                         "name":"CoolImage",
+                         "type":"string",
+                         "value":"Places\/tavern"
+                        }, 
                         {
                          "name":"Image",
                          "type":"string",
@@ -130,9 +135,14 @@
                  "class":"BigScaryObject",
                  "height":0,
                  "id":7,
-                 "name":"\u0411\u0430\u0448\u043d\u044f",
+                 "name":"\u0411\u0430\u0448\u043d\u044f \u0444\u0430\u043a\u0443\u043b\u044c\u0442\u0435\u0442\u0430 \u0442\u0435\u043e\u0440\u0435\u0442\u0438\u0447\u0435\u0441\u043a\u043e\u0439 \u043c\u0430\u0433\u0438\u0438",
                  "point":true,
                  "properties":[
+                        {
+                         "name":"CoolImage",
+                         "type":"string",
+                         "value":"Places\/tower"
+                        }, 
                         {
                          "name":"Image",
                          "type":"string",
@@ -163,9 +173,14 @@
                  "class":"BigScaryObject",
                  "height":0,
                  "id":10,
-                 "name":"\u0427\u0435\u0439-\u0442\u043e \u0434\u043e\u043c",
+                 "name":"\u0414\u043e\u043c",
                  "point":true,
                  "properties":[
+                        {
+                         "name":"CoolImage",
+                         "type":"string",
+                         "value":"Places\/house"
+                        }, 
                         {
                          "name":"Image",
                          "type":"string",
@@ -201,8 +216,8 @@
                  "rotation":0,
                  "visible":true,
                  "width":0,
-                 "x":685.235211923614,
-                 "y":1329.96832789939
+                 "x":13.235211923614,
+                 "y":1177.96832789939
                 }, 
                 {
                  "class":"BigScaryObject",
@@ -211,6 +226,11 @@
                  "name":"\u0414\u043e\u043c-\u0434\u0435\u0440\u0435\u0432\u043e \u044d\u043b\u044c\u0444\u043e\u0432",
                  "point":true,
                  "properties":[
+                        {
+                         "name":"CoolImage",
+                         "type":"string",
+                         "value":"Places\/elves"
+                        }, 
                         {
                          "name":"Image",
                          "type":"string",
@@ -241,7 +261,7 @@
                  "class":"DecorativeObject",
                  "height":0,
                  "id":13,
-                 "name":"\u0424\u043e\u043d\u0442\u0430\u043d",
+                 "name":"\u0424\u043e\u043d\u0442\u0430\u043d \u0436\u0438\u0432\u043e\u0439 \u0432\u043e\u0434\u044b",
                  "point":true,
                  "properties":[
                         {
@@ -250,14 +270,19 @@
                          "value":"true"
                         }, 
                         {
-                         "name":"Fire",
+                         "name":"Fountain",
                          "type":"string",
-                         "value":"3"
+                         "value":"60"
                         }, 
                         {
                          "name":"Image",
                          "type":"string",
                          "value":"water_well"
+                        }, 
+                        {
+                         "name":"ScriptName",
+                         "type":"string",
+                         "value":"fountain"
                         }],
                  "rotation":0,
                  "visible":true,
@@ -269,9 +294,14 @@
                  "class":"BigScaryObject",
                  "height":0,
                  "id":14,
-                 "name":"\u0426\u0435\u0440\u043a\u043e\u0432\u044c \u043a\u043e\u0442\u0438\u0437\u043c\u0430",
+                 "name":"\u0426\u0435\u0440\u043a\u043e\u0432\u044c",
                  "point":true,
                  "properties":[
+                        {
+                         "name":"CoolImage",
+                         "type":"string",
+                         "value":"Places\/church"
+                        }, 
                         {
                          "name":"Image",
                          "type":"string",
@@ -297,6 +327,23 @@
                  "width":0,
                  "x":462.785281788542,
                  "y":350.166744294364
+                }, 
+                {
+                 "class":"MapTransition",
+                 "height":27.494177922683,
+                 "id":15,
+                 "name":"\u0414\u043e\u0440\u043e\u0433\u0430 \u0432 \u041f\u0443\u0441\u0442\u044b\u043d\u044e \u0421\u043a\u043e\u0440\u043f\u0438\u043e\u043d\u043e\u0432",
+                 "properties":[
+                        {
+                         "name":"Target",
+                         "type":"string",
+                         "value":"desert_test_map"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":347.535165346996,
+                 "x":639.7643223102,
+                 "y":1314.36748952026
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -305,7 +352,7 @@
          "y":0
         }],
  "nextlayerid":3,
- "nextobjectid":15,
+ "nextobjectid":18,
  "orientation":"orthogonal",
  "renderorder":"left-down",
  "tiledversion":"1.9.2",
@@ -314,6 +361,10 @@
         {
          "firstgid":1,
          "source":"Tiled\/Logical.tsx"
+        }, 
+        {
+         "firstgid":8,
+         "source":"Tiled\/Desert.tsx"
         }],
  "tilewidth":32,
  "type":"map",

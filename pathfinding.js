@@ -34,6 +34,8 @@ class Pathfinding {
     }
 
     isOccupied(x, y) {
+        if (x < 0 || y < 0 || x >= this.width || y >= this.height)
+            return null;
         if (this.epoch[x][y] != this.currentEpoch)
             return null;
         return this.occupied[x][y];
@@ -44,7 +46,7 @@ class Pathfinding {
             return false;
         let occupies = this.isOccupied(x,y);
         if (occupies && occupies != who)
-          return false;
+            return false;
         let tile = this.terrain[x][y];
         return tile != TERRAIN_WATER && tile != TERRAIN_DARK_FOREST && tile != TERRAIN_STONE_WALL;
     }
@@ -54,7 +56,7 @@ class Pathfinding {
             return false;
         let occupies = this.isOccupied(x,y);
         if (occupies && occupies != who)
-        return false;
+            return false;
         let tile = this.terrain[x][y];
         return tile == TERRAIN_WATER;
     }

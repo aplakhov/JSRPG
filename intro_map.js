@@ -467,6 +467,11 @@
                  "point":true,
                  "properties":[
                         {
+                         "name":"CoolImage",
+                         "type":"string",
+                         "value":"Places\/skeleton"
+                        }, 
+                        {
                          "name":"Message",
                          "type":"string",
                          "value":"\u041f\u043e\u0447\u0435\u043c\u0443 \u043c\u043d\u0435 \u0432\u0435\u0447\u043d\u043e \u043d\u0443\u0436\u043d\u043e \u0438\u043c\u0435\u043d\u043d\u043e \u0442\u0443\u0434\u0430, \u0433\u0434\u0435 \u0432\u0430\u043b\u044f\u044e\u0442\u0441\u044f \u0441\u043a\u0435\u043b\u0435\u0442\u044b?"
@@ -1663,6 +1668,11 @@
                  "point":true,
                  "properties":[
                         {
+                         "name":"CoolImage",
+                         "type":"string",
+                         "value":"Places\/ferry"
+                        }, 
+                        {
                          "name":"Image",
                          "type":"string",
                          "value":"ferry"
@@ -1743,6 +1753,39 @@
                  "width":0,
                  "x":1813,
                  "y":111
+                }, 
+                {
+                 "class":"Autosave",
+                 "height":95,
+                 "id":111,
+                 "name":"Autosave",
+                 "rotation":0,
+                 "visible":true,
+                 "width":37,
+                 "x":983,
+                 "y":3104
+                }, 
+                {
+                 "class":"Autosave",
+                 "height":39,
+                 "id":113,
+                 "name":"Autosave",
+                 "rotation":0,
+                 "visible":true,
+                 "width":115,
+                 "x":1959.5,
+                 "y":2246.5
+                }, 
+                {
+                 "class":"Autosave",
+                 "height":281,
+                 "id":114,
+                 "name":"Autosave",
+                 "rotation":0,
+                 "visible":true,
+                 "width":46,
+                 "x":2105.5,
+                 "y":597.5
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -1751,7 +1794,7 @@
          "y":0
         }],
  "nextlayerid":4,
- "nextobjectid":111,
+ "nextobjectid":115,
  "orientation":"orthogonal",
  "renderorder":"left-down",
  "tiledversion":"1.9.2",

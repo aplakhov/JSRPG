@@ -88,4 +88,3 @@ class Fire {
         }
     }
 };
-let fire = new Fire();

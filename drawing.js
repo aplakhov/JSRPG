@@ -2,8 +2,6 @@
 
 class Renderer {
     constructor() {
-        this.setBiome(world.biome);
-
         this.stoneTiles = makeImage("stone_tile2");
         this.stoneGroundTile = makeImage("stone_wall_ground_tile");
         this.darknessVeil = makeImage("darkness_veil");
@@ -16,20 +14,38 @@ class Renderer {
         }
     }   
     
-    setBiome(biome) {
-        this.sandTiles = makeImage(biome + "sand_tiles");
-        this.grassTiles = makeImage(biome + "grass_tiles");
-        this.darkGrassBorderTiles = makeImage(biome + "dark_grass_border");
-        this.groundTiles = makeImage(biome + "ground_tiles");
-        this.treeImages = makeImage(biome + "trees");
-        this.rockTiles = makeImage(biome + "rock_tiles");
-        this.rockGroundTiles = makeImage(biome + "rock_ground_tiles");
-        this.pavementTiles = makeImage(biome + "pavement_tiles");
-        this.animatedWater = makeImage(biome + "animated_water");
+    setTileset(biome) {
+        let tilesetPath = biome.tileset;
+        this.sandTiles = makeImage(tilesetPath + "sand_tiles");
+        this.grassTiles = makeImage(tilesetPath + "grass_tiles");
+        this.darkGrassBorderTiles = makeImage(tilesetPath + "dark_grass_border");
+        this.groundTiles = makeImage(tilesetPath + "ground_tiles");
+        this.treeImages = makeImage(tilesetPath + "trees");
+        this.deadTreeImages = makeImage(tilesetPath + "dead_trees");
+        this.burningTreeImages = makeImage(tilesetPath + "burning_trees");
+        this.rockTiles = makeImage(tilesetPath + "rock_tiles");
+        this.rockGroundTiles = makeImage(tilesetPath + "rock_ground_tiles");
+        this.pavementTiles = makeImage(tilesetPath + "pavement_tiles");
+        this.animatedWater = makeImage(tilesetPath + "animated_water");
+        if (biome.exoticStones)  {
+            this.stoneTiles = makeImage(tilesetPath + "stone_tile2");
+            this.stoneGroundTile = makeImage(tilesetPath + "stone_wall_ground_tile");
+        } else {
+            this.stoneTiles = makeImage("stone_tile2");
+            this.stoneGroundTile = makeImage("stone_wall_ground_tile");
+        }
     }
 
     _drawTrees(ctx, pixelOffset, world) {
-        let variationsNum = this.treeImages.width / 64;
+        const variationsNum = this.treeImages.width / 64;
+        const animationFrames = this.burningTreeImages.height / 84;
+        
+        const fireGrowing = 10;
+        const treeDies = 50 + fireGrowing;
+        const fireStartsDecreasing = 350 + fireGrowing;
+        const fireDecreasing = 50;
+        const fireDies = fireStartsDecreasing + fireDecreasing;
+
         for (let tree of world.trees) {
             let variation = tree.variation % variationsNum;
             let x = tree.x * tileSize - 16 + tree.sx;
@@ -40,7 +56,28 @@ class Renderer {
             let dy = y - pixelOffset.y;
             if (dy < -64 || dy > viewInPixels)
                 continue;
-            ctx.drawImage(this.treeImages, variation * 64, 0, 64, 64, dx, dy, 64, 64); 
+            if (tree.burning) {
+                if (tree.burning < treeDies)
+                    ctx.drawImage(this.treeImages, variation * 64, 0, 64, 64, dx, dy, 64, 64); 
+                else
+                    ctx.drawImage(this.deadTreeImages, variation * 64, 0, 64, 64, dx, dy, 64, 64); 
+                if (tree.burning < fireDies) {
+                    const animationFrame = (x + y + Math.floor(globalTimer*16)) % animationFrames;
+                    if (tree.burning < fireGrowing)
+                        ctx.globalAlpha = tree.burning / fireGrowing;
+                    else if (tree.burning > fireStartsDecreasing)
+                        ctx.globalAlpha = (fireDies - tree.burning) / fireDecreasing;
+                    ctx.drawImage(this.burningTreeImages, variation * 64, animationFrame * 84, 64, 84, dx, dy - 20, 64, 84);
+                    ctx.globalAlpha = 1;
+                    tree.burning++;
+                }
+                if (tree.burning > fireGrowing && tree.burning < fireDies) {
+                    const treeFireStrength = 5;
+                    checkFireEffects(tree.x, tree.y, treeFireStrength);
+                }
+            } else {
+                ctx.drawImage(this.treeImages, variation * 64, 0, 64, 64, dx, dy, 64, 64); 
+            }
         }
     }
 
@@ -110,11 +147,14 @@ class Renderer {
         for (let y = fromY; y < toY; y++) {
             for (let x = fromX; x < toX; x++) {
                 if (TERRAIN_WATER == world.terrain[x][y]) {
-                    let animatedWaterFrame = Math.floor(animations.globalTimer*8) % numWaterFrames;
+                    let animatedWaterFrame = Math.floor(globalTimer*8) % numWaterFrames;
                     ctx.drawImage(this.animatedWater, animatedWaterFrame*32, 0, 32, 32, x*tileSize - pixelOffset.x, y*tileSize - pixelOffset.y, 32, 32); 
                 }
             }
         }
+        // draw subsurface animations after water but before anything else
+        world.animations.draw(ctx, pixelOffset, true);
+
         this._drawTerrainBorder(ctx, pixelOffset, world, TERRAIN_SAND, TERRAIN_WATER, this.groundTiles);
         this._drawTerrainBorder(ctx, pixelOffset, world, TERRAIN_GRASS, TERRAIN_WATER, this.groundTiles);
         this._drawTerrainBorder(ctx, pixelOffset, world, TERRAIN_STONE, TERRAIN_WATER, this.stoneGroundTile);
@@ -200,33 +240,6 @@ class Renderer {
             }
         }
     }
-
-    _drawCoolImageIfNeeded(ctx, pixelOffset, dx, dy, world) {
-        let x = player.x + dx;
-        if (x < 0 || x >= world.width)
-            return false;
-        let y = player.y + dy;
-        if (y < 0 || y >= world.height)
-            return false;
-        let gameObj = world.pathfinding.isOccupied(x, y);
-        if (gameObj && gameObj.coolImage) {
-            ctx.fillStyle = "rgba(0,0,0,0.6)";
-            ctx.fillRect(0, 0, 768, 768);
-            let centerX = player.pixelX.get() - pixelOffset.x;
-            let centerY = player.pixelY.get() - 2 * tileSize - pixelOffset.y - gameObj.coolImage.height / 2;
-            let left = centerX - gameObj.coolImage.width/2;
-            let top = centerY - gameObj.coolImage.height/2;
-            ctx.drawImage(gameObj.coolImage, left, top);
-            return true;
-        }
-        return false;
-    }
-    drawCoolImage(ctx, pixelOffset, world) {
-        this._drawCoolImageIfNeeded(ctx, pixelOffset, 0, -1, world) ||
-        this._drawCoolImageIfNeeded(ctx, pixelOffset, 1, 0, world) ||
-        this._drawCoolImageIfNeeded(ctx, pixelOffset, -1, 0, world) ||
-        this._drawCoolImageIfNeeded(ctx, pixelOffset, 0, 1, world);
-    }
 }
 
 function drawTooltip(ctx, pixelOffset, tileUnderCursor) {
@@ -261,28 +274,31 @@ function drawTooltip(ctx, pixelOffset, tileUnderCursor) {
 class Animations {
     constructor() {
         this.animations = []
-        this.globalTimer = 0
     }
 
-    add(animation, baseTile) {
-        animation.startTime = this.globalTimer;
+    add(animation, baseTile, subsurface) {
+        animation.startTime = globalTimer;
         animation.baseTile = baseTile;
+        animation.subsurface = !!subsurface;
         this.animations.push(animation)
     }
 
-    draw(ctx, pixelOffset) {
-        this.globalTimer = Date.now() / 1000.
-        if (animations.length == 0)
+    draw(ctx, pixelOffset, subsurface) {
+        if (this.animations.length == 0)
             return;
         let newAnimations = [];
         for (let anim of this.animations) {
+            if (anim.subsurface != subsurface) {
+                newAnimations.push(anim);
+                continue;
+            }
             let x = ('pixelX' in anim.baseTile) ? anim.baseTile.pixelX.get() : anim.baseTile.x * tileSize;
             let y = ('pixelY' in anim.baseTile) ? anim.baseTile.pixelY.get() : anim.baseTile.y * tileSize;
             let offsetInPixels = {
                 x: x - pixelOffset.x + halfTileSize,
                 y: y - pixelOffset.y + halfTileSize
             }
-            let finished = anim.draw(ctx, offsetInPixels, this.globalTimer - anim.startTime);
+            let finished = anim.draw(ctx, offsetInPixels, globalTimer - anim.startTime);
             if (!finished)
                 newAnimations.push(anim)
         };
@@ -291,16 +307,17 @@ class Animations {
 };
 
 class Bullet {
-    constructor(direction, duration) {
+    constructor(direction, duration, color) {
         this.direction = direction;
         this.duration = duration;
+        this.color = color;
     }
 
     draw(ctx, offsetInPixels, time) {
         let rate = time / this.duration
         if (rate > 1)
             return true;
-        ctx.fillStyle = "rgb(0, 0, 0)";
+        ctx.fillStyle = this.color;
         let x = offsetInPixels.x + this.direction.x * rate;
         let y = offsetInPixels.y + this.direction.y * rate;
         ctx.fillRect(x - 2, y - 2, 4, 4);
@@ -367,6 +384,148 @@ class FadeToBlack {
     }
 };
 
+class Fountain {
+    constructor(strength) {
+        this.strength = strength
+        this.particles = []
+        for (let n = 0; n < this.strength / 3; n++) {
+            this.particles.push({
+                dx: 20 * Math.random() - 10, 
+                start: Math.random() * 1.5,
+                strength: this.strength + 2 * Math.random() - 1}
+            )
+        }
+    }
+    draw(ctx, offsetInPixels, time) {
+        ctx.fillStyle = "rgb(235, 235, 255)";
+        const g = 80; // pixels / sec^2
+        const oneParticleTime = 2; // sec
+        for (let p of this.particles) {
+            let t = (time - p.start) % oneParticleTime;
+            let x = p.dx * t;
+            let y = p.strength * t - g * t * t / 2;
+            if (y > 0)
+                ctx.fillRect(offsetInPixels.x + x, offsetInPixels.y - y, 2, 2);
+        }
+        return false;
+    }
+}
+
+class GiantTurtle {
+    constructor(cycleTime) {
+        this.cycleTime = cycleTime;
+        this.body = images.prepare("Turtle/body");
+        this.upFront = images.prepare("Turtle/up_front_leg");
+        this.upBack = images.prepare("Turtle/up_back_leg");
+        this.downFront = images.prepare("Turtle/down_front_leg");
+        this.downBack = images.prepare("Turtle/down_back_leg");
+    }
+    _drawLimb(ctx, limb, phase, angle1, angle2, x, y, zeroX, zeroY, r, phaseShift) {
+        let rotation = (angle1 + angle2)/2 + (angle2 - angle1)/2 * Math.sin(phase);
+        ctx.save();
+        ctx.translate(x + r * Math.cos(phase + phaseShift), y + r * Math.sin(phase + phaseShift));
+        ctx.rotate(rotation * Math.PI / 180);
+        images.draw(ctx, limb, -zeroX, -zeroY);
+        ctx.restore();
+    }
+    draw(ctx, offsetInPixels, time) {
+        let zeroX = 290, zeroY = 232;
+        let phase = (time / this.cycleTime) * (2 * Math.PI);
+        this._drawLimb(ctx, this.upFront, phase, -10, 45, offsetInPixels.x + 160, offsetInPixels.y - 188, 180, 180, 24, 0);
+        this._drawLimb(ctx, this.downFront, phase + 0.02, 10, -45, offsetInPixels.x + 160, offsetInPixels.y + 224, 180, 75, 24, 0);
+        this._drawLimb(ctx, this.upBack, phase - 0.03, 0, -45, offsetInPixels.x - 220, offsetInPixels.y - 128, 108, 108, 24, 0);
+        this._drawLimb(ctx, this.downBack, phase, 0, 45, offsetInPixels.x - 220, offsetInPixels.y + 128, 108, 34, 24, 0);
+
+        ctx.save();
+        ctx.translate(offsetInPixels.x, offsetInPixels.y);
+        let bodyRotation = Math.cos(phase);
+        ctx.rotate(bodyRotation * Math.PI / 180);
+        images.draw(ctx, this.body, -zeroX, -zeroY);
+        ctx.restore();
+
+        //images.draw(ctx, this.body, offsetInPixels.x - zeroX, offsetInPixels.y - zeroY);
+        return false;
+    }
+}
+
+class Rain {
+    constructor(duration) {
+        this.duration = duration;
+        this.transitToDarknessTime = duration / 4;
+        this.lightningTime = [];
+        for (let t = duration / 4; t < 3 * duration / 4; t++) {
+            if (Math.random() < 0.05)
+                this.lightningTime.push(t);
+        }
+        this.maxDarkness = 0.6;
+        this.rain = []
+        for (let x = 0; x < viewInTiles; x++) {
+            this.rain.push([])
+            for (let y = 0; y < viewInTiles; y++) {
+                let h = Math.random() * 12;
+                let dx = Math.random() * tileSize - halfTileSize;
+                let dy = Math.random() * tileSize - halfTileSize;
+                this.rain[x].push([h, dx, dy])
+            }
+        }
+    }
+
+    draw(ctx, offsetInPixels, time) {
+        if (time > this.duration)
+            return true;
+        let darkness = this.maxDarkness;
+        if (time < this.transitToDarknessTime)
+            darkness = this.maxDarkness * time / this.transitToDarknessTime;
+        else if (time > this.duration - this.transitToDarknessTime)
+            darkness = this.maxDarkness * (this.duration - time) / this.transitToDarknessTime;
+        ctx.fillStyle = `rgba(0, 0, 0, ${darkness})`;
+        for (let t of this.lightningTime) {
+            if (time > t && time < t + 0.5) {
+                let rate = Math.random() / 4;
+                ctx.fillStyle = `rgba(214, 238, 255, ${rate})`;
+                break;
+            }
+        }
+        ctx.fillRect(0, 0, tileSize * viewInTiles, tileSize * viewInTiles);    
+        for (let x = 0; x < viewInTiles; x++) {
+            for (let y = 0; y < viewInTiles; y++) {
+                let particle = this.rain[x][y]
+                let h = particle[0] - time * 8;
+                while (h < 0)
+                    h += 12;
+                let fx = x * tileSize + halfTileSize + particle[1];
+                let fy = y * tileSize + halfTileSize + particle[2];
+                fx = (fx + offsetInPixels.x + 100 * viewInPixels) % viewInPixels - halfViewInPixels;
+                fy = (fy + offsetInPixels.y + 100 * viewInPixels) % viewInPixels - halfViewInPixels;
+                
+                //hurricane
+                //particle[1] += 2;
+
+                const distortion = 0.05;
+
+                let x1 = fx * (1 + h * distortion) + halfViewInPixels;
+                let y1 = fy * (1 + h * distortion * 2) + halfViewInPixels;
+        
+                let nextH = h - 0.2;
+                if (nextH < 0) {
+                    nextH = 0;
+                    particle[1] = Math.random() * tileSize - halfTileSize;
+                    particle[2] = Math.random() * tileSize - halfTileSize;
+                }
+                let x2 = fx * (1 + nextH * distortion) + halfViewInPixels;
+                let y2 = fy * (1 + nextH * distortion * 2) + halfViewInPixels;
+
+                ctx.strokeStyle = "rgb(126, 156, 186)";
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+            }
+        }    
+        return false;
+    }
+}
+
 class Utterance {
     constructor(ctx, text, maxTextWidth, color, bgColor, font, lineHeight, padding) {
         this.text = text;
@@ -422,6 +581,14 @@ class Utterance {
             ctx.stroke();
     }
 
+    drawOnlyText(textBoxLeft, textBoxTop) {
+        ctx.font = this.font;
+        for (let l = 0; l < this.lines.length; l++) {
+            ctx.fillStyle = this.colors[l];
+            ctx.fillText(this.lines[l], textBoxLeft + this.padding, textBoxTop + (l + 1) * this.lineHeight);
+        }
+    }
+
     draw(ctx, textBoxLeft, textBoxTop, fixedWidth, doBorder) {
         ctx.fillStyle = this.bgColor;
         ctx.strokeStyle = this.colors[0];
@@ -430,11 +597,7 @@ class Utterance {
             width = this.textBoxWidth;
         this._roundedRect(ctx, textBoxLeft, textBoxTop,
             width + this.padding, this.textBoxHeight, 6, doBorder);
-        ctx.font = this.font;
-        for (let l = 0; l < this.lines.length; l++) {
-            ctx.fillStyle = this.colors[l];
-            ctx.fillText(this.lines[l], textBoxLeft + this.padding, textBoxTop + (l + 1) * this.lineHeight);
-        }
+        this.drawOnlyText(textBoxLeft, textBoxTop);
     }
 }
 
@@ -448,14 +611,14 @@ class DialogMessages {
         const lineHeight = 24;
         const padding = 5;
         let u = new Utterance(ctx, text, maxWidth, speaker.color, speaker.bgColor, speaker.font, lineHeight, padding);
-        u.endTime = animations.globalTimer + (text.length + 80) / 40;
+        u.endTime = globalTimer + (text.length + 80) / 40;
         this.msgQueue.push(u);
     }
     draw(ctx, offsetInPixels, time) {
         let y = offsetInPixels.y + 4;
         for (let n = this.msgQueue.length - 1; n >= 0; n--) {
             let msg = this.msgQueue[n];
-            if (msg.endTime < animations.globalTimer)
+            if (msg.endTime < globalTimer)
                 return n == this.msgQueue.length - 1;
             let left = offsetInPixels.x - msg.textBoxWidth / 2;
             if (left < 0)
@@ -468,19 +631,3 @@ class DialogMessages {
         return false;
     }
 }
-
-let renderer = new Renderer();
-let animations = new Animations();
-setInterval(() => {
-        const pixelOffset = canvasOffset();
-        world.script.onDraw();
-        renderer.drawWorld(ctx, pixelOffset, world);
-        fire.step(pixelOffset);
-        fire.draw(ctx, pixelOffset);
-        animations.draw(ctx, pixelOffset);
-        renderer.drawCoolImage(ctx, pixelOffset, world);
-        ui.drawTooltip(ctx, pixelOffset);
-        ui.draw(ctx);
-    },
-    20
-);

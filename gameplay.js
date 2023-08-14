@@ -59,17 +59,145 @@ function shuffle(array) {
 }
 
 class World {
-    constructor(name, biome) {
+    constructor(name) {
+        const biomes = {
+            "intro_map": grassBiome,
+            "town_map": grassBiome,
+            "desert_test_map": desertBiome,
+            "snow_test_map": iceBiome,
+            "dungeon1_map": grassBiome,
+            "port_map": whiteCityBiome,
+            "dark_forest_map": grassBiome,
+        }
+        this.mapName = name;
+        this.biome = biomes[name];
         let map = TileMaps[name]
+        this._setupTerrain(map);
+        this._setupObjectsFromMap(map);
+        let darknessAreas = this._setupDarknessAreas(map);
+        this._setupRecalculatedData(darknessAreas);
+        if (this.mapName == "intro_map")
+            this.script = new IntroMapScript(this);
+        else if (this.mapName == "town_map")
+            this.script = new TownMapScript(this);
+        else if (this.mapName == "desert_test_map")
+            this.script = new DesertMapScript(this);
+        else if (this.mapName == "port_map")
+            this.script = new PortMapScript(this);
+        else
+            this.script = new EmptyScript(this);
+        if ('setupRecalculatedData' in this.script)
+            this.script.setupRecalculatedData(this);
+    }
+
+    load(savedWorldState) {
+        this.mapName = savedWorldState.mapName;
+        this.biome = savedWorldState.biome;
+        let map = TileMaps[this.mapName];
+        this._setupTerrain(map);
+        let darknessAreas = this._setupDarknessAreas(map); // TODO: from savedWorldState instead
+        this._setupObjectsFromSavedState(savedWorldState);
+        this._setupRecalculatedData(darknessAreas);
+        recursiveRestore(this.script, savedWorldState.script);
+        if ('setupRecalculatedData' in this.script)
+            this.script.setupRecalculatedData(this);
+    }
+
+    _setupRecalculatedData(darknessAreas) {
+        this.animations = new Animations();
+        this.pathfinding = new Pathfinding(this);
+        this.pathfinding.recalculateOccupiedTiles(this.objects);
+        this.vision = new PlayerVision(darknessAreas, this);
+        this.fire = new Fire();
+        for (let obj of this.objects) {
+            if (!('initialObj' in obj))
+                continue;
+            let fireEmitter = getProp(obj.initialObj, "Fire");
+            if (fireEmitter != "") {
+                let strength = Number(fireEmitter);
+                this.fire.addConstantEmitter(obj.x, obj.y, strength);
+                obj.additionalLight = Math.floor(strength / 20);
+            }
+            let fountain = getProp(obj.initialObj, "Fountain");
+            if (fountain) {
+                console.log("Setting up a fountain");
+                let strength = Number(fountain);
+                this.animations.add(new Fountain(strength), obj);
+            }
+        }
+    }
+
+    addNewObject(obj, x, y) {
+        if (obj.class == "ManaBottle")
+            this.objects.push(new ManaBottle(x, y));
+        else if (obj.class == "Bones")
+            this.objects.push(new DecorativeObject(obj, x, y, images.prepare("bones")));
+        else if (obj.class == "DecorativeObject")
+            this.objects.push(new DecorativeObject(obj, x, y, prepareImageFor(obj)));
+        else if (obj.class == "BigScaryObject")
+            this.objects.push(new BigScaryObject(obj, x, y));
+        else if (obj.class == "Mob")
+            this.objects.push(new Mob(obj, x, y));
+        else if (obj.class == "Message")
+            this.objects.push(new Message(obj, x, y));
+        else if (obj.class == "Autosave")
+            this.objects.push(new Autosave(obj, x, y));
+        else if (obj.class == "MapTransition")
+            this.objects.push(new MapTransition(obj, x, y));
+        else if (obj.class == "GameplayFire")
+            this.objects.push(new GameplayFire(obj, x, y));
+        else if (obj.class != "Darkness") {
+            console.error("Cannot add an object: unknown class", obj);
+            return;
+        }
+        let scriptName = getProp(obj, "ScriptName");
+        if (scriptName != "") {
+            console.log("Found object with name ", scriptName);
+            this.scriptObjects[scriptName] = this.objects.at(-1);
+        }
+        let coolImage = getProp(obj, "CoolImage");
+        if (coolImage)
+            this.objects.at(-1).coolImage = coolImage;
+        return this.objects.at(-1);
+    }
+
+    _setupObjectsFromMap(map) {
+        this.objects = [];
+        this.scriptObjects = {};
+        let objects = map["layers"][1]["objects"];
+        for (let obj of objects) {
+            let x = Math.floor((obj.x + 4) / tileSize);
+            let y = Math.floor((obj.y + 4) / tileSize);
+            if (obj.class == "Player") {
+                player.x = x;
+                player.y = y;
+                player.pixelX = new SmoothlyChangingNumber(x * tileSize);
+                player.pixelY = new SmoothlyChangingNumber(y * tileSize);
+            } else
+                this.addNewObject(obj, x, y);
+        }
+    }
+
+    _setupObjectsFromSavedState(savedWorldState) {
+        this.objects = [];
+        this.scriptObjects = {};
+        for (let gameObj of savedWorldState.objects) {
+            let obj = gameObj.initialObj;
+            if (!obj) {
+                console.error("Unknown thing in saved state: ", gameObj);
+                continue;
+            }
+            let added = this.addNewObject(obj, gameObj.x, gameObj.y);
+            recursiveRestore(added, gameObj);
+        }
+    }
+
+    _setupTerrain(map) {
         let data = map["layers"][0]["data"]
         this.height = map.height;
         this.width = map.width;
-        this.biome = biome;
         this.terrain = [];
-        this.objects = [];
-        this.scriptObjects = {};
         this.trees = [];
-        let darknessAreas = [];
         for (let x = 0; x < this.width; x++) {
             let row = [];
             for (let y = 0; y < this.height; y++) {
@@ -81,12 +209,15 @@ class World {
             this.terrain.push(row)
         }
         shuffle(this.trees);
+    }
+
+    _setupDarknessAreas(map) {
+        let darknessAreas = [];
         let objects = map["layers"][1]["objects"];
-        for (let n = 0; n < objects.length; n++) {
-            let obj = objects[n];
-            let x = Math.floor((obj.x + 4) / tileSize);
-            let y = Math.floor((obj.y + 4) / tileSize);
+        for (let obj of objects) {
             if (obj.class == "Darkness") {
+                let x = Math.floor((obj.x + 4) / tileSize);
+                let y = Math.floor((obj.y + 4) / tileSize);
                 let radius = Number(getProp(obj, "Radius"));
                 let width = Math.floor((obj.width + halfTileSize) / tileSize);
                 let height = Math.floor((obj.height + halfTileSize) / tileSize);        
@@ -99,62 +230,9 @@ class World {
                     height: height,
                     radius: radius
                 });
-            } else if (obj.class == "Player") {
-                player.x = x;
-                player.y = y;
-                player.pixelX = new SmoothlyChangingNumber(x * tileSize);
-                player.pixelY = new SmoothlyChangingNumber(y * tileSize);
-            } else
-                this.addNewObject(obj, x, y);
-        }
-        this.pathfinding = new Pathfinding(this);
-        this.pathfinding.recalculateOccupiedTiles(this.objects);
-        this.vision = new PlayerVision(darknessAreas, this);
-        for (let n = 0; n < objects.length; n++) {
-            let obj = objects[n]
-            let x = Math.floor((obj.x + 4) / tileSize);
-            let y = Math.floor((obj.y + 4) / tileSize);
-            let fireEmitter = getProp(obj, "Fire");
-            if (fireEmitter != "") {
-                let strength = Number(fireEmitter);
-                fire.addConstantEmitter(x, y, strength);
-                this.vision.addLightSource(x, y, Math.floor(strength / 20));
             }
         }
-        this.hints = ["Трава", "Вода", "Утоптанная земля", "Деревья", "Камень", "Горные породы", "Брусчатка"];
-        if (name == "intro_map")
-            this.script = new IntroMapScript(this);
-        else if (name == "town_map")
-            this.script = new TownMapScript(this);
-        else
-            this.script = new EmptyScript(this);
-    }
-
-    addNewObject(obj, x, y) {
-        if (obj.class == "ManaBottle")
-            this.objects.push(new ManaBottle(x, y));
-        if (obj.class == "Bones")
-            this.objects.push(new DecorativeObject(obj, x, y, images.prepare("bones")));
-        if (obj.class == "DecorativeObject")
-            this.objects.push(new DecorativeObject(obj, x, y, prepareImageFor(obj)));
-        if (obj.class == "BigScaryObject")
-            this.objects.push(new BigScaryObject(obj, x, y));
-        if (obj.class == "Mob")
-            this.objects.push(new Mob(obj, x, y));
-        if (obj.class == "Message") {
-            let width = Math.floor((obj.width + halfTileSize) / tileSize);
-            let height = Math.floor((obj.height + halfTileSize) / tileSize);
-            let msg = getProp(obj, "Message");
-            if (msg == "")
-                msg = obj.name;
-            this.objects.push(new Message(msg, x, y, width, height));
-        }
-        let scriptName = getProp(obj, "ScriptName");
-        if (scriptName != "") {
-            console.log("Found object with name ", scriptName);
-            this.scriptObjects[scriptName] = this.objects.at(-1);
-        }
-        return this.objects.at(-1);
+        return darknessAreas;
     }
 
     nextTurn(forced) {
@@ -177,17 +255,51 @@ class World {
 
     hint(x, y) {
         if (x == player.x && y == player.y)
-            return "Боб"
+            return "Билл"
         let gameObj = this.pathfinding.isOccupied(x, y);
         if (gameObj != null && gameObj.hint)
             return gameObj.hint;
-        for (let n = 0; n < this.objects.length; ++n) {
-            let o = this.objects[n];
+        for (let o of this.objects) {
             if (x == o.x && y == o.y && o.hint)
                 return o.hint
         }
         let tile = this.terrain[x][y];
-        return this.hints[tile];
+        if (tile == TERRAIN_DARK_FOREST) {
+            for (let t of this.trees)
+                if (t.burning > 75 && t.x == x && t.y == y)
+                    return "Сгоревшее дерево";
+        }
+        return this.biome.hints[tile];
+    }
+
+    findMapTransition(x, y) {
+        for (let o of this.objects) {
+            if (o.targetMap && o.check(x, y))
+                return o;
+        }
+        return null;
+    }
+
+    comeFromMap(name) {
+        for (let o of this.objects) {
+            if (o.targetMap && o.targetMap == name) {
+                if (o.w > o.h) { // horizontal entry zone
+                    player.x = Math.floor(o.x + o.w/2);
+                    if (o.y > this.height / 2)
+                        player.y = o.y - 1;
+                    else
+                        player.y = o.y + o.h;
+                } else { // vertical entry zone
+                    player.y = Math.floor(o.y + o.h/2);
+                    if (o.x > this.width / 2)
+                        player.x = o.x - 1;
+                    else
+                        player.x = o.x + o.w;
+                }
+                player.pixelX = new SmoothlyChangingNumber(player.x * tileSize);
+                player.pixelY = new SmoothlyChangingNumber(player.y  * tileSize);
+            }
+        }
     }
 
     removeDeadObjects() {
@@ -197,6 +309,7 @@ class World {
 
 class ManaBottle {
     constructor(x, y) {
+        this.initialObj = {class: "ManaBottle"};
         this.x = x;
         this.y = y;
         this.img = images.prepare("mana1");
@@ -214,12 +327,15 @@ class ManaBottle {
 };
 
 class Message {
-    constructor(message, x, y, w, h) {
-        this.message = message;
+    constructor(obj, x, y) {
+        this.initialObj = obj;
+        this.message = getProp(obj, "Message");
+        if (this.message == "")
+            this.message = obj.name;
         this.x = x;
         this.y = y;
-        this.w = w;
-        this.h = h;
+        this.w = Math.floor((obj.width + halfTileSize) / tileSize);
+        this.h = Math.floor((obj.height + halfTileSize) / tileSize);
     }
     hasContact(x, y) {
         return x >= this.x && y >= this.y && x < this.x + this.w && y < this.y + this.h;
@@ -236,15 +352,72 @@ class Message {
     }
 };
 
+class Autosave {
+    constructor(obj, x, y) {
+        this.initialObj = obj;
+        this.x = x;
+        this.y = y;
+        this.w = Math.floor((obj.width + halfTileSize) / tileSize);
+        this.h = Math.floor((obj.height + halfTileSize) / tileSize);
+    }
+    hasContact(x, y) {
+        return x >= this.x && y >= this.y && x < this.x + this.w && y < this.y + this.h;
+    }
+    onContact(player) {
+        if (player.hp > player.stats.hp / 2) {
+            this.dead = true;
+            autosave();
+        }
+    }
+    draw(ctx, x, y) {
+        if (drawAI) {
+            ctx.strokeStyle = "green";
+            ctx.strokeRect(x, y, this.w * tileSize, this.h * tileSize);
+        }
+    }
+};
+
+class MapTransition {
+    constructor(obj, x, y) {
+        this.initialObj = obj;
+        this.message = getProp(obj, "Message");
+        if (this.message == "")
+            this.message = obj.name;
+        this.targetMap = getProp(obj, "Target");
+        this.x = x;
+        this.y = y;
+        this.w = Math.floor((obj.width + halfTileSize) / tileSize);
+        this.h = Math.floor((obj.height + halfTileSize) / tileSize);
+    }
+    check(x, y) {
+        return x >= this.x && y >= this.y && x < this.x + this.w && y < this.y + this.h;
+    }
+    draw(ctx, x, y) {
+        if (drawAI) {
+            ctx.strokeStyle = "magenta";
+            ctx.strokeRect(x, y, this.w * tileSize, this.h * tileSize);
+        }
+    }
+};
+
 class DecorativeObject {
     constructor(obj, x, y, image) {
-        this.inventoryItem = getProp(obj, "InventoryItem");
+        this.initialObj = obj;
         this.foundMessage = getProp(obj, "Message");
+        this.inventoryItem = getProp(obj, "InventoryItem");
         this.hint = obj.name;
         this.x = x;
         this.y = y;
         this.image = image;
-        if (getProp(obj, "Blocker") != "") {
+        let blocker = getProp(obj, "Blocker");
+        if (blocker.length == 3 && blocker[1] == 'x') {
+            let w = Number(blocker[0]), h = Number(blocker[2]);
+            this.occupy = (pathfinding) => {
+                for (let x = 0; x < w; x++)
+                    for (let y = 0; y < h; y++)
+                        pathfinding.occupyTile(this, this.x + x, this.y + y);
+            }
+        } else if (blocker != "") {
             this.occupy = (pathfinding) => {
                 pathfinding.occupyTile(this, this.x, this.y);
             }
@@ -262,8 +435,17 @@ class DecorativeObject {
             }
         }
     }
+    _checkTerrain() {
+        let isLightObject = !this.occupy;
+        if (isLightObject) {
+            let tile = world.terrain[this.x][this.y];
+            if (tile == TERRAIN_WATER)
+                this.dead = true;
+        }
+    }
     draw(ctx, x, y) {
-        if (this.image)
+        this._checkTerrain();
+        if (!this.dead && this.image)
             images.draw(ctx, this.image, x, y);
     }
 };
@@ -280,7 +462,7 @@ function attackIfNear(attacker, target) {
         x: dx * tileSize,
         y: dy * tileSize
     }
-    animations.add(new Bullet(direction, duration), {
+    world.animations.add(new Bullet(direction, duration, "rgb(0, 0, 0)"), {
         x: attacker.x,
         y: attacker.y
     });
@@ -318,21 +500,21 @@ class SmoothlyChangingNumber {
     set(target, delay) {
         this.val = this.get();
         this.target = target;
-        this.timeAtVal = animations.globalTimer;
-        this.timeAtTarget = animations.globalTimer + delay;
+        this.timeAtVal = globalTimer;
+        this.timeAtTarget = globalTimer + delay;
     }
     get() {
         if (!this.timeAtTarget)
             return this.target;
-        if (animations.globalTimer > this.timeAtTarget)
+        if (globalTimer > this.timeAtTarget)
             return this.target;
-        return this.val + (this.target - this.val) * (animations.globalTimer - this.timeAtVal) / (this.timeAtTarget - this.timeAtVal);
+        return this.val + (this.target - this.val) * (globalTimer - this.timeAtVal) / (this.timeAtTarget - this.timeAtVal);
     }
 };
 
 class Mob {
     constructor(obj, x, y) {
-        this.meObj = obj;
+        this.initialObj = obj;
         this.hint = obj.name;
         this.x = x;
         this.y = y;
@@ -355,7 +537,7 @@ class Mob {
         }
         this.img = prepareImageFor(obj);
 
-        const rotatedImages = {"duck" : 1, "scorpion_king" : 1, "dust_scorpio" : 1, "black_scorpio" : 1}
+        const rotatedImages = {"duck" : 1, "scorpion_king" : 1, "dust_scorpio" : 1, "black_scorpio" : 1, "slug" : 1}
         this.rotatedDrawing = rotatedImages[this.img];
     }
 
@@ -386,14 +568,27 @@ class Mob {
         }
     }
 
+    applyHealing(amount) {
+        if (this.rules) {
+            let stats = rpg[this.rules];
+            if (stats) {
+                this.hp += amount;
+                if (this.hp > this.stats.hp)
+                    this.hp = this.stats.hp;
+                this.aggred = false;
+            }
+        }
+    }
+
     die() {
         this.dead = true;
-        ui.dialogUI.addMessage(getProp(this.meObj, "DeathComment"), playerSpeaker, player)
-        let loot = getProp(this.meObj, "Loot");
+        ui.dialogUI.addMessage(getProp(this.initialObj, "DeathComment"), playerSpeaker, player)
+        let loot = getProp(this.initialObj, "Loot");
         if (loot == "ManaBottle")
             world.objects.push(new ManaBottle(this.x, this.y));
         else
             world.objects.push(new DecorativeObject({
+                class: "Bones",
                 name: "Останки"
             }, this.x, this.y, images.prepare("bones")))
     }
@@ -437,21 +632,24 @@ class Mob {
         }
     }
 
-    checkAggro() {
-        if (!this.aggred) {
-            this.aggred = dist2(this.x, this.y, player.x, player.y) <= this.aggroRadius * this.aggroRadius;
-            if (this.aggred && 'aggroMessages' in this.stats && 'speaker' in this.stats) {
-                let msg = randomNoRepeatFrom(this.stats.aggroMessages);
-                let speaker = {
-                    color: this.stats.speaker.color,
-                    bgColor: this.stats.speaker.bgColor,
-                    font: this.stats.speaker.font,
-                    portrait: images.prepare(randomNoRepeatFrom(this.stats.speaker.portraits))
-                };
-                if (msg && speaker.portrait)
-                    ui.dialogUI.addMessage(msg, speaker, this);
-            }
+    aggro() {
+        this.aggred = true;
+        if ('aggroMessages' in this.stats && 'speaker' in this.stats) {
+            let msg = randomNoRepeatFrom(this.stats.aggroMessages);
+            let speaker = {
+                color: this.stats.speaker.color,
+                bgColor: this.stats.speaker.bgColor,
+                font: this.stats.speaker.font,
+                portrait: images.prepare(randomNoRepeatFrom(this.stats.speaker.portraits))
+            };
+            if (msg && speaker.portrait)
+                ui.dialogUI.addMessage(msg, speaker, this);
         }
+    }
+
+    checkAggro() {
+        if (!this.aggred && dist2obj(this, player) <= this.aggroRadius * this.aggroRadius)
+            this.aggro();
     }
 
     moveRandomlyInsideRoamingArea() {
@@ -502,7 +700,8 @@ class Mob {
     move(forced) {
         if (forced && !this.aggred)
             return;
-        if (this.rules == "goblin") {
+        let stats = rpg[this.rules];
+        if (stats && stats.movement == "land_mob") {
             if (world.pathfinding.isPassable(this.x, this.y, this)) {
                 if (this.aggred)
                     this.moveTowardsPlayer();
@@ -547,59 +746,66 @@ class Player {
         this.hp = this.stats.hp;
         this.img = images.prepare("player_anim");
         this.inventory = []
+        this.takenQuests = []
+        this.doneQuests = []
+        this.doneAndRewardedQuests = []
+        this.dialogState = {}
+        this.frameX = 0
     }
 
     tryMove(dx, dy) {
         if (this.hp <= 0)
             return false;
-        const x = Math.round(this.pixelX.get() / tileSize);
-        const y = Math.round(this.pixelY.get() / tileSize);
-        const newx = x + dx;
-        const newy = y + dy;
+        let newx, newy;
+        if (dx)
+            newx = dx + Math.round(this.pixelX.get() / tileSize);
+        else
+            newx = Math.round(this.pixelX.target / tileSize);
+        if (dy)
+            newy = dy + Math.round(this.pixelY.get() / tileSize);
+        else
+            newy = Math.round(this.pixelY.target / tileSize);
         if (!world.pathfinding.isPassable(newx, newy, this))
             return false;
         this.x = newx;
         this.y = newy;
-        if (dx != 0)
-            this.pixelX.set(this.x * tileSize, 0.2);
-        if (dy != 0)
-            this.pixelY.set(this.y * tileSize, 0.2);
+        this.pixelX.set(this.x * tileSize, 0.2);
+        this.pixelY.set(this.y * tileSize, 0.2);
         for (let n = 0; n < world.objects.length; n++) {
             let obj = world.objects[n];
             if ('hasContact' in obj && obj.hasContact(this.x, this.y))
                 obj.onContact(this)
-            else if (obj.x == this.x && obj.y == this.y && !(obj instanceof BigScaryObject))
+            else if (obj.x == this.x && obj.y == this.y && !(obj instanceof BigScaryObject) && 'onContact' in obj)
                 obj.onContact(this)
         }
-        world.nextTurn(true)
+        world.nextTurn(true);
+        ui.nearHouseUI.updateState();
         return true;
     }
 
-    tryCast(targetX, targetY, spell) {
-        if (this.stats.mana < 50)
-            return; // casting is not opened yet
-        let dx = targetX - this.x;
-        let dy = targetY - this.y;
-        let manaToCast = 10;
-        if (dx <= 2 && dx >= -2 && dy <= 2 && dy >= -2) {
-            if (this.mana < manaToCast) {
-                animations.add(new SystemMessage(0.5, "Не хватает маны"), player);
-                return;
-            }
-            const duration = 0.3
-            const direction = {
-                x: dx * tileSize,
-                y: dy * tileSize
-            }
-            animations.add(new Bullet(direction, duration), this);
-            this.mana -= manaToCast;
-            setTimeout(() => {
-                let tile = world.terrain[targetX][targetY];
-                if (tile != TERRAIN_DARK_FOREST && tile != TERRAIN_STONE_WALL)
-                    world.terrain[targetX][targetY] = TERRAIN_STONE;
-                world.script.onCast(targetX, targetY, spell);
-            }, 300);
+    tryCast(target) {
+        if (this.stats.spells.length == 0)
+            return;
+        if (!(this.selectedSpell >= 0 && this.selectedSpell < this.stats.spells.length))
+            this.selectedSpell = 0;
+        const spell = this.stats.spells[this.selectedSpell];
+        const dx = target.x - this.x;
+        const dy = target.y - this.y;
+        const range = rpg.spells[spell].radius;
+        if (dx * dx + dy *dy > range * range)
+            return;
+        const manaToCast = rpg.spells[spell].cost;
+        if (this.mana < manaToCast) {
+            world.animations.add(new SystemMessage(0.5, "Не хватает маны"), player);
+            return;
         }
+        if ('checkCanCast' in world.script) {
+            let canCast = world.script.checkCanCast(target.x, target.y, spell);
+            if (!canCast)
+                return;
+        }    
+        this.mana -= manaToCast;
+        castSpell(player, spell, target);
     }
 
     draw(ctx, pixelOffset) {
@@ -633,15 +839,13 @@ class Player {
             // left
             this.frameX = 3;
             frameY = Math.floor((pixelX % 64)/16) % frameCount;
-        } else {
-            this.frameX = 0;
         }
         images.draw(ctx, this.img, this.frameX * 32, frameY * 32, 32, 32, x, y, 32, 32);
-        if (this.sword && this.sword.img)
-            images.draw(ctx, this.sword.img, x, y);
-        if (this.shield && this.shield.img)
-            images.draw(ctx, this.shield.img, x, y);
-        if (this.inCombat)
+        if (this.sword && rpg[this.sword].equipImg)
+            images.draw(ctx, rpg[this.sword].equipImg, x, y);
+        if (this.shield && rpg[this.shield].equipImg)
+            images.draw(ctx, rpg[this.shield].equipImg, x, y);
+        if (this.hp < this.stats.hp)
             drawHPbar(ctx, this.hp, this.stats.hp, x, y)
     }
 
@@ -672,10 +876,10 @@ class Player {
         }
         if (itemRpg.type) {
             let currentSlot = this[itemRpg.type];
-            if (this.shouldEquip(currentSlot, itemRpg)) {
-                itemRpg.img = images.prepare(itemRpg.equip_img);
-                itemRpg.inventoryImg = images.prepare(itemRpg.inventory_img);
-                this[itemRpg.type] = itemRpg;
+            if (this.shouldEquip(rpg[currentSlot], itemRpg)) {
+                images.prepare(itemRpg.equipImg);
+                images.prepare(itemRpg.inventoryImg);
+                this[itemRpg.type] = itemName;
                 if (itemRpg.message)
                     ui.dialogUI.addMessage(itemRpg.message, playerSpeaker, player);
                 return true;
@@ -685,8 +889,8 @@ class Player {
                 return false;
             }
         } else {
-            this.inventory.push(itemRpg);
-            itemRpg.inventoryImg = images.prepare(itemRpg.inventory_img);
+            this.inventory.push(itemName);
+            images.prepare(itemRpg.inventoryImg);
             if (itemRpg.message)
                 ui.dialogUI.addMessage(itemRpg.message, playerSpeaker, player);
             return true;
@@ -713,13 +917,13 @@ class Player {
 
     damageBonus() {
         if (this.sword)
-            return this.sword.quality;
+            return rpg[this.sword].quality;
         return 0;
     }
 
     defenceBonus() {
         if (this.shield)
-            return this.shield.quality;
+            return rpg[this.shield].quality;
         return 0;
     }
 
@@ -730,8 +934,46 @@ class Player {
         if (dmg <= 0)
             return;
         this.hp -= dmg;
-        if (this.hp <= 0) {
-            world.script.onPlayerDeath();
+        this.checkDeath();
+    }
+
+    applyHealing(amount) {
+        this.hp += amount;
+        if (this.hp > this.stats.hp)
+            this.hp = this.stats.hp;
+    }
+
+    applyNonPhysicalDamage(dmg) {
+        if (this.hp > 0 && dmg > 0) {
+            this.hp -= dmg;        
+            this.checkDeath();
         }
     }
+
+    checkDeath() {
+        if (this.hp > 0)
+            return;
+        let deathMessage1, deathMessage2;
+        if ('playerDeathMessage' in world.script) {
+            deathMessage1, deathMessage2 = world.script.playerDeathMessage();
+        }
+        if (!deathMessage1) {
+            deathMessage1 = randomFrom(player.stats.deathMessages);
+            deathMessage2 = "";
+        }    
+        world.animations.add(new FadeToBlack(4, deathMessage1, deathMessage2), player);
+        setTimeout(() => {
+            loadAutosave();
+        }, 1500);
+    }
 };
+
+function cheat() {
+    player.stats.mana = 10000;
+    player.mana = 10000;
+    player.stats.hp = 10000;
+    player.hp = 10000;
+    player.stats.spells = ["stone", "water", "fire", "lightning", "healing", "meteor_shower"];
+    player.takeItem("great_shield");
+    player.takeItem("short_sword");
+}

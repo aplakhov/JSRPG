@@ -1,19 +1,74 @@
+quests.intro_1 = {
+    map: "intro_map",
+    text: "Перебраться через речку под названием Мокрая",
+    isDone: () => { return player.y >= world.scriptObjects.riverBankCrossed.y }
+}
+
+quests.intro_2 = {
+    map: "intro_map",
+    text:"Дойти до горы под названием Высокая", 
+    isDone: () => { return !world.vision.everythingVisible() }
+}
+
+quests.intro_3 = {
+    map: "intro_map",
+    text:"Найти вход в пещеру под названием Тёмная", 
+    isDone: () => { return !world.vision.everythingVisible() }
+}
+
+quests.intro_4 = {
+    map: "intro_map",
+    text:"Добыть сокровища подземных королей", 
+    isDone: () => { return player.inventory.indexOf("treasureChest") >= 0 }
+}
+
+quests.intro_5 = { 
+    map: "intro_map",
+    text: "Вернуться в город и кутить"
+}
+
 class IntroMapScript extends AllScripts {
     constructor(world) {
         super();
         this.triggers.push(() => {
             if (player.stats.mana > 0) {
                 ui.dialogUI.addMessage("На вкус жидкость тоже синяя. Не знаю, как это работает", playerSpeaker, player);
+                world.animations.add(new SystemMessage(2, "Важная синяя бутылка: 1 из 5"), player);
+                return true;
+            }
+        });
+        this.triggers.push(() => {
+            if (player.stats.mana == 20) {
+                world.animations.add(new SystemMessage(2, "Важная синяя бутылка: 2 из 5"), player);
+                return true;
+            }
+        });
+        this.triggers.push(() => {
+            if (player.stats.mana == 30) {
+                world.animations.add(new SystemMessage(2, "Важная синяя бутылка: 3 из 5"), player);
+                return true;
+            }
+        });
+        this.triggers.push(() => {
+            if (player.stats.mana == 40) {
+                world.animations.add(new SystemMessage(2, "Важная синяя бутылка: 4 из 5"), player);
                 return true;
             }
         });
         this.triggers.push(() => {
             if (player.stats.mana == 50) {
-                ui.dialogUI.addMessage("Кажется, пора вспоминать, чему меня учили в университете", playerSpeaker, player);  
-                ui.dialogUI.addMessage('Доступно заклинание "Создать камень"', systemMessageSpeaker, player);
-                ui.dialogUI.addMessage('Кликните мышкой на клетку рядом с собой, чтобы использовать', systemMessageSpeaker, player);
+                const msgs = [
+                    "Кажется, пора вспоминать, чему меня учили в университете",
+                    "Мммм... Вот к прошлому экзамену выучил, как создавать камни",
+                    "Не знаю, правда, зачем мне это сейчас"
+                ]
+                discoverNewSpell(msgs, "stone")
+                setTimeout(() => {
+                    ui.dialogUI.addMessage('Кликните мышкой на клетку рядом с собой, чтобы использовать', systemMessageSpeaker, player);
+                    player.selectedSpell = 0
+                }, 10000);
                 return true;
-            }                      
+            }
         });
         let dragon = world.scriptObjects.dragon;
         dragon.sleepingImage = dragon.image;
@@ -27,14 +82,45 @@ class IntroMapScript extends AllScripts {
             [1, 1, 0, 1, 1, 0, 0, 0, 0],
         ];
         dragon.hint = "Что-то непонятное";
-        fire.emitters.push((fire, pixelOffset) => {
+        dragon.zLayer = 2;
+        dragon.speaker = {
+            color: "rgb(252, 221, 118)",
+            bgColor: "rgb(0, 0, 0)",
+            font: '24px sans-serif',
+            portrait: images.prepare("Portraits/dragon")
+        };
+        dragon.initialX = dragon.x;
+        dragon.onContact = (player) => {
+            player.applyDamage(10000);
+        }
+        let gate = world.scriptObjects.gate;
+        gate.zLayer = 2;
+        gate.occupiedTiles = [
+            [1, 1],
+            [1, 1],
+            [1, 1],
+            [1, 1],
+        ];
+        gate.onContact = (player) => {
+            player.applyDamage(10000);
+        }
+        player.takeItem("wooden_stick");
+        if ('treasure' in world.scriptObjects) {
+            this.treasureX = world.scriptObjects.treasure.x;
+            this.treasureY = world.scriptObjects.treasure.y;
+        }
+    }
+
+    setupRecalculatedData(world) {
+        let dragon = world.scriptObjects.dragon;
+        world.fire.emitters.push((fire, pixelOffset) => {
             if (dragon.awake) {
                 addSmokeParticle(dragon, 6*tileSize - 4, tileSize - 4, 10, fire, pixelOffset);
                 addSmokeParticle(dragon, 6*tileSize - 4, - tileSize + 4, 10, fire, pixelOffset);
             }
             return false;
         });
-        fire.emitters.push((fire, pixelOffset) => {
+        world.fire.emitters.push((fire, pixelOffset) => {
             if (dragon.awake && dragon.aggro) {
                 for (let n = 0; n < 7; n++) {
                     let mouthX = 6*tileSize;
@@ -54,51 +140,9 @@ class IntroMapScript extends AllScripts {
                         temperature: 20
                     })
                 }
-                if (player.defenceBonus() > 1)
-                    player.applyDamage(player.defenceBonus() + 1);
-                else
-                    player.applyDamage(2);
+                player.applyNonPhysicalDamage(2);
             }
-        });
-        dragon.zLayer = 2;
-        dragon.speaker = {
-            color: "rgb(252, 221, 118)",
-            bgColor: "rgb(0, 0, 0)",
-            font: '24px sans-serif',
-            portrait: images.prepare("dragon_portrait")
-        };
-        dragon.initialX = dragon.x;
-        dragon.onContact = (player) => {
-            player.applyDamage(10000);
-        }
-        let gate = world.scriptObjects.gate;
-        gate.zLayer = 2;
-        gate.occupiedTiles = [
-            [1, 1],
-            [1, 1],
-            [1, 1],
-            [1, 1],
-        ];
-        gate.onContact = (player) => {
-            player.applyDamage(10000);
-        }
-        player.takeItem("wooden_stick");
-    }
-
-    initGoals(goals) {
-        goals.addGoal("1. Перебраться через речку под названием Мокрая", () => {
-            return player.y >= world.scriptObjects.riverBankCrossed.y
-        });
-        goals.addGoal("2. Дойти до горы под названием Высокая", () => { 
-            return !world.vision.everythingVisible()
-        });
-        goals.addGoal("3. Найти вход в пещеру под названием Тёмная", () => { 
-            return !world.vision.everythingVisible() 
-        });
-        goals.addGoal("4. Добыть сокровища подземных королей", () => { 
-            return player.inventory.indexOf(rpg.treasureChest) >= 0
-        });
-        goals.addGoal("5. Вернуться в город и кутить")
+        });        
     }
 
     nextTurn(forced) {
@@ -110,15 +154,15 @@ class IntroMapScript extends AllScripts {
             dragon.aggro = true;
 
         let playerOnTreasure = player.hp > 0
-            && player.x == world.scriptObjects.treasure.x 
-            && player.y == world.scriptObjects.treasure.y;
+            && player.x == this.treasureX 
+            && player.y == this.treasureY;
         if (!dragon.awake && playerOnTreasure) {
             dragon.awake = true;
             dragon.hint = "Дракон";
             dragon.x = dragon.initialX + 2;
             dragon.pixelX.set(dragon.x * tileSize, 1);
             ui.dialogUI.addMessage("В̶͉̭̏ͅО̶͍̚͝Р̵̡̭̥̎͒͊", dragon.speaker, dragon, true);
-            this.timeAtTreasure = animations.globalTimer;
+            this.timeAtTreasure = globalTimer;
         }
         if (dragon.awake && !dragon.laughing) {
             let rotation = Math.atan2(player.y - dragon.y + 0.5, player.x - dragon.x + 0.5);
@@ -126,7 +170,7 @@ class IntroMapScript extends AllScripts {
             dragon.rotation.set(rotation, 0.5);
         }
         if (dragon.awake && playerOnTreasure) {
-            let timePassed = animations.globalTimer - this.timeAtTreasure;
+            let timePassed = globalTimer - this.timeAtTreasure;
             if (timePassed > 1)
                 ui.dialogUI.addMessage("Ой-ой", playerSpeaker, player);
             if (timePassed > 5)
@@ -164,12 +208,12 @@ class IntroMapScript extends AllScripts {
                     ui.dialogUI.addMessage("Может, найдется что-нибудь тяжелое?", playerSpeaker, player);
             }
         }
-        if (player.x > gate.x && player.inventory.indexOf(rpg.treasureChest) >= 0)
+        if (player.x > gate.x && player.inventory.indexOf("treasureChest") >= 0)
             this.playFinalScript();
     }
     onDraw() {
         let dragon = world.scriptObjects.dragon;
-        if (dragon.laughing && dragon.laughingUntil < animations.globalTimer)
+        if (dragon.laughing && dragon.laughingUntil < globalTimer)
             dragon.laughing = false;
         dragon.image = dragon.awake && !dragon.laughing? dragon.awakeImage : dragon.sleepingImage;
         if (dragon.awake && dragon.laughing && Math.random() > 0.75) {
@@ -178,20 +222,10 @@ class IntroMapScript extends AllScripts {
             dragon.pixelY.set(dragon.y * tileSize - d, 0.2);
         }
     }
-    onPlayerDeath() {
+
+    playerDeathMessage() {
         let dragon = world.scriptObjects.dragon;
-        let respawnX = 0, respawnY = 0;
-        let deathMessage1 = randomFrom(player.stats.deathMessages);
-        let deathMessage2 = "";
         if (dragon.awake) {
-            dragon.awake = false;
-            dragon.aggro = false;
-            dragon.laughing = false;
-            dragon.tickled = false;
-            dragon.rotation.set(0, 3);
-            dragon.x = dragon.initialX;
-            dragon.pixelX.set(dragon.x * tileSize, 3);
-            respawnX = 20, respawnY = 98;
             let deathMessage = randomFrom(
                 [
                     ["Вот что случилось бы, если бы я", "не придумал, как обмануть этого дракона!"],
@@ -201,20 +235,12 @@ class IntroMapScript extends AllScripts {
                     ["Дракон выглядел очень страшно, но у него", "оказалось много общего с лягушкой..."]
                 ]
             );
-            deathMessage1 = deathMessage[0];
-            deathMessage2 = deathMessage[1];
-        } else if (!world.vision.everythingVisible()) {
-            respawnX = 59, respawnY = 67;
+            return deathMessage[0], deathMessage[1];
         }
-        animations.add(new FadeToBlack(4, deathMessage1, deathMessage2), player);
-        setTimeout(() => {
-          player.x = respawnX;
-          player.y = respawnY;
-          player.hp = 1;
-          player.mana = 1;
-        }, 1500);
+        return null, null;
     }
-    onCast(targetX, targetY) {
+
+    onFinishSpell(targetX, targetY, spell) {
         if (!this.castTriggerDone) {
             this.castTriggerDone = true;
             ui.dialogUI.addMessage("БАТУ ДАТАНГ!", playerSpeaker, player);
@@ -223,7 +249,7 @@ class IntroMapScript extends AllScripts {
         }
         let affectedObject = world.pathfinding.isOccupied(targetX, targetY);
         let dragon = world.scriptObjects.dragon;
-        if (affectedObject == dragon) {
+        if (affectedObject == dragon && spell == "stone") {
             if (!dragon.tickled)
                 dragon.tickled = 1;
             else
@@ -235,23 +261,25 @@ class IntroMapScript extends AllScripts {
             else
                 ui.dialogUI.addMessage("У̶͖̀͋͊̆̕А̶̰̎̒͂͆Х̵̨̣͒̑̓Х̶̻͖͎͈̔̾̀А̷̝͙͠ХА-ХИ-Х̵̟̗̜͆̌͋И̴̡͓͍̍̄͝", dragon.speaker, dragon, true);
             dragon.laughing = true;
-            dragon.laughingUntil = animations.globalTimer + 1 * dragon.tickled;
+            dragon.laughingUntil = globalTimer + 1 * dragon.tickled;
         }
         let lever = world.scriptObjects.lever;
-        if (targetX == lever.x && targetY == lever.y)
-            ui.dialogUI.addMessage("Теперь рычаг стоит на красивом каменном полу. Это не совсем то, чего я добивался.", playerSpeaker, player);            
+        if (targetX == lever.x && targetY == lever.y && spell == "stone")
+            ui.dialogUI.addMessage("Теперь рычаг стоит на красивом каменном полу. Это не совсем то, чего я добивался.", playerSpeaker, player); 
+        return false;           
     }
     onItemUse(item) {
         let lever = world.scriptObjects.lever;
         if (player.x == lever.x && player.y == lever.y && !lever.alwaysOn) {
-            if (item == rpg.kettlebell || item == player.shield) {
-                let msg = item == rpg.kettlebell? "О, а это хорошая идея" :
-                    "Щит, конечно, жаль использовать в качестве подпорки, но очень уж хочется посмотреть, что там за воротами"; 
-                ui.dialogUI.addMessage(msg, playerSpeaker, player);
+            if (item == "kettlebell") {
+                ui.dialogUI.addMessage("О, а это хорошая идея", playerSpeaker, player);
                 player.loseItem(item);
                 lever.image = images.prepare("lever_on");
                 lever.hint = "Подпёртый рычаг";
                 lever.alwaysOn = true;
+            } else if (item == player.shield) {
+                ui.dialogUI.addMessage("Щит, может быть, и подошел бы в качестве подпорки...", playerSpeaker, player);
+                ui.dialogUI.addMessage("Но не хочется его тут оставлять. Он, между прочим, денег стоит.", playerSpeaker, player);
             } else {
                 ui.dialogUI.addMessage("Этим подпереть рычаг не получится.", playerSpeaker, player);
             }
@@ -274,24 +302,24 @@ class IntroMapScript extends AllScripts {
             color: "rgb(10, 10, 10)",
             bgColor: "rgb(178, 164, 165)",
             font: '18px sans-serif',
-            portrait: images.prepare("portrait2")
+            portrait: images.prepare("Portraits/kirael")
         };
         thug1.speaker = {
             color: "rgb(252, 221, 118)",
             bgColor: "rgb(0, 0, 0)",
             font: '18px sans-serif',
-            portrait: images.prepare("Thug_portrait")
+            portrait: images.prepare("Portraits/thug")
         };
         thug2.speaker = {
             color: "rgb(252, 221, 118)",
             bgColor: "rgb(0, 0, 0)",
             font: '18px sans-serif',
-            portrait: images.prepare("Thug2_portrait")
+            portrait: images.prepare("Portraits/thug2")
         };
 
         this._wait(2.5)
         this._do(() => {
-            player.loseItem(rpg.treasureChest);
+            player.loseItem("treasureChest");
         });
         for (let n = 0; n < 7; n++)
             this._movePlayer(-1, 0);
@@ -309,11 +337,11 @@ class IntroMapScript extends AllScripts {
         this._say("ДРАКОН ЗАМАСКИРОВАЛСЯ?", kirael.speaker, kirael);
         this._say("Ха-ха-ха", thug1.speaker, thug1);
         this._say("У-хо-хо", thug2.speaker, thug2);
-        this._say("Ты такой же болтун, как и всегда, Боб", kirael.speaker, kirael);
+        this._say("Ты такой же болтун, как и всегда, Билл", kirael.speaker, kirael);
         this._say("Как-как его зовут?!", thug1.speaker, thug1);
-        this._say("Представляешь, Горзаниал, его зовут Боб", kirael.speaker, kirael);
+        this._say("Представляешь, Горзаниал, его зовут Билл", kirael.speaker, kirael);
         this._say("Хе, ну и имечко, скажи, Дзиродиал?", thug1.speaker, thug1);
-        this._say('Согласен, Горзаниал. Кому придет в голову назвать сына "Боб"?', thug2.speaker, thug2);
+        this._say('Согласен, Горзаниал. Кому придет в голову назвать сына "Билл"?', thug2.speaker, thug2);
         this._say("В общем, так. Отдавай сокровище или ребята из тебя решето сделают. Считаю до пяти", kirael.speaker, kirael);
         this._say("Четыре", kirael.speaker, kirael);
         this._moveMob(thug1, 1, 0);
@@ -321,7 +349,10 @@ class IntroMapScript extends AllScripts {
         this._moveMob(thug1, 1, 0);
         this._moveMob(thug2, 0, 1);
         this._say("Вот блин", playerSpeaker, player);
-        this._fade("Конец первой главы", 10000);
+        this._fade("Конец первой главы", 5);
+        this._wait(4);
+        this._changeMap("town_map");
+        this._say("Наконец-то я дома", playerSpeaker, player);
         this._finishSequence();
     }
 };

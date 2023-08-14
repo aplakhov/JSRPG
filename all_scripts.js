@@ -15,6 +15,17 @@ class AllScripts {
             if (finished)
                 this.done[n] = true;
         }
+        for (let questName in quests) {
+            let quest = quests[questName];
+            if (quest.map != world.mapName)
+                continue;
+            if (player.doneQuests.indexOf(questName) < 0) {
+                if (quest.isDone && quest.isDone())
+                    player.doneQuests.push(questName);
+                    changeQuestState(questName);
+                    // TODO: some UI feedback on done
+            }
+        }
     }
 
     _startSequence() {
@@ -90,7 +101,13 @@ class AllScripts {
 
     _fade(text, time) {
         setTimeout(() => {
-            animations.add(new FadeToBlack(time, text), player);
+            world.animations.add(new FadeToBlack(time, text), player);
+        }, this.delay * 1000);
+    }
+
+    _changeMap(name) {
+        setTimeout(() => {
+            changeWorldTo(name, true);
         }, this.delay * 1000);
     }
 }
@@ -101,19 +118,24 @@ function addSmokeParticle(baseObject, pixelXobject, pixelYobject, strength, fire
     fire.emitParticles(pixelX, pixelY, strength, pixelOffset);
 }
 
+function isLookingGlass(item) {
+    
+}
+
+function playerKnowsSpell(spell) {
+    return player.stats.spells.indexOf(spell) >= 0;
+}
+
+function dist2obj(obj1, obj2) {
+    return (obj1.x - obj2.x) * (obj1.x - obj2.x) + (obj1.y - obj2.y) * (obj1.y - obj2.y)
+}
+
 class EmptyScript extends AllScripts {
     constructor(world) {
         super();
     }
-    initGoals(goals) {
-    }
     nextTurn(forced) {
-    }
-    onDraw() {
-    }
-    onPlayerDeath() {
-    }
-    onCast(targetX, targetY) {
+        this._executeTriggers()
     }
     onItemUse(item) {
         return false;

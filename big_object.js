@@ -1,5 +1,6 @@
 class BigScaryObject {
     constructor(obj, x, y) {
+      this.initialObj = obj;
       this.x = x;
       this.y = y;
       this.image = prepareImageFor(obj);

@@ -10,22 +10,6 @@ const viewInTiles = 24;
 const halfViewInPixels = 384;
 const halfViewInTiles = 12;
 
-let player = new Player();
-//let world = new World("intro_map", "Europe/");
-//let world = new World("town_map", "Europe/");
-//let world = new World("desert_test_map", "Desert/");
-let world = new World("snow_test_map", "Snow/");
-
-setInterval(() => {
-        if (world.script.stopGameplayTime)
-            return;
-        world.nextTurn(false);
-        player.nextTurn();
-        ui.goals.nextTurn();
-    },
-    1000
-);
-
 function clamp(x, minx, maxx) {
     return x > minx ? (x < maxx ? x : maxx) : minx;
 };
@@ -75,13 +59,12 @@ class TileUnderCursor {
     }
 }
 
-function updateTileUnderCursor(mouseEvent) {
-    const rect = mouseEvent.target.getBoundingClientRect();
+function updateTileUnderCursor(x, y) {
     const pixelOffset = canvasOffset();
-    if (mouseEvent.clientX >= rect.left + dialogUIleftOffset)
+    if (x >= dialogUIleftOffset)
         ui.tileUnderCursor.hideTooltip();
-    const tileX = ((pixelOffset.x + mouseEvent.clientX - rect.left) / tileSize) >> 0;
-    const tileY = ((pixelOffset.y + mouseEvent.clientY - rect.top) / tileSize) >> 0;
+    const tileX = ((pixelOffset.x + x) / tileSize) >> 0;
+    const tileY = ((pixelOffset.y + y) / tileSize) >> 0;
     ui.tileUnderCursor.set(tileX, tileY);
 };
 
@@ -126,14 +109,13 @@ class DialogUI {
         if (!this.addMessageImpl(text, speaker.color, speaker.bgColor, speaker.font, speaker.portrait, okToRepeat))
             return;
         if (baseTile) {
-            for (let n = 0; n < animations.animations.length; n++) {
-                let oldAnim = animations.animations[n];
+            for (let oldAnim of world.animations.animations) {
                 if (oldAnim instanceof DialogMessages && oldAnim.baseTile == baseTile) {
                     oldAnim.addMessage(ctx, text, speaker);
                     return;
                 }
             }
-            animations.add(new DialogMessages(ctx, text, speaker), baseTile);
+            world.animations.add(new DialogMessages(ctx, text, speaker), baseTile);
         }
     }
 
@@ -158,7 +140,7 @@ class DialogUI {
             if (msg.portrait && msg.portrait != oldPortrait) {
                 if (bottomOfMessage > oldPortraitTop - this.padding)
                     bottomOfMessage = oldPortraitTop - this.padding;
-                images.draw(this.ctx, msg.portrait, this.left + this.padding, bottomOfMessage - this.portraitSize);
+                images.draw(this.ctx, msg.portrait, this.left + this.padding, bottomOfMessage - this.portraitSize, 50, 50);
                 oldPortrait = msg.portrait;
                 oldPortraitTop = bottomOfMessage - this.portraitSize;
             }
@@ -178,7 +160,7 @@ const playerSpeaker = {
     color: "rgb(10, 10, 10)",
     bgColor: "rgb(255, 255, 255)",
     font: '18px sans-serif',
-    portrait: images.prepare("portrait1")
+    portrait: images.prepare("Portraits/player")
 };
 const systemMessageSpeaker = {
     color: "rgb(140, 104, 20)",
@@ -223,7 +205,7 @@ class ManaBar {
     }
 }
 
-class Goals {
+class GoalsUI {
     constructor(ctx) {
         this.ctx = ctx;
         this.hidden = true;
@@ -233,42 +215,32 @@ class Goals {
         this.header = "Дела на сегодня";
         ctx.font = this.headerFont;
         this.headerWidth = ctx.measureText(this.header).width;
-        this.maxGoalWidth = 0;
-        this.goals = []
-        this.triggers = []
-        this.done = []
-    }
-
-    addGoal(line, trigger) {
-        this.ctx.font = this.font;
-        let width = ctx.measureText(line).width;
-        if (this.maxGoalWidth < width)
-            this.maxGoalWidth = width;
-        this.goals.push(line);
-        this.triggers.push(trigger);
-        this.done.push(false);
-    }
-
-    nextTurn() {
-        for (let n = 0; n < this.triggers.length; n++) {
-            if (this.done[n])
-                continue;
-            let t = this.triggers[n];
-            if (!t)
-                continue;
-            if (t())
-                this.done[n] = true;
-        }
     }
 
     draw() {
         if (!this.hidden) {
+            let maxGoalWidth = 0;
+            let goals = [];
+            let goalsDone = [];
+            for (let questName of player.takenQuests) {
+                const quest = quests[questName];
+                if (quest.text && quest.map == world.mapName) {
+                    goals.push(String(1 + goals.length) + ". " + quest.text);
+                    goalsDone.push(player.doneQuests.indexOf(questName) >= 0);
+                }
+            }
+            this.ctx.font = this.font;
+            for (let n in goals) {
+                let width = ctx.measureText(goals[n]).width;
+                if (maxGoalWidth < width)
+                    maxGoalWidth = width;
+            }
             const backColor = "rgb(240, 214, 175)";
             const foreColor = "rgb(140, 104, 20)";
             let x = 100,
                 y = 100;
             let w = dialogUIleftOffset - 2 * x;
-            let h = 64 + 72 + 24 * this.goals.length;
+            let h = 64 + 72 + 24 * goals.length;
             this.ctx.fillStyle = backColor;
             this.ctx.fillRect(x, y, w, h);
             this.ctx.strokeStyle = foreColor;
@@ -277,12 +249,12 @@ class Goals {
             this.ctx.font = this.headerFont;
             this.ctx.fillText(this.header, x + (w - this.headerWidth) / 2, y + 64);
             this.ctx.font = this.font;
-            for (let n = 0; n < this.goals.length; ++n) {
-                let goal = this.goals[n];
-                let left = x + (w - this.maxGoalWidth) / 2;
+            for (let n = 0; n < goals.length; ++n) {
+                let goal = goals[n];
+                let left = x + (w - maxGoalWidth) / 2;
                 let top = y + 64 + 48 + 24 * n;
                 this.ctx.fillText(goal, left, top);
-                if (this.done[n])
+                if (goalsDone[n])
                     ui._line(ctx, left, top - 6, left + ctx.measureText(goal).width, top - 6);
             }
         }
@@ -293,15 +265,408 @@ class Goals {
         }
     }
 
-    onclick(mouseEvent) {
-        const rect = mouseEvent.target.getBoundingClientRect();
-        const x = mouseEvent.clientX - rect.left;
-        const y = mouseEvent.clientY - rect.top;
+    onClick(x, y) {
         if (this.hidden) {
             if (x < this.buttonX || y < this.buttonY || x >= this.buttonX + this.button.width || y >= this.buttonY + this.button.height)
                 return false;
         }
         this.hidden = !this.hidden;
+        return true;
+    }
+};
+
+class RichButton {
+    constructor(ctx, x, y, width, height, text, addText, squareImage, center) {
+        this.ctx = ctx;
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.text = text;
+        this.image = squareImage;
+        ctx.font = systemMessageSpeaker.font;
+        if (center) {
+            this.textLeft = x + (width - ctx.measureText(text).width) / 2;
+            if (squareImage)
+                this.textLeft += height / 2;
+        } else {
+            this.textLeft = x + 20
+            if (squareImage)
+                this.textLeft += height;
+        }
+        if (addText) {
+            let maxWidth = width;
+            if (squareImage)
+                maxWidth -= height;
+            const padding = 5;
+            this.addText = new Utterance(ctx, addText, maxWidth - 20, "rgb(10,10,10)", 
+                systemMessageSpeaker.bgColor, systemMessageSpeaker.font, 20, padding);
+            if (center) {
+                this.addTextLeft = x + (width - this.addText.textBoxWidth) / 2;
+                if (squareImage)
+                    this.addTextLeft += height / 2;
+            } else
+                this.addTextLeft = this.textLeft - 5;
+            if (this.text) {
+                this.textTop = y + 20 + (height - 22 - this.addText.textBoxHeight) / 2;
+                this.addTextTop = this.textTop + 6;
+            } else {
+                this.addTextTop = y + (height - this.addText.textBoxHeight) / 2;
+            }
+        } else {
+            this.textTop = height/2 - 10;
+        }
+    }
+    draw() {
+        ctx.fillStyle = systemMessageSpeaker.bgColor;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+        if (this.image)
+            images.draw(ctx, this.image, this.x, this.y);
+        ctx.strokeStyle = systemMessageSpeaker.color;
+        ctx.strokeRect(this.x, this.y, this.width, this.height);
+        ctx.font = systemMessageSpeaker.font;
+        ctx.fillStyle = systemMessageSpeaker.color;
+        if (this.text)
+            ctx.fillText(this.text, this.textLeft, this.textTop);
+        if (this.addText)
+            this.addText.drawOnlyText(this.addTextLeft, this.addTextTop);
+    }
+    isInside(x, y) {
+        return (x >= this.x && y >= this.y && x < this.x + this.width && y < this.y + this.height);
+    }
+};
+
+function drawButtonSelection(ctx, selected) {
+    ctx.fillStyle = "rgba(255, 255, 0, 0.2)";
+    ctx.fillRect(selected.x - 5, selected.y - 5, selected.width + 10, selected.height + 10);
+}
+
+class NearHouseUI {
+    constructor(ctx) {
+        this.ctx = ctx;
+        this.hidden = true;
+    }
+
+    _makeEntryButton(text, addText) {
+        ctx.font = systemMessageSpeaker.font;
+        const width = Math.max(ctx.measureText(text).width, ctx.measureText(addText).width) + 30;
+        const height = 50;
+        const x = (768 - width) / 2;
+        const y = 768 / 2 - height;
+        this.entryButton = new RichButton(ctx, x, y, width, height, text, addText, null, true);
+    }
+
+    _updateStateIfNeeded(dx, dy) {
+        let x = player.x + dx;
+        if (x < 0 || x >= world.width)
+            return false;
+        let y = player.y + dy;
+        if (y < 0 || y >= world.height)
+            return false;
+        let gameObj = world.pathfinding.isOccupied(x, y);
+        if (gameObj && gameObj.coolImage) {
+            if (this.hidden) {
+                this.coolImage = gameObj.coolImage;
+                this.gameObj = gameObj;
+                if (gameObj.inside) 
+                    this._makeEntryButton(gameObj.hint, "↩: зайти");
+                else
+                    this.entryButton = null;
+            }
+            return true;
+        }
+        let mapTransition = world.findMapTransition(x, y);
+        if (mapTransition) {
+            if (this.hidden) {
+                this.coolImage = "Places/" + mapTransition.targetMap; // crap
+                this.gameObj = mapTransition;
+                this._makeEntryButton(mapTransition.message, "↩: уйти");
+            }
+            return true;
+        }
+        return false;
+    }
+
+    updateState() {
+        let nearHouse =
+            this._updateStateIfNeeded(0, -1) ||
+            this._updateStateIfNeeded(1, 0) ||
+            this._updateStateIfNeeded(-1, 0) ||
+            this._updateStateIfNeeded(0, 1);
+        this.hidden = !nearHouse;
+    }
+
+    draw() {
+        if (this.hidden)
+            return;
+        ctx.fillStyle = "rgba(0,0,0,0.6)";
+        ctx.fillRect(0, 0, 768, 768);
+        const coolImageSize = 256;
+        let centerX = 768/2;
+        let centerY = 768/2 - 2 * tileSize - coolImageSize / 2;
+        let left = centerX - coolImageSize/2;
+        let top = centerY - coolImageSize/2;
+        images.draw(ctx, this.coolImage, left, top);
+        if (this.entryButton) {
+            this.entryButton.draw();
+            if (this.entryButtonSelected)
+                drawButtonSelection(ctx, this.entryButton);
+        }
+    }
+
+    _enter() {
+        if (this.gameObj.inside) {
+            ui.blockingUI = new InsideHouseUI(ctx, this.gameObj.inside);
+        } else {
+            world.animations.add(new FadeToBlack(1, ""), player);
+            changeWorldTo(this.gameObj.targetMap, true);
+            this.hidden = true;
+        }
+    }
+
+    onClick(x, y) {
+        if (!this.hidden && this.entryButton && this.entryButton.isInside(x, y)) {
+            this._enter();
+            return true;
+        }
+        return false;
+    }
+
+    onMouseMove(x, y) {
+        if (!this.hidden) {
+            if (this.entryButton && this.entryButton.isInside(x, y))
+                this.entryButtonSelected = true;
+            else
+                this.entryButtonSelected = false;
+            return true;
+        }
+    }
+
+    onKey(key) {
+        if (this.hidden)
+            return false;
+        if (key == "Enter") {
+            this._enter();
+            return true;
+        }
+        if (key == "Escape") {
+            this.hidden = true;
+            return true;
+        }        
+        return false;
+    }
+};
+
+class InsideHouseUI {
+    constructor(ctx, inside) {
+        this.ctx = ctx;
+        this.inside = inside;
+        this._switchToTalkersOverview()
+    }
+
+    _addExitButton(x, y) {
+        const exitText = "← уйти";
+        const width = ctx.measureText(exitText).width + 30;
+        const height = 30;
+        let b = new RichButton(ctx, x, y, width, height, "", exitText, null, true);
+        this.buttons.push(b);
+    }
+
+    _switchToTalkersOverview() {
+        this.buttons = []
+        const padding = 10;
+        const width = 768 - 2 * padding;
+        const height = 256;
+        const smallPadding = 6;
+        const portraitHeight = 100;
+        let inside = this.inside;
+        this.buttons.push(new RichButton(ctx, padding, padding, width, height, inside.header, inside.description, inside.art, true));
+        const portraitX = 200 + padding;
+        let portraitY = padding * 2 + height;
+        const buttonWidth = 768 - 2 * portraitX;
+        this.characters = [];
+        for (let questName in quests) {
+            let quest = quests[questName];
+            if (quest.map != world.mapName || !quest.place || world.scriptObjects[quest.place].inside != this.inside)
+                continue;
+            // ok, this is a quest from this place
+            if (quest.canBeTaken && player.takenQuests.indexOf(questName) < 0 && !quest.canBeTaken())
+                continue;
+            // ok, this is a taken quest or a quest that we can take
+            if (getCurrentDialog(questName) && this.characters.indexOf(quest.character) < 0)
+                this.characters.push(quest.character);
+        }
+        for (let talkerName of this.characters) {
+            let who = characters[talkerName];
+            let b = new RichButton(ctx, portraitX, portraitY, buttonWidth, portraitHeight, who.text, who.addText, who.portrait, true);
+            this.buttons.push(b);
+            portraitY += smallPadding + portraitHeight;
+        }
+        this._addExitButton(portraitX, portraitY);
+        this.selectedButton = 0;
+        this.selectedTalker = null;
+    }
+
+    _collectAvailableQuests(characterName) {
+        let res = [];
+        for (let questName in quests) {
+            let quest = quests[questName];
+            if (quest.character == characterName && quest.map == world.mapName && getCurrentDialog(questName))
+                res.push(questName);
+        }
+        return res;
+    }
+
+    _showTalkerUI(characterName) {
+        console.log("Talking to", characterName);
+        this.buttons = []
+        const padding = 10;
+        const width = 768 - 2 * padding;
+        const smallPadding = 6;
+        const portraitHeight = 100;
+        let availableQuests = this._collectAvailableQuests(characterName);
+        console.log("Available quests", availableQuests);
+        if (!player.dialogState[characterName])
+            player.dialogState[characterName] = { currentQuest: "", currentTalkingPoint: 0 }
+        let dialogState = player.dialogState[characterName];
+
+        if (!dialogState.currentQuest) {
+            for (let questName of availableQuests) {
+                let dialog = getCurrentDialog(questName);
+                if (dialog[0][0] == "") { // первая реплика в этом диалоге принадлежит не игроку
+                    dialogState.currentQuest = questName;
+                    dialogState.currentTalkingPoint = 0;
+                    break;
+                }
+            }
+        }
+
+        let dialog = getCurrentDialog(dialogState.currentQuest);
+        let currentTalkingPoint = dialog[dialogState.currentTalkingPoint];
+
+        // prepare portrait, caption and speaker data
+        let who = characters[characterName];
+        let caption = who.text;
+        let portrait = who.portrait;
+        let speaker = who.speaker;
+        if (currentTalkingPoint.length > 3) {
+            speaker = currentTalkingPoint[3];
+            portrait = speaker.portrait;
+            caption = speaker.text;
+        }
+        if (!speaker)
+            speaker = {
+                color: "rgb(10, 10, 10)",
+                bgColor: "rgb(239, 230, 215)",
+                font: '18px sans-serif',
+                portrait: who.portrait
+            };
+        //
+        setTimeout(() => {
+            ui.dialogUI.addMessage(currentTalkingPoint[1], speaker, player);
+        }, 500);
+        this.buttons.push(new RichButton(ctx, padding, padding, width, portraitHeight, caption, currentTalkingPoint[1], portrait, false));
+        const portraitX = 100 + padding;
+        let buttonY = padding * 2 + portraitHeight;
+        const buttonWidth = 768 - 2 * portraitX;
+        const fontSize = 20;
+        const buttonHeight = 2 * (fontSize + padding);
+        if (currentTalkingPoint[2].length > 0) {
+            for (let n of currentTalkingPoint[2]) {
+                let answerText = dialog[n][0];
+                let b = new RichButton(ctx, portraitX, buttonY, buttonWidth, buttonHeight, "", answerText, null, false);
+                b.answerText = answerText;
+                b.nextQuest = dialogState.currentQuest;
+                b.nextTalkingPoint = n;
+                this.buttons.push(b);
+                buttonY += smallPadding + buttonHeight;
+            }
+        } else { // current dialog is finished
+            finishDialog(dialogState.currentQuest);
+            for (let questName of availableQuests) {
+                if (questName == dialogState.currentQuest)
+                    continue;
+                let dialog = getCurrentDialog(questName);
+                let talkingText = dialog[0][0];
+                let b = new RichButton(ctx, portraitX, buttonY, buttonWidth, buttonHeight, "", talkingText, null, false);
+                b.answerText = talkingText;
+                b.nextQuest = questName;
+                b.nextTalkingPoint = 0;
+                this.buttons.push(b);
+                buttonY += smallPadding + buttonHeight;
+            }
+            this._addExitButton(portraitX, buttonY);
+        }
+        this.selectedButton = 0;
+        this.selectedTalker = characterName;
+    }
+
+    _selectButton(n) {
+        if (this.ignoreClicks)
+            return;
+        if (this.selectedTalker == null) {
+            let t = this.characters[n];
+            if (t)
+                this._showTalkerUI(t);
+            else {
+                ui.blockingUI = null;
+                ui.nearHouseUI.hidden = true;
+            }
+        } else {
+            let t = this.selectedTalker;
+            let b = this.buttons[n + 1];
+            if (typeof b.nextTalkingPoint == "number") {
+                ui.dialogUI.addMessage(b.answerText, playerSpeaker, player);
+                player.dialogState[t].currentQuest = b.nextQuest;
+                player.dialogState[t].currentTalkingPoint = b.nextTalkingPoint;
+                this._showTalkerUI(t);
+            } else {
+                this._switchToTalkersOverview();
+            }
+        }
+        this.ignoreClicks = true;
+        setTimeout(() => {
+            this.ignoreClicks = false;
+        }, 500);
+    }
+
+    draw() {
+        ctx.fillStyle = "rgba(0,0,0,0.8)";
+        ctx.fillRect(0, 0, 768, 768);
+        for (let b of this.buttons)
+            b.draw();
+        if (this.selectedButton > 0) {
+            let selected = this.buttons[this.selectedButton];
+            drawButtonSelection(ctx, selected);
+        }
+    }
+
+    onMouseMove(x, y) {
+        for (let n = 1; n < this.buttons.length; n++) {
+            if (this.buttons[n].isInside(x, y)) {
+                this.selectedButton = n;
+            }
+        }
+    }
+
+    onClick(x, y) {
+        for (let n = 1; n < this.buttons.length; n++) {
+            if (this.buttons[n].isInside(x, y))
+                this._selectButton(n - 1);
+        }
+        return true;
+    }
+
+    onKey(key) {
+        if (key == "ArrowUp")
+            this.selectedButton = Math.max(1, this.selectedButton - 1);
+        if (key == "ArrowDown")
+            this.selectedButton = Math.min(this.buttons.length - 1, this.selectedButton + 1);
+        if (key == "Enter")
+            this._selectButton(this.selectedButton - 1);
+        if (key == "Escape") {
+            ui.blockingUI = null;
+        }
         return true;
     }
 };
@@ -328,19 +693,29 @@ class UI {
             makeImage("icons3"),
         ];
         this.spellImages = {
-            none: images.prepare("spell_none"),
-            stone: images.prepare("spell_stone"),
-            fire: images.prepare("spell_fire"),
+            none: images.prepare("Spells/none"),
+            stone: images.prepare("Spells/stone"),
+            fire: images.prepare("Spells/fire"),
+            water: images.prepare("Spells/water_tmp"),
+            lightning: images.prepare("Spells/lightning"),
+            healing: images.prepare("Spells/healing"),
+            meteor_shower: images.prepare("Spells/meteor_shower"),
+            selection: images.prepare("Spells/selected")
         };
 
-        this.goals = new Goals(ctx);
-        world.script.initGoals(this.goals);
-        setTimeout(() => {
-            this.goals.hidden = false
-        }, 500)
+        this.goals = new GoalsUI(ctx);
 
         this.manaBar = new ManaBar(ctx, uiWidth - 2 * barPadding, "rgb(0, 38, 255)", "rgb(0, 148, 255)")
         this.healthBar = new ManaBar(ctx, uiWidth - 2 * barPadding, "rgb(255, 0, 40)", "rgb(255, 150, 190)")
+
+        this.nearHouseUI = new NearHouseUI(ctx);
+        this.blockingUI = null;
+    }
+
+    showGoals() {
+        setTimeout(() => {
+            this.goals.hidden = false
+        }, 500);
     }
 
     _drawTwoStatStrings(left, top, str1, str2) {
@@ -372,32 +747,52 @@ class UI {
 
     _drawMagic() {
         const maxSlotX = 3, maxSlotY = 4;
+        const x = this._inventoryX();
+        const y = 90;
+        
         for (let slotX = 0; slotX < maxSlotX; slotX++) {
             for (let slotY = 0; slotY < maxSlotY; slotY++) {
                 let img = this.spellImages.none;
-                if (player.stats.mana >= 50 && slotX == 0 && slotY == 0)
-                    img = this.spellImages.stone;
-                //if (slotX == 1 && slotY == 0)
-                //    img = this.spellImages.fire;
+                let idx = slotY * maxSlotX + slotX
+                if (player.stats.spells.length > idx)
+                    img = this.spellImages[player.stats.spells[idx]]
                 this._drawInventoryItem(slotX, slotY, img);
             }
         }
 
+        if (player.stats.spells.length > 1 && (player.selectedSpell == 0 || player.selectedSpell > 0)) {
+            let slotY = Math.floor(player.selectedSpell / maxSlotX);
+            let slotX = player.selectedSpell - slotY * maxSlotX;
+            this._drawInventoryItem(slotX, slotY, this.spellImages.selection);    
+        }
+
+        let slotX = Math.floor((this.mouseSelfX - x)/64);
+        let slotY = Math.floor((this.mouseSelfY - y)/64);
+        if (slotX >= 0 && slotY >= 0) {
+            let idx = slotY * maxSlotX + slotX;
+            let tooltip, tooltipEm;
+            if (idx >= 0 && player.stats.spells.length > idx) {
+                let spell = player.stats.spells[idx]
+                tooltip = rpg.spells[spell].tooltip;
+                tooltipEm = rpg.spells[spell].cost + " мана";
+            } else if (slotX >= 0 && slotX < maxSlotX && slotY >= 0 && slotY < maxSlotY)
+                tooltip = "Не выученное заклинание";
+            if (tooltip)
+                this._drawInventoryTooltip(tooltip, tooltipEm, this.mouseSelfX, this.mouseSelfY);
+        }
+    }
+
+    _onMagicClick() {
+        const maxSlotX = 3, maxSlotY = 4;
         const x = this._inventoryX();
         const y = 90;
         let slotX = Math.floor((this.mouseSelfX - x)/64);
         let slotY = Math.floor((this.mouseSelfY - y)/64);
-        let tooltip, tooltipEm;
-        if (player.stats.mana >= 50 && slotX == 0 && slotY == 0) {
-            tooltip = "Создать камень";
-            tooltipEm = "10 мана";
+        if (slotX >= 0 && slotY >= 0) {
+            let idx = slotY * maxSlotX + slotX
+            if (idx >= 0 && idx < player.stats.spells.length)
+                player.selectedSpell = idx
         }
-        //else if (slotX == 1 && slotY == 0)
-        //    tooltip = "Призвать огонь";
-        else if (slotX >= 0 && slotX < maxSlotX && slotY >= 0 && slotY < maxSlotY)
-            tooltip = "Не выученное заклинание";
-        if (tooltip)
-            this._drawInventoryTooltip(tooltip, tooltipEm, this.mouseSelfX, this.mouseSelfY);
     }
 
     _drawInventoryItem(slotX, slotY, img) {
@@ -438,22 +833,24 @@ class UI {
         let tooltip, tooltipEm;
 
         if (player.sword) {
-            this._drawInventoryItem(0, 0, player.sword.inventoryImg);
+            let rpgSword = rpg[player.sword];
+            this._drawInventoryItem(0, 0, rpgSword.inventoryImg);
             if (slotX == 0 && slotY == 0) {
-                tooltip = player.sword.name;
-                if (player.sword.quality)
-                    tooltipEm = "Атака +" + player.sword.quality;
+                tooltip = rpgSword.name;
+                if (rpgSword.quality)
+                    tooltipEm = "Атака +" + rpgSword.quality;
             }
         }
         if (player.shield) {
-            this._drawInventoryItem(2, 0, player.shield.inventoryImg);
+            let rpgShield = rpg[player.shield];
+            this._drawInventoryItem(2, 0, rpgShield.inventoryImg);
             if (slotX == 2 && slotY == 0) {
-                tooltip = player.shield.name;
-                tooltipEm = "Защита +" + player.shield.quality;
+                tooltip = rpgShield.name;
+                tooltipEm = "Защита +" + rpgShield.quality;
             }
         }
         for (let n = 0; n < player.inventory.length; n++) {
-            let item = player.inventory[n];
+            let item = rpg[player.inventory[n]];
             let invSlotX = n % 3, invSlotY = 1 + Math.floor(n/3);
             this._drawInventoryItem(invSlotX, invSlotY, item.inventoryImg);
             if (slotX == invSlotX && slotY == invSlotY) {
@@ -483,8 +880,10 @@ class UI {
         }
         if (itemToUse) {
             let success = world.script.onItemUse(itemToUse);
-            if (!success && itemToUse.use_message)
-                this.dialogUI.addMessage(itemToUse.use_message, playerSpeaker, player, true);
+            if (!success && itemToUse == "lookingGlass")
+                success = useLookingGlass();
+            if (!success && rpg[itemToUse].use_message)
+                this.dialogUI.addMessage(rpg[itemToUse].use_message, playerSpeaker, player, true);
         }
     }
 
@@ -539,64 +938,73 @@ class UI {
             ctx.drawImage(stateImg, dialogUIleftOffset, dialogUIheight);
         this._line(ctx, dialogUIleftOffset, 0, dialogUIleftOffset, canvas.height);
 
-        if (!world.script.noControl)
+        if (!world.script.noControl) {
             this.goals.draw();
+            if (this.blockingUI) {
+                this.blockingUI.draw();
+            } else {
+                this.nearHouseUI.draw();
+            }
+        }
     }
 
-    onclick(mouseEvent) {
-        if (this.goals.onclick(mouseEvent))
+    onClick(x, y) {
+        if (this.goals.onClick(x, y))
             return true;
-        this.onmousemove(mouseEvent);
+        if (this.blockingUI) {
+            this.blockingUI.onClick(x, y);
+            return true;
+        }
+        if (this.nearHouseUI.onClick(x, y))
+            return true;
+        this.onMouseMove(x, y);
         if (this.mouseSelfY > dialogUIheight && this.mouseSelfX > dialogUIleftOffset) {
             let state = Math.floor((this.mouseSelfX - dialogUIleftOffset) * 3 / (canvas.width - dialogUIleftOffset));
             if (state >= 0 && state <= 2)
                 this.state = state;
         } else if (this.state == 1) {
             this._onInventoryClick();
+        } else if (this.state == 0) {
+            this._onMagicClick();
         }
         return this.mouseSelfX > dialogUIleftOffset;
     }
 
-    onmousemove(mouseEvent) {
-        const rect = mouseEvent.target.getBoundingClientRect();
-        this.mouseSelfX = mouseEvent.clientX - rect.left;
-        this.mouseSelfY = mouseEvent.clientY - rect.top;
+    onMouseMove(x, y) {
+        this.mouseSelfX = x;
+        this.mouseSelfY = y;
+        if (this.blockingUI) {
+            this.blockingUI.onMouseMove(x, y);
+            return true;
+        }
+        if (this.nearHouseUI.onMouseMove(x, y))
+            return true;
+    }
+
+    onKey(key) {
+        this.tileUnderCursor.hideTooltip();
+        this.goals.hidden = true;
+        if (world.script.noControl)
+            return;
+        if (this.blockingUI) {
+            this.blockingUI.onKey(key);
+            return true;
+        }
+        if (this.nearHouseUI.onKey(key))
+            return;
+        if (key == "ArrowLeft")
+            player.tryMove(-1, 0);
+        if (key == "ArrowUp")
+            player.tryMove(0, -1);
+        if (key == "ArrowRight")
+            player.tryMove(1, 0);
+        if (key == "ArrowDown")
+            player.tryMove(0, 1);
+        if (key == "`")
+            drawAI = !drawAI;
+        //if (key == "r")
+        //    world.animations.add(new Rain(40), {x:0, y:0});
+        if (key == "f")
+            world.animations.add(new Fountain(80), {x:this.tileUnderCursor.x, y:this.tileUnderCursor.y});
     }
 }
-let ui = new UI();
-
-canvas.onmousemove = function clickEvent(e) {
-    updateTileUnderCursor(e);
-    ui.onmousemove(e);
-}
-
-canvas.onclick = function clickEvent(e) {
-    updateTileUnderCursor(e);
-    ui.tileUnderCursor.hideTooltip();
-    if (world.script.noControl)
-        return;
-    if (ui.onclick(e))
-        return;
-    player.tryCast(ui.tileUnderCursor.x, ui.tileUnderCursor.y, "stone")
-}
-
-addEventListener("keyup", function(event) {
-    ui.tileUnderCursor.hideTooltip();
-    ui.goals.hidden = true;
-    if (world.script.noControl)
-        return;
-    if (event.key == "ArrowLeft")
-        player.tryMove(-1, 0);
-    if (event.key == "ArrowUp")
-        player.tryMove(0, -1);
-    if (event.key == "ArrowRight")
-        player.tryMove(1, 0);
-    if (event.key == "ArrowDown")
-        player.tryMove(0, 1);
-    if (event.key == "f")
-        animations.add(new FadeToBlack(4, "Тем временем..."), player);
-    if (event.key == "`")
-        drawAI = !drawAI;
-    if (event.key == "s")
-        saveGameState(world, player, ui);
-});
