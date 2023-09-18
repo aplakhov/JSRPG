@@ -1,26 +1,57 @@
 const grassBiome = {
-    tileset: "Europe/",
+    tilesetPrefix: "Europe/",
     hints: ["Трава", "Вода", "Утоптанная земля", "Деревья", "Камень", "Горные породы", "Брусчатка"]
 };
 const whiteCityBiome = {
-    tileset: "Capital/",
+    tilesetPrefix: "Capital/",
+    stone_tiles: "Capital/stone_tiles",
+    stone_wall_ground_tile: "Capital/stone_wall_ground_tile",
     hints: ["Трава", "Вода", "Утоптанная земля", "Деревья", "Камень", "Горные породы", "Брусчатка"],
-    exoticStones: true
 };
 const desertBiome = {
-    tileset: "Desert/",
+    tilesetPrefix: "Desert/",
     hints: ["Песок потемнее", "Вода!", "Песок посветлее", "Южные деревья", "Камень", "Стены", "Брусчатка"]
 };
+const desertWoodWallsBiome = {
+    tilesetPrefix: "Desert/",
+    rock_tiles: "Desert/wood_wall_tiles",
+    rock_ground_tiles: "Desert/wood_wall_ground_tiles",
+    hints: ["Песок потемнее", "Вода", "Песок посветлее", "Южные деревья", "Камень", "Деревянные стены", "Брусчатка"]
+};
+const desertPalaceBiome = {
+    tilesetPrefix: "Desert/",
+    sand_tiles: "Desert/marble",
+    pavement_tiles: "Desert/carpet",
+    grass_tiles: "Desert/sand_tiles",
+    rock_tiles: "Desert/rock_tiles_dark",
+    stone_tiles: "Desert/stone_tiles",
+    hints: ["Песок", "Вода", "Мрамор", "Южные деревья", "Камень", "Стены", "Древние узоры"]
+};
 const iceBiome = {
-    tileset: "Snow/",
+    tilesetPrefix: "Snow/",
+    stone_tiles: "Snow/stone_tiles",
+    stone_wall_ground_tile: "Snow/stone_wall_ground_tile",
     hints: ["Лёд", "Ледяная вода", "Снег", "Заснеженные деревья", "Камень", "Ледяные стены", "Брусчатка"]
+};
+const northBiome = {
+    tilesetPrefix: "Europe/",
+    animated_water: "Snow/animated_water",
+    tree_images: "Europe/trees_pines",
+    dead_trees: "Snow/dead_trees",
+    sand_tiles: "Snow/sand_tiles",
+    ground_tiles: "Snow/ground_tiles",
+    grass_tiles: "Snow/tundra_tiles",
+    dark_grass_border: "Snow/tundra_border",
+    stone_tiles: "Snow/stone_tiles",
+    stone_wall_ground_tile: "Snow/stone_wall_ground_tile",
+    hints: ["Северные травы", "Вода", "Утоптанная земля", "Северные деревья", "Камень", "Горные породы", "Брусчатка"]
 };
 
 let player = new Player();
 let worlds = {}
 let world = null;
 
-function changeWorldTo(worldName, doAutosave) {
+function changeWorldTo(worldName, doAutosave, oldWorldName) {
     if (!(worldName in TileMaps)) {
         console.error("World", worldName, "is undefined");
         return;
@@ -28,11 +59,12 @@ function changeWorldTo(worldName, doAutosave) {
     if (!(worldName in worlds)) {
         worlds[worldName] = new World(worldName);
     }
-    let oldWorld = world;
+    if (!oldWorldName && world)
+        oldWorldName = world.mapName;
     world = worlds[worldName];
     renderer.setTileset(world.biome);
-    if (oldWorld)
-        world.comeFromMap(oldWorld.mapName);
+    if (oldWorldName)
+        world.comeFromMap(oldWorldName);
     // take all quests from the map that can be taken right now
     for (let questName in quests) {
         let q = quests[questName];
@@ -44,13 +76,20 @@ function changeWorldTo(worldName, doAutosave) {
         autosave();
 }
 
+function reloadAll() {
+    localStorage.clear();
+    worlds = {};
+    changeWorldTo(world.mapName);
+}
+
 let globalTimer = Date.now() / 1000.;
 let renderer = new Renderer();
 let ui = new UI();
 
 loadGameFromLocalStorage();
 setInterval(() => {
-    saveGameToLocalStorage();
+    if (!world.script.stopGameplayTime)
+        saveGameToLocalStorage();
 }, 30000
 );
 
@@ -62,9 +101,10 @@ setInterval(() => {
         renderer.drawWorld(ctx, pixelOffset, world);
         world.fire.step(pixelOffset);
         world.fire.draw(ctx, pixelOffset);
-        world.animations.draw(ctx, pixelOffset, false);
+        world.animations.draw(ctx, pixelOffset, 1);
         ui.drawTooltip(ctx, pixelOffset);
         ui.draw(ctx);
+        world.animations.draw(ctx, pixelOffset, 2);
     },
     20
 );

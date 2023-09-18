@@ -170,6 +170,7 @@ class IntroMapScript extends AllScripts {
             dragon.rotation.set(rotation, 0.5);
         }
         if (dragon.awake && playerOnTreasure) {
+            player.frameX = 0; // look at dragon
             let timePassed = globalTimer - this.timeAtTreasure;
             if (timePassed > 1)
                 ui.dialogUI.addMessage("Ой-ой", playerSpeaker, player);
@@ -274,7 +275,7 @@ class IntroMapScript extends AllScripts {
             if (item == "kettlebell") {
                 ui.dialogUI.addMessage("О, а это хорошая идея", playerSpeaker, player);
                 player.loseItem(item);
-                lever.image = images.prepare("lever_on");
+                lever.image = images.prepare("lever_on_blocked");
                 lever.hint = "Подпёртый рычаг";
                 lever.alwaysOn = true;
             } else if (item == player.shield) {
@@ -296,8 +297,10 @@ class IntroMapScript extends AllScripts {
         this._teleportPlayer(scriptPlace.x + 7, scriptPlace.y);
 
         let kirael = this._addMob(scriptPlace.x - 2, scriptPlace.y - 2, "Кираэль", "kirael");
-        let thug1 = this._addMob(scriptPlace.x - 3, scriptPlace.y, "Первый громила", "thug");
-        let thug2 = this._addMob(scriptPlace.x, scriptPlace.y - 3, "Второй громила", "thug");
+//        let thug1 = this._addMob(scriptPlace.x - 3, scriptPlace.y, "Первый громила", "thug");
+//        let thug2 = this._addMob(scriptPlace.x, scriptPlace.y - 3, "Второй громила", "thug");
+        let thug1 = this._addMob(scriptPlace.x - 3, scriptPlace.y, "Первый громила", "thug_anim", "goblin");
+        let thug2 = this._addMob(scriptPlace.x, scriptPlace.y - 3, "Второй громила", "thug_anim", "goblin");
         kirael.speaker = {
             color: "rgb(10, 10, 10)",
             bgColor: "rgb(178, 164, 165)",

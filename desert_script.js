@@ -5,7 +5,19 @@ quests.desert_goal_1 = {
 
 quests.desert_goal_2 = {
     map: "desert_test_map",
-    text: "Найти заброшенный дворец Озимандии"
+    text: "Найти заброшенный дворец Озимандии",
+    isDone: () => { return player.x >= 80 && player.y >= 80; }
+}
+
+function _hasWaterNearby() {
+    if (player.x > 0 && world.terrain[player.x - 1][player.y] == TERRAIN_WATER)
+        return true;
+    else if (player.y > 0 && world.terrain[player.x][player.y - 1] == TERRAIN_WATER)
+        return true;
+    else if (player.x + 1 < world.width && world.terrain[player.x + 1][player.y] == TERRAIN_WATER)
+        return true;
+    else if (player.y + 1 < world.height && world.terrain[player.x][player.y + 1] == TERRAIN_WATER)
+        return true;
 }
 
 class DesertMapScript extends AllScripts {
@@ -40,16 +52,7 @@ class DesertMapScript extends AllScripts {
     nextTurn(forced) {
         this._executeTriggers();
 
-        let hasWaterNearby = false;
-        if (player.x > 0 && world.terrain[player.x - 1][player.y] == TERRAIN_WATER)
-            hasWaterNearby = true;
-        else if (player.y > 0 && world.terrain[player.x][player.y - 1] == TERRAIN_WATER)
-            hasWaterNearby = true;
-        else if (player.x + 1 < world.width && world.terrain[player.x + 1][player.y] == TERRAIN_WATER)
-            hasWaterNearby = true;
-        else if (player.y + 1 < world.height && world.terrain[player.x][player.y + 1] == TERRAIN_WATER)
-            hasWaterNearby = true;
-        if (!hasWaterNearby) {
+        if (!_hasWaterNearby()) {
             if (!this.remindedAboutWater && player.hp < player.stats.hp * 0.7) {
                 this.remindedAboutWater = true;
                 ui.dialogUI.addMessage("Силы быстро убывают. Водички бы...", playerSpeaker, player);
@@ -111,6 +114,13 @@ class DesertMapScript extends AllScripts {
     }
 
     onItemUse(item) {
+        if (item == "mop" && _hasWaterNearby()) {
+            player.loseItem("mop");
+            player.takeItem("wet_mop");
+            ui.dialogUI.addMessage("Теперь уборка пойдёт на славу", playerSpeaker, player);
+            ui.dialogUI.addMessage("Быстро во дворец, пока тряпка не высохла на этом адском солнце", playerSpeaker, player);
+            return true;
+        }
         return false;
     }
 };

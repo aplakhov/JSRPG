@@ -42,127 +42,18 @@ rpg = {
             cost: 60,
             radius: 24,
             tooltip: "Вызвать звездопад"
+        },
+        earth_ear: {
+            cost: 50,
+            duration: 60,
+            tooltip: "Слушать дрожь земли"
         }
-    },
-    goblin: {
-        hp: 30,
-        attackMin: 2,
-        attackMax: 8,
-        attackRadius: 1,
-        roamRadius: 8,
-        aggroRadius: 5,
-        enemy: true,
-        movement: "land_mob",
-        speaker: {
-            color: "rgb(10, 10, 10)",
-            bgColor: "rgb(179, 188, 157)",
-            font: '18px sans-serif',
-            portraits: [
-                "Portraits/goblin",
-                "Portraits/goblin2",                           
-                "Portraits/goblin4",
-                "Portraits/goblin5",                           
-            ]                           
-        },
-        aggroMessages: [
-            "Сегодня едим мясо!",
-            "Ты вкусный?",
-            "Ты с какого района?",
-            "Деньги есть? А если найду?",
-            "Иди сюда, слыш",
-            "Есть чё?",
-            "А ну сюда иди!"
-        ]
-    },
-    scorpio: {
-        hp: 30,
-        attackMin: 4,
-        attackMax: 10,
-        attackRadius: 1,
-        roamRadius: 5,
-        aggroRadius: 5,
-        enemy: true,
-        movement: "land_mob",
-        speaker: {
-            color: "rgb(10, 10, 10)",
-            bgColor: "rgb(241, 159, 89)",
-            font: '18px sans-serif',
-            portraits: ["Portraits/scorpio", "Portraits/scorpio", "Portraits/scorpio"]
-        },
-        aggroMessages: [
-            "Щёлк, щёлк! Щёлк.",
-            "Скриииии!",
-            "Кчак-кчак-кчак. Щёлк."
-        ]
-    },
-    scorpio2: {
-        hp: 40,
-        attackMin: 6,
-        attackMax: 14,
-        attackRadius: 1,
-        roamRadius: 5,
-        aggroRadius: 5,
-        enemy: true,
-        movement: "land_mob",
-        speaker: {
-            color: "rgb(10, 10, 10)",
-            bgColor: "rgb(241, 159, 89)",
-            font: '18px sans-serif',
-            portraits: ["Portraits/scorpio", "Portraits/scorpio", "Portraits/scorpio"]
-        },
-        aggroMessages: [
-            "Щёлк, щёлк! Щёлк.",
-            "Скриииии!",
-            "Кчак-кчак-кчак. Щёлк."
-        ]
-    },
-    scorpio3: {
-        hp: 60,
-        attackMin: 8,
-        attackMax: 18,
-        attackRadius: 1,
-        roamRadius: 5,
-        aggroRadius: 5,
-        enemy: true,
-        movement: "land_mob",
-        speaker: {
-            color: "rgb(10, 10, 10)",
-            bgColor: "rgb(255, 89, 89)",
-            font: '18px sans-serif',
-            portraits: ["Portraits/scorpio", "Portraits/scorpio", "Portraits/scorpio"]
-        },
-        aggroMessages: [
-            "ЩЁЛК. ЩЁЛК.",
-            "СКРИИИИ.",
-            "КЧАК-КЧАК."
-        ]
-    },        
-    slug: {
-        hp: 30,
-        attackMin: 4,
-        attackMax: 10,
-        attackRadius: 1,
-        roamRadius: 8,
-        aggroRadius: 5,
-        enemy: true,
-        movement: "land_mob",
-        speaker: {
-            color: "rgb(10, 10, 10)",
-            bgColor: "rgb(241, 159, 89)",
-            font: '18px sans-serif',
-            portraits: ["Portraits/slug", "Portraits/slug", "Portraits/slug"]
-        },
-        aggroMessages: [
-            "Флииип",
-            "Ульч-ульч",
-            "Глыг-глыг-глыг"
-        ]
     },
     wooden_stick: {
         type: "sword",
         quality: 0,
         name: "Дубинка",
-        equipImg: "stick_equip",
+        equipImg: "Equip/stick",
         inventoryImg: "Inventory/wooden_stick",
         use_message: [
             "*размахивает дубинкой*",
@@ -176,7 +67,7 @@ rpg = {
         name: "Короткий меч",
         message: "Меч это гораздо лучше, чем палка!",
         reject: "У меня уже есть оружие не хуже",
-        equipImg: "sword_equip",
+        equipImg: "Equip/sword",
         inventoryImg: "Inventory/short_sword",
         use_message: [
             "*изображает турнирного бойца*",
@@ -190,7 +81,7 @@ rpg = {
         name: "Деревянный щит",
         message: "Этот щит мне идёт",
         reject: "У меня уже есть щит не хуже",
-        equipImg: "shield",
+        equipImg: "Equip/shield",
         inventoryImg: "Inventory/wooden_shield",
         use_message: [
             "И как его тут использовать?", 
@@ -205,7 +96,7 @@ rpg = {
         name: "Большой щит",
         message: 'В таверне "О щит" такой же висел вместо вывески',
         reject: "У меня уже есть щит не хуже",
-        equipImg: "metal_shield",
+        equipImg: "Equip/metal_shield",
         inventoryImg: "Inventory/metal_shield",
         use_message: [
             "Когда надо, он как-то сам собой используется",
@@ -251,4 +142,30 @@ rpg = {
             "Интересно, русалки будут принимать за своего?"
         ]
     },
+    mop: {
+        type: "sword",
+        quality: 0,
+        name: "Швабра с сухой тряпкой",
+        equipImg: "Equip/mop",
+        inventoryImg: "Inventory/dry_mop",
+        use_message: [
+            "Тряпку бы намочить где-нибудь",
+            "Говорила мне мама, учись хорошо, а то станешь уборщиком",
+            "Смысл возить сухой тряпкой? Только пыль подымать"
+        ]
+    },
+    wet_mop: {
+        type: "sword",
+        quality: 0,
+        name: "Швабра с мокрой тряпкой",
+        equipImg: "Equip/mop",
+        inventoryImg: "Inventory/mop",
+        use_message: [
+            "И вот тут протрём...",
+            "Не о карьере уборщика я мечтал",
+            "А это что, паутина? Кыш отсюда!",
+            "Что это тут за грязное пятно?",
+            "Хммм, я точно должен тут всё убирать?"
+        ]
+    }
 }

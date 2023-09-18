@@ -148,8 +148,13 @@ class GameplayFire {
 
     startFire(durationTurns, fireStrength) {
         this.durationTurns = durationTurns;
-        const variationsNum = renderer.burningTreeImages.width / 64;
-        this.variation = Math.floor(Math.random() * variationsNum);
+        const burningTreeImg = images.getReadyImage(renderer.burningTreeImages);
+        if (burningTreeImg) {
+            const variationsNum = burningTreeImg.width / 64;
+            this.variation = Math.floor(Math.random() * variationsNum);
+        } else {
+            this.variation = 0;
+        }
         this.decal = images.prepare("Spells/fire_decal");
         const decalVariations = 4;
         this.decalVariation = Math.floor(Math.random() * decalVariations);
@@ -169,12 +174,15 @@ class GameplayFire {
             checkFireEffects(this.x, this.y, this.fireStrength);
         }
         if (!this.timeWhenBurnedOut || this.timeWhenBurnedOut + 1 > globalTimer) {
-            const animationFrames = renderer.burningTreeImages.height / 84;
-            const animationFrame = (x + y + Math.floor(globalTimer*16)) % animationFrames;
-            if (this.timeWhenBurnedOut)
-                ctx.globalAlpha = (this.timeWhenBurnedOut + 1 - globalTimer);
-            ctx.drawImage(renderer.burningTreeImages, this.variation * 64, animationFrame * 84, 64, 84, x - 16, y - 36, 64, 84);
-            ctx.globalAlpha = 1;
+            const burningTreeImg = images.getReadyImage(renderer.burningTreeImages);
+            if (burningTreeImg) {
+                const animationFrames = burningTreeImg.height / 84;
+                const animationFrame = (x + y + Math.floor(globalTimer*16)) % animationFrames;
+                if (this.timeWhenBurnedOut)
+                    ctx.globalAlpha = (this.timeWhenBurnedOut + 1 - globalTimer);
+                images.draw(ctx, renderer.burningTreeImages, this.variation * 64, animationFrame * 84, 64, 84, x - 16, y - 36, 64, 84);
+                ctx.globalAlpha = 1;
+            }
         }
         if (this.timeWhenBurnedOut && !this.noDecal) {
             if (this.timeWhenBurnedOut + 1 > globalTimer)
@@ -324,7 +332,7 @@ class HealingEffect {
         ]        
     }
     draw(ctx, offsetInPixels, time) {
-        let allParticlesDead = false;
+        let allParticlesDead = true;
         for (let n = 0; n < this.particles.length; n++) {
             let p = this.particles[n];
             if (Math.random() < 0.3)
@@ -341,7 +349,7 @@ class HealingEffect {
                 ctx.fillRect(p.x + offsetInPixels.x, p.y + offsetInPixels.y, 2, 2);
             }
         }
-        return false;
+        return allParticlesDead;
     }
 }
 
@@ -372,6 +380,13 @@ function castHealing(target) {
     }, 500);
 }
 
+function castEarthEar() {
+    if (player.castEarthEar && player.earthEarUntil > globalTimer)
+        return false;
+    player.earthEarUntil = globalTimer + 60;
+    return true;
+}
+
 function castSpell(caster, spell, target) {
     if (spell == "stone")
         castStone(caster, target.x, target.y);
@@ -385,8 +400,11 @@ function castSpell(caster, spell, target) {
         castMeteorShower(caster, target);
     else if (spell == "healing")
         castHealing(target);
+    else if (spell == "earth_ear")
+        return castEarthEar();
     else
         console.log(spell, "is not implemented");
+    return true;
 }
 
 function _useLookingGlassAt(x, y) {
@@ -398,7 +416,7 @@ function _useLookingGlassAt(x, y) {
         return false;
     }
     let tile = world.terrain[x][y];
-    if (tile == TERRAIN_WATER && !playerKnowsSpell("water")) {
+    if (tile == TERRAIN_WATER) {
         const msgs = [
             "Оказывается, вода сделана из двух разных типов воздуха, соединенных вместе огнём",
             "Я себе воду представлял не так",
@@ -418,6 +436,8 @@ function useLookingGlass() {
 }
 
 function discoverNewSpell(msgs, spell) {
+    if (playerKnowsSpell("water"))
+        return;
     player.stats.spells.push(spell);    
     world.script._startSequence();
     for (let msg of msgs)
@@ -429,5 +449,6 @@ function discoverNewSpell(msgs, spell) {
         });
         world.script._wait(0.15);
     }
+    world.script._do(() => { ui.showStateHint(0) });
     world.script._finishSequence();
 }

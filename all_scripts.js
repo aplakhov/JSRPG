@@ -17,14 +17,8 @@ class AllScripts {
         }
         for (let questName in quests) {
             let quest = quests[questName];
-            if (quest.map != world.mapName)
-                continue;
-            if (player.doneQuests.indexOf(questName) < 0) {
-                if (quest.isDone && quest.isDone())
-                    player.doneQuests.push(questName);
-                    changeQuestState(questName);
-                    // TODO: some UI feedback on done
-            }
+            if (quest.map == world.mapName && quest.isDone && quest.isDone())
+                finishQuest(questName);
         }
     }
 
@@ -50,6 +44,12 @@ class AllScripts {
         setTimeout(fn, this.delay * 1000);
     }
 
+    _finishQuest(name) {
+        setTimeout(() => {
+            finishQuest(name);
+        }, this.delay * 1000);
+    }
+
     _say(text, speaker, gameplayObj) {
         setTimeout(() => {
             ui.dialogUI.addMessage(text, speaker, gameplayObj, true);
@@ -59,11 +59,7 @@ class AllScripts {
 
     _teleportPlayer(x, y) {
         setTimeout(() => {
-            player.x = x;
-            player.y = y;
-            player.pixelX = new SmoothlyChangingNumber(x * tileSize);
-            player.pixelY = new SmoothlyChangingNumber(y * tileSize);
-            world.vision.recalculateLocalVisibility();
+            player.teleport(x, y)
         }, this.delay * 1000);
     }
 
@@ -105,9 +101,9 @@ class AllScripts {
         }, this.delay * 1000);
     }
 
-    _changeMap(name) {
+    _changeMap(name, oldName) {
         setTimeout(() => {
-            changeWorldTo(name, true);
+            changeWorldTo(name, true, oldName);
         }, this.delay * 1000);
     }
 }

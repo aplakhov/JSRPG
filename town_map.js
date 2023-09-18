@@ -85,7 +85,7 @@
                         {
                          "name":"Image",
                          "type":"string",
-                         "value":"tavern_textured"
+                         "value":"Houses\/tavern_textured"
                         }, 
                         {
                          "name":"ScriptName",
@@ -146,7 +146,7 @@
                         {
                          "name":"Image",
                          "type":"string",
-                         "value":"town_tower"
+                         "value":"Houses\/town_tower"
                         }, 
                         {
                          "name":"ScriptName",
@@ -184,7 +184,7 @@
                         {
                          "name":"Image",
                          "type":"string",
-                         "value":"simple_house_textured"
+                         "value":"Houses\/simple_house_textured"
                         }, 
                         {
                          "name":"ScriptName",
@@ -234,7 +234,7 @@
                         {
                          "name":"Image",
                          "type":"string",
-                         "value":"elven_house"
+                         "value":"Houses\/elven_house"
                         }, 
                         {
                          "name":"ScriptName",
@@ -305,7 +305,7 @@
                         {
                          "name":"Image",
                          "type":"string",
-                         "value":"church"
+                         "value":"Houses\/church"
                         }, 
                         {
                          "name":"ScriptName",

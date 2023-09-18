@@ -1050,7 +1050,7 @@
                         {
                          "name":"Message",
                          "type":"string",
-                         "value":"\u041f\u043e\u0447\u0435\u043c\u0443 \u043c\u043d\u0435 \u0432\u0435\u0447\u043d\u043e \u043d\u0443\u0436\u043d\u043e \u0438\u043c\u0435\u043d\u043d\u043e \u0442\u0443\u0434\u0430, \u0433\u0434\u0435 \u0432\u0430\u043b\u044f\u044e\u0442\u0441\u044f \u0441\u043a\u0435\u043b\u0435\u0442\u044b?"
+                         "value":"\u0411\u044b\u043b \u0440\u044b\u0446\u0430\u0440\u044c, \u0430 \u0441\u0442\u0430\u043b \u0441\u043a\u0435\u043b\u0435\u0442"
                         }],
                  "rotation":0,
                  "visible":true,
@@ -1675,7 +1675,7 @@
                         {
                          "name":"Image",
                          "type":"string",
-                         "value":"ferry"
+                         "value":"Houses\/ferry"
                         }, 
                         {
                          "name":"OccupiedTiles",
@@ -1708,7 +1708,7 @@
                         {
                          "name":"Image",
                          "type":"string",
-                         "value":"ferry_house"
+                         "value":"Houses\/ferry_house"
                         }, 
                         {
                          "name":"OccupiedTiles",
@@ -1786,6 +1786,18 @@
                  "width":46,
                  "x":2105.5,
                  "y":597.5
+                }, 
+                {
+                 "class":"Player",
+                 "height":0,
+                 "id":115,
+                 "name":"\u0418\u0433\u0440\u043e\u043a",
+                 "point":true,
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":114.666666666667,
+                 "y":84
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -1794,7 +1806,7 @@
          "y":0
         }],
  "nextlayerid":4,
- "nextobjectid":115,
+ "nextobjectid":116,
  "orientation":"orthogonal",
  "renderorder":"left-down",
  "tiledversion":"1.9.2",

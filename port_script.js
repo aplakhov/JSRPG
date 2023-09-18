@@ -19,6 +19,9 @@ class PortMapScript extends AllScripts {
             [1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         ];
+    }
+
+    setupRecalculatedData(world) {
         let baseTile = {
             pixelX: {
                 get: () => {
@@ -28,7 +31,7 @@ class PortMapScript extends AllScripts {
             },
             y: 51
         }
-        world.animations.add(new GiantTurtle(6), baseTile, true)
+        world.animations.add(new GiantTurtle(6), baseTile, true);
     }
 
     nextTurn(forced) {

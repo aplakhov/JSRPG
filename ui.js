@@ -115,7 +115,7 @@ class DialogUI {
                     return;
                 }
             }
-            world.animations.add(new DialogMessages(ctx, text, speaker), baseTile);
+            world.animations.addUIanimation(new DialogMessages(ctx, text, speaker), baseTile);
         }
     }
 
@@ -209,7 +209,7 @@ class GoalsUI {
     constructor(ctx) {
         this.ctx = ctx;
         this.hidden = true;
-        this.button = makeImage("goals_button");
+        this.button = makeImage("UI/goals_button");
         this.font = "18px sans-serif";
         this.headerFont = "32px sans-serif";
         this.header = "Дела на сегодня";
@@ -259,8 +259,8 @@ class GoalsUI {
             }
         }
         if (this.button.complete) {
-            this.buttonX = (2 * tileSize - this.button.width) / 2;
-            this.buttonY = (ctx.canvas.height - 2 * tileSize) + (2 * tileSize - this.button.height) / 2;
+            this.buttonX = 5; //Math.floor((2 * tileSize - this.button.width) / 2);
+            this.buttonY = ctx.canvas.height - 34;
             this.ctx.drawImage(this.button, this.buttonX, this.buttonY)
         }
     }
@@ -375,14 +375,16 @@ class NearHouseUI {
             }
             return true;
         }
-        let mapTransition = world.findMapTransition(x, y);
-        if (mapTransition) {
-            if (this.hidden) {
-                this.coolImage = "Places/" + mapTransition.targetMap; // crap
-                this.gameObj = mapTransition;
-                this._makeEntryButton(mapTransition.message, "↩: уйти");
+        if (dx == 0 && dy == 0) {
+            let mapTransition = world.findMapTransition(x, y);
+            if (mapTransition) {
+                if (this.hidden) {
+                    this.coolImage = "Places/" + mapTransition.targetMap;
+                    this.gameObj = mapTransition;
+                    this._makeEntryButton(mapTransition.message, "↩: уйти");
+                }
+                return true;
             }
-            return true;
         }
         return false;
     }
@@ -392,7 +394,8 @@ class NearHouseUI {
             this._updateStateIfNeeded(0, -1) ||
             this._updateStateIfNeeded(1, 0) ||
             this._updateStateIfNeeded(-1, 0) ||
-            this._updateStateIfNeeded(0, 1);
+            this._updateStateIfNeeded(0, 1) ||
+            this._updateStateIfNeeded(0, 0);
         this.hidden = !nearHouse;
     }
 
@@ -563,7 +566,7 @@ class InsideHouseUI {
             };
         //
         setTimeout(() => {
-            ui.dialogUI.addMessage(currentTalkingPoint[1], speaker, player);
+            ui.dialogUI.addMessage(currentTalkingPoint[1], speaker);
         }, 500);
         this.buttons.push(new RichButton(ctx, padding, padding, width, portraitHeight, caption, currentTalkingPoint[1], portrait, false));
         const portraitX = 100 + padding;
@@ -616,7 +619,7 @@ class InsideHouseUI {
             let t = this.selectedTalker;
             let b = this.buttons[n + 1];
             if (typeof b.nextTalkingPoint == "number") {
-                ui.dialogUI.addMessage(b.answerText, playerSpeaker, player);
+                ui.dialogUI.addMessage(b.answerText, playerSpeaker);
                 player.dialogState[t].currentQuest = b.nextQuest;
                 player.dialogState[t].currentTalkingPoint = b.nextTalkingPoint;
                 this._showTalkerUI(t);
@@ -682,24 +685,25 @@ class UI {
         this.tileUnderCursor = new TileUnderCursor();
 
         this.state = 2;
-        this.inventoryImg = makeImage("inventory");
+        this.inventoryImg = makeImage("UI/inventory");
 
         this.dialogUI = new DialogUI(
             ctx, dialogUIleftOffset, 0, uiWidth, dialogUIheight, dialogUIpadding
         );
         this.stateImages = [
-            makeImage("icons1"),
-            makeImage("icons2"),
-            makeImage("icons3"),
+            makeImage("UI/icons1"),
+            makeImage("UI/icons2"),
+            makeImage("UI/icons3"),
         ];
         this.spellImages = {
             none: images.prepare("Spells/none"),
             stone: images.prepare("Spells/stone"),
             fire: images.prepare("Spells/fire"),
-            water: images.prepare("Spells/water_tmp"),
+            water: images.prepare("Spells/water"),
             lightning: images.prepare("Spells/lightning"),
             healing: images.prepare("Spells/healing"),
             meteor_shower: images.prepare("Spells/meteor_shower"),
+            earth_ear: images.prepare("Spells/earth_ear"),
             selection: images.prepare("Spells/selected")
         };
 
@@ -745,9 +749,13 @@ class UI {
         }
     }
 
+    _drawMagicItem(slotX, slotY, img) {
+        images.draw(ctx, img, this._inventoryGridX() + slotX * 64, 90 + slotY * 64);
+    }
+
     _drawMagic() {
         const maxSlotX = 3, maxSlotY = 4;
-        const x = this._inventoryX();
+        const x = this._inventoryGridX();
         const y = 90;
         
         for (let slotX = 0; slotX < maxSlotX; slotX++) {
@@ -756,14 +764,14 @@ class UI {
                 let idx = slotY * maxSlotX + slotX
                 if (player.stats.spells.length > idx)
                     img = this.spellImages[player.stats.spells[idx]]
-                this._drawInventoryItem(slotX, slotY, img);
+                this._drawMagicItem(slotX, slotY, img);
             }
         }
 
-        if (player.stats.spells.length > 1 && (player.selectedSpell == 0 || player.selectedSpell > 0)) {
+        if (player.selectedSpell == 0 || player.selectedSpell > 0) {
             let slotY = Math.floor(player.selectedSpell / maxSlotX);
             let slotX = player.selectedSpell - slotY * maxSlotX;
-            this._drawInventoryItem(slotX, slotY, this.spellImages.selection);    
+            this._drawMagicItem(slotX, slotY, this.spellImages.selection);    
         }
 
         let slotX = Math.floor((this.mouseSelfX - x)/64);
@@ -784,7 +792,7 @@ class UI {
 
     _onMagicClick() {
         const maxSlotX = 3, maxSlotY = 4;
-        const x = this._inventoryX();
+        const x = this._inventoryGridX();
         const y = 90;
         let slotX = Math.floor((this.mouseSelfX - x)/64);
         let slotY = Math.floor((this.mouseSelfY - y)/64);
@@ -795,11 +803,9 @@ class UI {
         }
     }
 
-    _drawInventoryItem(slotX, slotY, img) {
-        if (!img)
-            return;
-        const y = 90;
-        images.draw(ctx, img, this._inventoryX() + slotX * 64, y + slotY * 64);
+    _drawInventoryItem(x, y, img) {
+        if (img)
+            images.draw(ctx, img, dialogUIleftOffset + x, 45 + y);
     }
 
     _drawInventoryTooltip(text, secondaryText, left, top) {
@@ -818,24 +824,37 @@ class UI {
         u.draw(ctx, left, top - u.textBoxHeight, 0, true);    
     }
 
-    _inventoryX() {
+    _inventoryGridX() {
         const width = canvas.width - dialogUIleftOffset;
-        return dialogUIleftOffset + Math.floor((width - this.inventoryImg.width) / 2);
+        return dialogUIleftOffset + Math.floor((width - 193) / 2);
+    }
+
+    _getInventoryAreaUnderMouse() {
+        const x = this.mouseSelfX - dialogUIleftOffset, y = this.mouseSelfY - 45;
+        //console.log("in inventory", x, y)
+        if (x >= 15 && y >= 110 && x <= 15+64 && y <= 110+64)
+            return -1;
+        if (x >= 175 && y >= 110 && x <= 175+64 && y <= 110+64)
+            return -2;
+        if (x >= 30 && y >= 244) {
+            const invSlotX = Math.floor((x - 30)/64);
+            const invSlotY = Math.floor((y - 244)/64);
+            if (invSlotX < 3 && invSlotY < 6)
+                return invSlotX + 3 * invSlotY;
+        }
+        return -100;
     }
 
     _drawInventory() {
-        const x = this._inventoryX();
-        const y = 90;
-        ctx.drawImage(this.inventoryImg, x, y);
+        ctx.drawImage(this.inventoryImg, dialogUIleftOffset, 45);
 
-        let slotX = Math.floor((this.mouseSelfX - x)/64);
-        let slotY = Math.floor((this.mouseSelfY - y)/64);
+        const areaUnderMouse = this._getInventoryAreaUnderMouse();
         let tooltip, tooltipEm;
 
         if (player.sword) {
             let rpgSword = rpg[player.sword];
-            this._drawInventoryItem(0, 0, rpgSword.inventoryImg);
-            if (slotX == 0 && slotY == 0) {
+            this._drawInventoryItem(15, 110, rpgSword.inventoryImg);
+            if (areaUnderMouse == -1) {
                 tooltip = rpgSword.name;
                 if (rpgSword.quality)
                     tooltipEm = "Атака +" + rpgSword.quality;
@@ -843,17 +862,19 @@ class UI {
         }
         if (player.shield) {
             let rpgShield = rpg[player.shield];
-            this._drawInventoryItem(2, 0, rpgShield.inventoryImg);
-            if (slotX == 2 && slotY == 0) {
+            this._drawInventoryItem(175, 110, rpgShield.inventoryImg);
+            if (areaUnderMouse == -2) {
                 tooltip = rpgShield.name;
                 tooltipEm = "Защита +" + rpgShield.quality;
             }
         }
         for (let n = 0; n < player.inventory.length; n++) {
             let item = rpg[player.inventory[n]];
-            let invSlotX = n % 3, invSlotY = 1 + Math.floor(n/3);
-            this._drawInventoryItem(invSlotX, invSlotY, item.inventoryImg);
-            if (slotX == invSlotX && slotY == invSlotY) {
+            let invSlotX = n % 3, invSlotY = Math.floor(n/3);
+            if (invSlotY >= 6)
+                break;
+            this._drawInventoryItem(30 + 64 * invSlotX, 244 + 64 * invSlotY, item.inventoryImg);
+            if (areaUnderMouse == n) {
                 tooltip = item.name;
                 tooltipEm = item.description;
             }
@@ -864,27 +885,24 @@ class UI {
     }
 
     _onInventoryClick() {
-        const x = this._inventoryX();
-        const y = 90;
-        let slotX = Math.floor((this.mouseSelfX - x)/64);
-        let slotY = Math.floor((this.mouseSelfY - y)/64);
+        const areaUnderMouse = this._getInventoryAreaUnderMouse();
         let itemToUse = null;
-        if (slotX == 0 && slotY == 0 && player.sword)
+        if (areaUnderMouse == -1 && player.sword)
             itemToUse = player.sword;
-        if (slotX == 2 && slotY == 0 && player.shield)
+        if (areaUnderMouse == -2 && player.shield)
             itemToUse = player.shield;
-        if (slotY >= 1) {
-            let n = (slotY - 1) * 3 + slotX;
-            if (n < player.inventory.length)
-                itemToUse = player.inventory[n];
-        }
-        if (itemToUse) {
-            let success = world.script.onItemUse(itemToUse);
-            if (!success && itemToUse == "lookingGlass")
-                success = useLookingGlass();
-            if (!success && rpg[itemToUse].use_message)
-                this.dialogUI.addMessage(rpg[itemToUse].use_message, playerSpeaker, player, true);
-        }
+        if (areaUnderMouse >= 0 && areaUnderMouse < player.inventory.length)
+            itemToUse = player.inventory[areaUnderMouse];        
+        if (!itemToUse)
+            return;
+        let success = world.script.onItemUse(itemToUse);
+        const type = rpg[itemToUse].type;
+        if (!success && (type == "sword" || type == "shield") && player[type] != itemToUse)
+            success = player.equipItem(itemToUse);
+        if (!success && itemToUse == "lookingGlass")
+            success = useLookingGlass();
+        if (!success && rpg[itemToUse].use_message)
+            this.dialogUI.addMessage(rpg[itemToUse].use_message, playerSpeaker, player, true);
     }
 
     _line(ctx, x1, y1, x2, y2) {
@@ -899,6 +917,10 @@ class UI {
         if (this.tileUnderCursor.needShowTooltip())
             drawTooltip(ctx, pixelOffset, this.tileUnderCursor);
     }
+    
+    showStateHint(state) {
+        world.animations.addUIanimation(new UIstateHint(state));
+    }
 
     draw(ctx) {
         if (this.state == 2) {
@@ -910,7 +932,7 @@ class UI {
             if (this.state == 0) {
                 this._drawMagic();
                 let statsPadding = 5;
-                this._drawStats(this._inventoryX() + statsPadding, 400);
+                this._drawStats(this._inventoryGridX() + statsPadding, 400);
             } else
                 this._drawInventory();
         }
@@ -938,7 +960,9 @@ class UI {
             ctx.drawImage(stateImg, dialogUIleftOffset, dialogUIheight);
         this._line(ctx, dialogUIleftOffset, 0, dialogUIleftOffset, canvas.height);
 
-        if (!world.script.noControl) {
+        if (world.script.noControl) {
+            images.draw(ctx, "UI/cinematic", (768-90)/2, 0);
+        } else {
             this.goals.draw();
             if (this.blockingUI) {
                 this.blockingUI.draw();
@@ -1002,9 +1026,24 @@ class UI {
             player.tryMove(0, 1);
         if (key == "`")
             drawAI = !drawAI;
-        //if (key == "r")
-        //    world.animations.add(new Rain(40), {x:0, y:0});
-        if (key == "f")
-            world.animations.add(new Fountain(80), {x:this.tileUnderCursor.x, y:this.tileUnderCursor.y});
+        if (key == "h")
+            world.animations.add(new Rain(40), {x:0, y:0});
     }
 }
+
+class UIstateHint {
+    constructor(state) {
+        this.state = state;
+    }
+
+    draw(ctx, _, time) {
+        if (time > 6.5 || this.state == ui.state)
+            return true;
+        const subSecond = time - Math.floor(time);
+        if (subSecond > 0.5)
+            return false;
+        ctx.fillStyle = "rgba(255, 255, 240, 0.5)";
+        ctx.fillRect(dialogUIleftOffset + 85 * this.state, dialogUIheight, 85, 80);
+        return false;
+    }
+};

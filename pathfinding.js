@@ -29,8 +29,10 @@ class Pathfinding {
     }
 
     occupyTile(obj, x, y) {
-        this.occupied[x][y] = obj;
-        this.epoch[x][y] = this.currentEpoch;
+        if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
+            this.occupied[x][y] = obj;
+            this.epoch[x][y] = this.currentEpoch;
+        }
     }
 
     isOccupied(x, y) {
@@ -41,14 +43,18 @@ class Pathfinding {
         return this.occupied[x][y];
     }
 
-    isPassable(x, y, who) {
+    isPassableTerrain(x, y) {
         if (x < 0 || x >= this.width || y < 0 || y >= this.height)
-            return false;
-        let occupies = this.isOccupied(x,y);
-        if (occupies && occupies != who)
             return false;
         let tile = this.terrain[x][y];
         return tile != TERRAIN_WATER && tile != TERRAIN_DARK_FOREST && tile != TERRAIN_STONE_WALL;
+    }
+
+    isPassable(x, y, who) {
+        if (!this.isPassableTerrain(x, y))
+            return false;
+        let occupies = this.isOccupied(x,y);
+        return !occupies || occupies == who;
     }
     
     isPassableForFish(x, y, who) {

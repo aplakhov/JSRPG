@@ -123,7 +123,7 @@ class PlayerVision {
     isVisibleSafe(x, y) {
         if (this.everythingVisible())
             return !this._isNeverVisible(x, y);
-        if (x < 0 || x >= world.height)
+        if (x < 0 || x >= world.width)
             return false;
         if (y < 0 || y >= world.height)
             return false;

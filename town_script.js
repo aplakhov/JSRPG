@@ -113,7 +113,7 @@ class TownMapScript extends AllScripts {
     }
 
     onItemUse(item) {
-        if (item == "lookingGlass" && dist2obj(player, world.scriptObjects.fountain) == 1 && !playerKnowsSpell("healing")) {
+        if (item == "lookingGlass" && dist2obj(player, world.scriptObjects.fountain) == 1) {
             const msgs = [
                 "Я пил из этого фонтана сто раз!",
                 "Надо бы наконец разобраться, как он работает."

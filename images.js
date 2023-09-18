@@ -23,9 +23,13 @@ class ImageCache {
         this.images[imageName] = image;
         return imageName;
     }
-    get(imageName) {
+    getReadyImage(imageName) {
         const res = this.images[imageName];
-        if (res && res.complete)
+        if (!res) {
+            this.prepare(imageName);
+            return null;
+        }
+        if (res.complete)
             return res;
         return null;
     }
@@ -51,6 +55,20 @@ class ImageCache {
         ctx.translate(x, y);
         ctx.rotate(rotation);
         ctx.drawImage(res, -res.width / 2, -res.height / 2);
+        ctx.restore();
+    }
+    drawRotatedPart(ctx, imageName, rotation, srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH) {
+        let res = this.images[imageName];
+        if (!res) {
+            this.prepare(imageName);
+            return;
+        }
+        if (!res.complete)
+            return;
+        ctx.save();
+        ctx.translate(dstX, dstY);
+        ctx.rotate(rotation);
+        ctx.drawImage(res, srcX, srcY, srcW, srcH, -dstW / 2, -dstH / 2, dstW, dstH);
         ctx.restore();
     }
 }
