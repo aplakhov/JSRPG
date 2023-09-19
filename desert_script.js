@@ -49,21 +49,27 @@ class DesertMapScript extends AllScripts {
             }
     }
 
+    getRestoreHp() {
+        if (!_hasWaterNearby())
+            return 0;
+        else {
+            if (!this.drinkedWater) {
+                this.drinkedWater = true;
+                ui.dialogUI.addMessage("Водаааа!!!", playerSpeaker, player);
+            }
+            return 4;
+        }
+    }
+
     nextTurn(forced) {
         this._executeTriggers();
 
-        if (!_hasWaterNearby()) {
+        if (forced && !_hasWaterNearby()) {
             if (!this.remindedAboutWater && player.hp < player.stats.hp * 0.7) {
                 this.remindedAboutWater = true;
                 ui.dialogUI.addMessage("Силы быстро убывают. Водички бы...", playerSpeaker, player);
             }
             player.applyNonPhysicalDamage(1);
-        } else {
-            if (!this.drinkedWater) {
-                this.drinkedWater = true;
-                ui.dialogUI.addMessage("Водаааа!!!", playerSpeaker, player);
-            }
-            player.applyHealing(2);
         }
 
         let mirage = world.scriptObjects.mirage;

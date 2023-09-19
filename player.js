@@ -146,14 +146,6 @@ class Player {
     }
 
     nextTurn() {
-        if (this.mana < this.stats.mana)
-            this.mana++;
-        if (this.mana > this.stats.mana)
-            this.mana = this.stats.mana;
-        if (this.hp < this.stats.hp)
-            this.hp++;
-        if (this.hp > this.stats.hp)
-            this.hp = this.stats.hp;
         this.combatTarget = null;
         for (let n = 0; n < world.objects.length; n++) {
             let obj = world.objects[n];
@@ -161,6 +153,19 @@ class Player {
                 this.combatTarget = obj;
                 break;
             }
+        }
+        if (this.mana < this.stats.mana)
+            this.mana++;
+        if (this.mana > this.stats.mana)
+            this.mana = this.stats.mana;
+        if (!this.combatTarget) {
+            let restoreHp = 4;
+            if ('getRestoreHp' in world.script)
+                restoreHp = world.script.getRestoreHp();
+            if (this.hp < this.stats.hp)
+                this.hp += restoreHp;
+            if (this.hp > this.stats.hp)
+                this.hp = this.stats.hp;
         }
     }
 
