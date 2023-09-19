@@ -16,6 +16,20 @@ function saveWorld(w) {
         // do not saveload functions and lists of functions
         'triggers':1,
     }
+    // add terrain that was changed
+    w.changedTerrain = [];
+    const map = TileMaps[w.mapName];
+    const mapData = map["layers"][0]["data"];
+    for (let x = 0; x < w.width; x++) {
+        for (let y = 0; y < w.height; y++) {
+            if (w.terrain[x][y] != mapData[x + y * w.width] - 1) {
+                w.changedTerrain.push(x);
+                w.changedTerrain.push(y);
+                w.changedTerrain.push(w.terrain[x][y]);
+            }
+        }
+    }
+    console.log("Added", w.changedTerrain.length/3, "changed terrain tiles to saveload");
     return JSON.stringify(w, (key, value) => { 
         return key in ignoredKeys? undefined : value 
     });    

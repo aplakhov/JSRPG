@@ -85,7 +85,7 @@ class World {
         }
         this.mapName = name;
         this.biome = biomes[name];
-        let map = TileMaps[name]
+        const map = TileMaps[name];
         this._setupTerrain(map);
         this._setupObjectsFromMap(map);
         let darknessAreas = this._setupDarknessAreas(map);
@@ -103,6 +103,14 @@ class World {
         this.biome = savedWorldState.biome;
         let map = TileMaps[this.mapName];
         this._setupTerrain(map);
+        if (savedWorldState.changedTerrain) {
+            const data = savedWorldState.changedTerrain;
+            for (let n = 0; n < data.length; n += 3) {
+                let x = data[n], y = data[n+1], tile = data[n+2];
+                this.terrain[x][y] = tile;
+            }
+            console.log("Loaded", data.length/3, "changed terrain tiles from saveload");
+        }
         let darknessAreas = this._setupDarknessAreas(map); // TODO: from savedWorldState instead
         this._setupObjectsFromSavedState(savedWorldState);
         this._setupRecalculatedData(darknessAreas);
@@ -200,7 +208,7 @@ class World {
     }
 
     _setupTerrain(map) {
-        let data = map["layers"][0]["data"]
+        const data = map["layers"][0]["data"];
         this.height = map.height;
         this.width = map.width;
         this.terrain = [];
@@ -208,12 +216,12 @@ class World {
         for (let x = 0; x < this.width; x++) {
             let row = [];
             for (let y = 0; y < this.height; y++) {
-                let tile = data[x + y * this.width] - 1
+                const tile = data[x + y * this.width] - 1;
                 if (tile == TERRAIN_DARK_FOREST)
                     this.trees.push({x : x, y : y, variation : intRandom(2400), sx : intRandom(9) - 4, sy : intRandom(9) - 4});
-                row.push(tile)
+                row.push(tile);
             }
-            this.terrain.push(row)
+            this.terrain.push(row);
         }
         shuffle(this.trees);
     }
