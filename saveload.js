@@ -29,7 +29,7 @@ function saveWorld(w) {
             }
         }
     }
-    console.log("Added", w.changedTerrain.length/3, "changed terrain tiles to saveload");
+    // ok, we're ready to go
     return JSON.stringify(w, (key, value) => { 
         return key in ignoredKeys? undefined : value 
     });    

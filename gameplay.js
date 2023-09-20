@@ -109,7 +109,6 @@ class World {
                 let x = data[n], y = data[n+1], tile = data[n+2];
                 this.terrain[x][y] = tile;
             }
-            console.log("Loaded", data.length/3, "changed terrain tiles from saveload");
         }
         let darknessAreas = this._setupDarknessAreas(map); // TODO: from savedWorldState instead
         this._setupObjectsFromSavedState(savedWorldState);
