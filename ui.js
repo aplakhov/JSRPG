@@ -420,7 +420,7 @@ class NearHouseUI {
     _enter() {
         if (this.gameObj.inside) {
             ui.blockingUI = new InsideHouseUI(ctx, this.gameObj.inside);
-        } else {
+        } else if (this.gameObj.targetMap) {
             world.animations.add(new FadeToBlack(1, ""), player);
             changeWorldTo(this.gameObj.targetMap, true);
             this.hidden = true;
