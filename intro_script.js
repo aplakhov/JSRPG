@@ -297,28 +297,8 @@ class IntroMapScript extends AllScripts {
         this._teleportPlayer(scriptPlace.x + 7, scriptPlace.y);
 
         let kirael = this._addMob(scriptPlace.x - 2, scriptPlace.y - 2, "Кираэль", "kirael");
-//        let thug1 = this._addMob(scriptPlace.x - 3, scriptPlace.y, "Первый громила", "thug");
-//        let thug2 = this._addMob(scriptPlace.x, scriptPlace.y - 3, "Второй громила", "thug");
         let thug1 = this._addMob(scriptPlace.x - 3, scriptPlace.y, "Первый громила", "thug_anim", "goblin");
         let thug2 = this._addMob(scriptPlace.x, scriptPlace.y - 3, "Второй громила", "thug_anim", "goblin");
-        kirael.speaker = {
-            color: "rgb(10, 10, 10)",
-            bgColor: "rgb(178, 164, 165)",
-            font: '18px sans-serif',
-            portrait: images.prepare("Portraits/kirael")
-        };
-        thug1.speaker = {
-            color: "rgb(252, 221, 118)",
-            bgColor: "rgb(0, 0, 0)",
-            font: '18px sans-serif',
-            portrait: images.prepare("Portraits/thug")
-        };
-        thug2.speaker = {
-            color: "rgb(252, 221, 118)",
-            bgColor: "rgb(0, 0, 0)",
-            font: '18px sans-serif',
-            portrait: images.prepare("Portraits/thug2")
-        };
 
         this._wait(2.5)
         this._do(() => {
@@ -329,24 +309,24 @@ class IntroMapScript extends AllScripts {
         this._wait(0.5);
         this._say("О, привет, Кираэль. Что ты здесь делаешь?", playerSpeaker, player);
         this._say("И что это рядом с тобой за громилы?", playerSpeaker, player);
-        this._say("Привет, неудачник. Отдавай сундук", kirael.speaker, kirael);
-        this._say("А не то", kirael.speaker, kirael);
+        this._say("Привет, неудачник. Отдавай сундук", kiraelSpeaker, kirael);
+        this._say("А не то", kiraelSpeaker, kirael);
         this._say("Это нечестно! Я его с таким трудом украл!", playerSpeaker, player);
         this._say("Пришлось разгадывать головоломки и драться!", playerSpeaker, player);
-        this._say("Ага, ты еще выдумай, что победил дракона", kirael.speaker, kirael);
+        this._say("Ага, ты еще выдумай, что победил дракона", kiraelSpeaker, kirael);
         this._say("Вообще-то победил", playerSpeaker, player);
-        this._say("Что ж тогда никто, кроме тебя, никаких драконов там не видел?", kirael.speaker, kirael);
+        this._say("Что ж тогда никто, кроме тебя, никаких драконов там не видел?", kiraelSpeaker, kirael);
         this._say("Во-первых, никто, кроме меня, и сокровище не нашел. Во-вторых, дракон замаскировался", playerSpeaker, player);
-        this._say("ДРАКОН ЗАМАСКИРОВАЛСЯ?", kirael.speaker, kirael);
-        this._say("Ха-ха-ха", thug1.speaker, thug1);
-        this._say("У-хо-хо", thug2.speaker, thug2);
-        this._say("Ты такой же болтун, как и всегда, Билл", kirael.speaker, kirael);
-        this._say("Как-как его зовут?!", thug1.speaker, thug1);
-        this._say("Представляешь, Горзаниал, его зовут Билл", kirael.speaker, kirael);
-        this._say("Хе, ну и имечко, скажи, Дзиродиал?", thug1.speaker, thug1);
-        this._say('Согласен, Горзаниал. Кому придет в голову назвать сына "Билл"?', thug2.speaker, thug2);
-        this._say("В общем, так. Отдавай сокровище или ребята из тебя решето сделают. Считаю до пяти", kirael.speaker, kirael);
-        this._say("Четыре", kirael.speaker, kirael);
+        this._say("ДРАКОН ЗАМАСКИРОВАЛСЯ?", kiraelSpeaker, kirael);
+        this._say("Ха-ха-ха", thug1speaker, thug1);
+        this._say("У-хо-хо", thug2speaker, thug2);
+        this._say("Ты такой же болтун, как и всегда, Билл", kiraelSpeaker, kirael);
+        this._say("Как-как его зовут?!", thug1speaker, thug1);
+        this._say("Представляешь, Горзаниал, его зовут Билл", kiraelSpeaker, kirael);
+        this._say("Хе, ну и имечко, скажи, Дзиродиал?", thug1speaker, thug1);
+        this._say('Согласен, Горзаниал. Кому придет в голову назвать сына "Билл"?', thug2speaker, thug2);
+        this._say("В общем, так. Отдавай сокровище или ребята из тебя решето сделают. Считаю до пяти", kiraelSpeaker, kirael);
+        this._say("Четыре", kiraelSpeaker, kirael);
         this._moveMob(thug1, 1, 0);
         this._moveMob(thug2, 0, 1);
         this._moveMob(thug1, 1, 0);

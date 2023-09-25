@@ -353,3 +353,22 @@ function finishQuest(name) {
         changeQuestState(name);
     }
 }
+
+const kiraelSpeaker = {
+    color: "rgb(10, 10, 10)",
+    bgColor: "rgb(178, 164, 165)",
+    font: '18px sans-serif',
+    portrait: images.prepare("Portraits/kirael")
+};
+const thug1speaker = {
+    color: "rgb(252, 221, 118)",
+    bgColor: "rgb(0, 0, 0)",
+    font: '18px sans-serif',
+    portrait: images.prepare("Portraits/thug")
+};
+const thug2speaker = {
+    color: "rgb(252, 221, 118)",
+    bgColor: "rgb(0, 0, 0)",
+    font: '18px sans-serif',
+    portrait: images.prepare("Portraits/thug2")
+};
