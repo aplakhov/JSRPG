@@ -2878,8 +2878,8 @@
                  "rotation":0,
                  "visible":true,
                  "width":0,
-                 "x":1012,
-                 "y":3088
+                 "x":1010,
+                 "y":3094
                 }, 
                 {
                  "class":"Mob",
@@ -2903,6 +2903,29 @@
                  "width":0,
                  "x":401,
                  "y":1079
+                }, 
+                {
+                 "class":"Mob",
+                 "height":0,
+                 "id":164,
+                 "name":"\u0412\u0438\u0437\u0438\u0440\u044c",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"DeathComment",
+                         "type":"string",
+                         "value":"\u041a\u0430\u043a\u043e\u0439 \u043d\u0435\u043f\u0440\u0438\u044f\u0442\u043d\u044b\u0439 \u043f\u0440\u0438\u0437\u0440\u0430\u043a. \u041d\u0430\u0432\u0435\u0440\u043d\u043e\u0435, \u0438 \u043f\u0440\u0438 \u0436\u0438\u0437\u043d\u0438 \u0431\u044b\u043b \u043d\u0435 \u0441\u0430\u043c\u044b\u043c \u0445\u043e\u0440\u043e\u0448\u0438\u043c \u0447\u0435\u043b\u043e\u0432\u0435\u043a\u043e\u043c!"
+                        }, 
+                        {
+                         "name":"Rules",
+                         "type":"string",
+                         "value":"vizier"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":975,
+                 "y":3094
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -2911,7 +2934,7 @@
          "y":0
         }],
  "nextlayerid":3,
- "nextobjectid":164,
+ "nextobjectid":165,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.9.2",

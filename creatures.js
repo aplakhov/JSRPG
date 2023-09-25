@@ -193,6 +193,30 @@ creatures = {
             "": "Этим бить призрака бесполезно"
         }
     },
+    vizier: {
+        hp: 100,
+        attackMin: 8,
+        attackMax: 12,
+        attackRadius: 1,
+        roamRadius: 5,
+        aggroRadius: 5,
+        maxChaseRadius: 6,
+        enemy: true,
+        movement: "land_mob",
+        normalImage: "Animations/vizier",
+        imageDisplacementY: -4,
+        humanoidDrawing: 1,
+        bonesImg: "dead_ghost",
+        hpBarY: -9,
+        vulnerable: "wet_mop",
+        vulnerabilityMessage: {
+            wooden_stick: "Бить призрака палкой бессмысленно",
+            short_sword: "Тыкать в привидение мечом бессмысленно",
+            mop: "Сухой тряпки призраки тоже не боятся",
+            wet_mop: ["Нна!", "Шмяк!", "Получай!", "Плюх!"],
+            "": "Этим бить призрака бесполезно"
+        }
+    },    
     black_ghost: {
         hp: 40,
         attackMin: 6,
@@ -251,6 +275,31 @@ creatures = {
         normalImage: "Animations/wolf",
         twoSidedDrawing: 1,
         bonesImg: "dead_wolf",
+    },
+    white_wolf: {
+        hp: 50,
+        attackMin: 6,
+        attackMax: 14,
+        attackRadius: 1,
+        roamRadius: 3,
+        aggroRadius: 5,
+        enemy: true,
+        movement: "land_mob",
+        speaker: {
+            color: "rgb(18, 130, 217)",
+            bgColor: "rgb(220, 240, 250)",
+            font: '18px sans-serif',
+            portraits: ["Portraits/wolf1", "Portraits/wolf2", "Portraits/wolf1", "Portraits/wolf2"]
+        },
+        aggroMessages: [
+            "Уууууу!",
+            "Рррр.",
+            "Уф-уфь.",
+            "Ауф."
+        ],
+        normalImage: "Animations/white_wolf",
+        twoSidedDrawing: 1,
+        bonesImg: "dead_white_wolf",
     },
     pirate: {
         hp: 40,

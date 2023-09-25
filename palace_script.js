@@ -49,7 +49,7 @@ class PalaceMapScript extends AllScripts {
 
     setupRecalculatedData(world) {
         let wheel = world.scriptObjects.wheel;
-        world.animations.add(new MechanicArm(this), wheel);
+        world.animations.add(new MechanicArm(), wheel);
     }
 
     nextTurn(forced) {
@@ -73,10 +73,6 @@ class PalaceMapScript extends AllScripts {
         this._checkPuzzle2();
     }
 
-    _isGhost(t) {
-        return t && t.stats && (t.stats == creatures.ghost || t.stats == creatures.black_ghost) && !t.dead;
-    }
-
     onItemUse(item) {
         if (item == "mop" && _hasWaterNearby()) {
             player.loseItem("mop");
@@ -84,8 +80,11 @@ class PalaceMapScript extends AllScripts {
             ui.dialogUI.addMessage("Теперь уборка пойдёт на славу", playerSpeaker, player);
             return true;
         }
-
         return false;
+    }
+
+    _isGhost(t) {
+        return t && t.stats && (t.stats == creatures.ghost || t.stats == creatures.black_ghost) && !t.dead;
     }
 
     _ghostNearby(targetX, targetY) {
@@ -311,7 +310,7 @@ class PalaceMapScript extends AllScripts {
 };
 
 class MechanicArm {
-    constructor(script) {
+    constructor() {
         this.img = images.prepare("MapObjects/mech_arm");
         this.wheelImg = images.prepare("MapObjects/wheel");
     }
