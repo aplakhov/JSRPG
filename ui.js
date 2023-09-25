@@ -20,8 +20,16 @@ function tileAt(x, y) {
 };
 
 function canvasOffset() {
-    const leftX = player.pixelX.get() - halfViewInPixels;
-    const topY = player.pixelY.get() - halfViewInPixels;
+    let viewPointX, viewPointY; 
+    if (world.script.viewPoint) {
+        viewPointX = world.script.viewPoint.x * tileSize;       
+        viewPointY = world.script.viewPoint.y * tileSize;       
+    } else {
+        viewPointX = player.pixelX.get();
+        viewPointY = player.pixelY.get();
+    }
+    const leftX = viewPointX - halfViewInPixels;
+    const topY = viewPointY - halfViewInPixels;
     const minx = clamp(leftX, 0, world.width * tileSize - viewInPixels);
     const miny = clamp(topY, 0, world.height * tileSize - viewInPixels);
     return {
@@ -228,6 +236,10 @@ class GoalsUI {
                     goals.push(String(1 + goals.length) + ". " + quest.text);
                     goalsDone.push(player.doneQuests.indexOf(questName) >= 0);
                 }
+            }
+            if (goals.length == 0) {
+                goals.push("1. Осмотреться и разведать, что тут и как");
+                goalsDone.push(false);
             }
             this.ctx.font = this.font;
             for (let n in goals) {

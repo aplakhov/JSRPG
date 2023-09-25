@@ -33,6 +33,7 @@ class AllScripts {
         setTimeout(() => {
             this.noControl = false;
             this.stopGameplayTime = false;
+            this.viewPoint = null;
         }, this.delay * 1000);
     }
 
