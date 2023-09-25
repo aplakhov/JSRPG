@@ -60,7 +60,10 @@ class Mob {
             } else
                 images.drawRotated(ctx, this.img, Math.PI - this.rotation, x + halfTileSize, y + halfTileSize);
         } else if (this.stats && this.stats.humanoidDrawing) {
-            this.drawHumanoidAnimation(ctx, img, x, y, pixelX, pixelY);
+            let displacementY = 0;
+            if (this.stats.imageDisplacementY)
+                displacementY = this.stats.imageDisplacementY;
+            this.drawHumanoidAnimation(ctx, img, x, y, pixelX, pixelY,  displacementY);
         } else if (this.stats && this.stats.twoSidedDrawing) {
             this.drawTwoSidedAnimation(ctx, img, x, y, pixelX, pixelY);
         } else {
@@ -101,8 +104,8 @@ class Mob {
         images.draw(ctx, this.img, this.frameX * 32, frameY * 32, 32, 32, x, y, 32, 32);
     }
 
-    drawHumanoidAnimation(ctx, img, x, y, pixelX, pixelY) {
-        const walkingFrameCount = img.height / 32 - 1;
+    drawHumanoidAnimation(ctx, img, x, y, pixelX, pixelY, displacementY) {
+        const walkingFrameCount = Math.floor(img.height / 32) - 1;
         let frameY = 0;
         let dx, dy;
         if (this.attacking) {
@@ -136,7 +139,7 @@ class Mob {
             else
                 frameY = walkingFrameCount;
         }
-        images.draw(ctx, this.img, this.frameX * 32, frameY * 32, 32, 32, x, y, 32, 32);
+        images.draw(ctx, this.img, this.frameX * 32, frameY * 32, 32, 32, x, y + displacementY, 32, 32);
     }
 
     occupy(pathfinding) {
