@@ -19,16 +19,14 @@ class Mob {
                 this.stats = stats;
                 // gameplay:
                 this.hp = stats.hp;
-                this.roamRadius = stats.roamRadius;
-                this.aggroRadius = stats.aggroRadius;
-                this.startingX = x;
-                this.startingY = y;
-                this.maxChaseRadius = stats.maxChaseRadius;
+                this.ai = new AIStupidLandMob(this, stats);
                 // animations/drawing:
                 this.img = images.prepare(stats.normalImage);
                 this.rotatedDrawing = stats.rotatedDrawing;
                 this.numAnimFrames = stats.numAnimFrames;
             }
+            if (this.rules == "fish")
+                this.ai = new AIFish(this);
         }
         const animImg = getProp(obj, "Image")
         if (animImg) {
@@ -159,6 +157,8 @@ class Mob {
             this.hp -= dmg;
             if (this.hp <= 0)
                 this.die();
+            else
+                this.ai.onApplyDamage(this, dmg, source);
         } else {
             this.die();
         }
@@ -169,7 +169,6 @@ class Mob {
             this.hp += amount;
             if (this.hp > this.stats.hp)
                 this.hp = this.stats.hp;
-            this.aggred = false;
         }
     }
 
@@ -200,149 +199,35 @@ class Mob {
     nextTurn(forced) {
         if (this.dead)
             return;
-        let canMove = true;
-        if (this.stats) {
-            if (this.hp < this.stats.hp)
-                this.hp++;
-            if (this.hp > this.stats.hp)
-                this.hp = this.stats.hp;
-            if (this.stats.enemy) {
-                this.checkAggro();
-                if (this.stats.attackRadius) {
-                    this.attacking = attackIfNear(this, player, null);
-                    if (this.attacking) {
-                        this.rotation = Math.atan2(player.x - this.x, player.y - this.y);
-                        canMove = false;
-                    }
-                }
-            }
-        }
-        if (canMove) {
-            this.move(forced);
-            this.occupy(world.pathfinding);
-            let currentPixelX = this.pixelX.get();
-            let currentPixelY = this.pixelY.get();
-            let nextPixelX = this.x * tileSize;
-            let nextPixelY = this.y * tileSize;
-            if (nextPixelX != currentPixelX || nextPixelY != currentPixelY) {
-                this.rotation = Math.atan2(nextPixelX - currentPixelX, nextPixelY - currentPixelY);
-                this.pixelX.set(nextPixelX, 1);
-                this.pixelY.set(nextPixelY, 1);
-            }
-        }
-    }
-
-    aggro() {
-        this.aggred = true;
-        if ('aggroMessages' in this.stats && 'speaker' in this.stats) {
-            let msg = randomNoRepeatFrom(this.stats.aggroMessages);
-            let speaker = {
-                color: this.stats.speaker.color,
-                bgColor: this.stats.speaker.bgColor,
-                font: this.stats.speaker.font,
-                portrait: images.prepare(randomNoRepeatFrom(this.stats.speaker.portraits))
-            };
-            if (msg && speaker.portrait)
-                ui.dialogUI.addMessage(msg, speaker, this);
-        }
-    }
-
-    checkAggro() {
-        if (!this.aggred && dist2obj(this, player) <= this.aggroRadius * this.aggroRadius)
-            this.aggro();
-    }
-
-    moveRandomlyInsideRoamingArea() {
-        let nextx = this.x,
-            nexty = this.y;
-        let r = Math.random();
-        if (r < 0.25)
-            nextx += 1;
-        else if (r < 0.5)
-            nextx -= 1;
-        else if (r < 0.75)
-            nexty += 1;
-        else
-            nexty -= 1;
-        let insideRoaming = dist2(nextx, nexty, this.startingX, this.startingY) <= this.roamRadius * this.roamRadius;
-        if (world.pathfinding.isPassable(nextx, nexty, this) && insideRoaming) {
-            this.x = nextx;
-            this.y = nexty;
-        }
-    }
-
-    moveTowardsPlayer() {
-        let dx = Math.abs(this.x - player.x);
-        let dy = Math.abs(this.y - player.y);
-        let nextx = this.x,
-            nexty = this.y;
-        if (player.x < this.x)
-            nextx -= 1;
-        else if (player.x > this.x)
-            nextx += 1;
-        if (player.y < this.y)
-            nexty -= 1;
-        else if (player.y > this.y)
-            nexty += 1;
-        
-        if (this.maxChaseRadius) {
-            let canChase = dist2(nextx, nexty, this.startingX, this.startingY) <= this.stats.maxChaseRadius * this.stats.maxChaseRadius;
-            if (!canChase) {
-                this.moveRandomlyInsideRoamingArea();
-                return;
-            }
-        }
-
-        if (dx > dy) {
-            if (world.pathfinding.isPassable(nextx, this.y, this))
-                this.x = nextx;
-            else if (world.pathfinding.isPassable(this.x, nexty, this))
-                this.y = nexty;
-        } else {
-            if (world.pathfinding.isPassable(this.x, nexty, this))
-                this.y = nexty;
-            else if (world.pathfinding.isPassable(nextx, this.y, this))
-                this.x = nextx;
-        }
-    }
-
-    move(forced) {
-        if (forced && !this.aggred)
+        if (!this.isInPassablePosition()) {
+            this.die();
             return;
+        }
         if (this.stunnedUntil && this.stunnedUntil > globalTimer)
             return;
-        let stats = this.stats;
-        if (stats && stats.movement == "land_mob") {
-            if (world.pathfinding.isPassable(this.x, this.y, this)) {
-                if (this.aggred)
-                    this.moveTowardsPlayer();
-                else
-                    this.moveRandomlyInsideRoamingArea();
-            } else {
-                this.die();
-            }
+        if (this.ai)
+            this.ai.nextTurn(this, forced);
+        this.occupy(world.pathfinding);
+        if (this.attacking)
+            this.rotation = Math.atan2(player.x - this.x, player.y - this.y);
+        let currentPixelX = this.pixelX.get();
+        let currentPixelY = this.pixelY.get();
+        let nextPixelX = this.x * tileSize;
+        let nextPixelY = this.y * tileSize;
+        if (nextPixelX != currentPixelX || nextPixelY != currentPixelY) {
+            this.rotation = Math.atan2(nextPixelX - currentPixelX, nextPixelY - currentPixelY);
+            this.pixelX.set(nextPixelX, 1);
+            this.pixelY.set(nextPixelY, 1);
         }
-        if (this.rules == "fish") {
-            if (world.pathfinding.isPassableForFish(this.x, this.y, this)) {
-                let dx = 0,
-                    dy = 0;
-                let r = Math.random();
-                if (r < 0.25)
-                    dx = 1;
-                else if (r < 0.5)
-                    dx = -1;
-                else if (r < 0.75)
-                    dy = 1;
-                else
-                    dy = -1;
-                if (world.pathfinding.isPassableForFish(this.x + dx, this.y + dy, this)) {
-                    this.x += dx;
-                    this.y += dy;
-                }
-            } else {
-                this.die();
-            }
-        }
+    }
+
+    isInPassablePosition() {
+        if (this.stats && this.stats.movement == "land_mob")
+            return world.pathfinding.isPassable(this.x, this.y, this);
+        if (this.rules == "fish")
+            return world.pathfinding.isPassableForFish(this.x, this.y, this);
+        console.error("Unknown mob movement rules", this);
+        return true;
     }
 
     stun(seconds) {

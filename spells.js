@@ -40,8 +40,6 @@ function castWater(caster, targetX, targetY) {
 }
 
 function applySpellDamage(gameObj, amount) {
-    if ('aggro' in gameObj)
-        gameObj.aggro();
     if ('applyNonPhysicalDamage' in gameObj)
         gameObj.applyNonPhysicalDamage(amount);
     else if ('applyDamage' in gameObj)
