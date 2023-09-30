@@ -303,16 +303,22 @@ class World {
             if (o.targetMap && o.targetMap == name) {
                 if (o.w > o.h) { // horizontal entry zone
                     player.x = Math.floor(o.x + o.w/2);
-                    if (o.y > this.height / 2)
+                    if (o.y > this.height / 2) {
                         player.y = o.y - 1;
-                    else
+                        player.frameX = 1;
+                    } else {
                         player.y = o.y + o.h;
+                        player.frameX = 0;
+                    }
                 } else { // vertical entry zone
                     player.y = Math.floor(o.y + o.h/2);
-                    if (o.x > this.width / 2)
+                    if (o.x > this.width / 2) {
                         player.x = o.x - 1;
-                    else
+                        player.frameX = 3;
+                    } else {
                         player.x = o.x + o.w;
+                        player.frameX = 2;
+                    }
                 }
                 player.pixelX = new SmoothlyChangingNumber(player.x * tileSize);
                 player.pixelY = new SmoothlyChangingNumber(player.y * tileSize);
