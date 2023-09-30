@@ -79,6 +79,7 @@ function changeWorldTo(worldName, doAutosave, oldWorldName) {
 function reloadAll() {
     localStorage.clear();
     worlds = {};
+    ui.dialogUI.messages = [];    
     changeWorldTo(world.mapName);
 }
 
