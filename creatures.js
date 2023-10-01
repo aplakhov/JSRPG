@@ -8,6 +8,7 @@ creatures = {
         aggroRadius: 5,
         enemy: true,
         movement: "land_mob",
+        stupidPathfinding: true,
         speaker: {
             color: "rgb(10, 10, 10)",
             bgColor: "rgb(179, 188, 157)",
@@ -41,6 +42,7 @@ creatures = {
         aggroRadius: 5,
         enemy: true,
         movement: "land_mob",
+        stupidPathfinding: true,
         speaker: {
             color: "rgb(10, 10, 10)",
             bgColor: "rgb(241, 159, 89)",
@@ -66,6 +68,7 @@ creatures = {
         aggroRadius: 5,
         enemy: true,
         movement: "land_mob",
+        stupidPathfinding: true,
         speaker: {
             color: "rgb(10, 10, 10)",
             bgColor: "rgb(241, 159, 89)",
@@ -91,6 +94,7 @@ creatures = {
         aggroRadius: 5,
         enemy: true,
         movement: "land_mob",
+        stupidPathfinding: true,
         speaker: {
             color: "rgb(10, 10, 10)",
             bgColor: "rgb(255, 89, 89)",
@@ -116,6 +120,7 @@ creatures = {
         aggroRadius: 5,
         enemy: true,
         movement: "land_mob",
+        stupidPathfinding: true,
         speaker: {
             color: "rgb(10, 10, 10)",
             bgColor: "rgb(241, 159, 89)",

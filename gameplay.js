@@ -85,6 +85,8 @@ class World {
         }
         this.mapName = name;
         this.biome = biomes[name];
+        if (!this.biome)
+            this.biome = grassBiome;
         const map = TileMaps[name];
         this._setupTerrain(map);
         this._setupObjectsFromMap(map);
@@ -156,6 +158,8 @@ class World {
             this.objects.push(new Message(obj, x, y));
         else if (obj.class == "Autosave")
             this.objects.push(new Autosave(obj, x, y));
+        else if (obj.class == "ScriptArea")
+            this.objects.push(new ScriptArea(obj, x, y));
         else if (obj.class == "MapTransition")
             this.objects.push(new MapTransition(obj, x, y));
         else if (obj.class == "GameplayFire")
@@ -165,6 +169,8 @@ class World {
             return;
         }
         let scriptName = getProp(obj, "ScriptName");
+        if (!scriptName && obj.class == "ScriptArea")
+            scriptName = obj.name;
         if (scriptName != "") {
             console.log("Found object with name ", scriptName);
             this.scriptObjects[scriptName] = this.objects.at(-1);
@@ -373,6 +379,28 @@ class Message {
             ctx.strokeStyle = "black";
             ctx.strokeRect(x, y, this.w * tileSize, this.h * tileSize);
         }
+    }
+};
+
+class ScriptArea {
+    constructor(obj, x, y) {
+        this.initialObj = obj;
+        this.x = x;
+        this.y = y;
+        this.w = Math.floor((obj.width + halfTileSize) / tileSize);
+        this.h = Math.floor((obj.height + halfTileSize) / tileSize);
+    }
+    draw(ctx, x, y) {
+        if (drawAI) {
+            ctx.strokeStyle = "red";
+            ctx.strokeRect(x, y, this.w * tileSize, this.h * tileSize);
+            ctx.fillStyle = "red";
+            ctx.fillText(this.initialObj.name, x, y - 10);
+        }
+    }
+    isPlayerInside() {
+        const x = player.x, y = player.y;
+        return x >= this.x && y >= this.y && x < this.x + this.w && y < this.y + this.h;
     }
 };
 

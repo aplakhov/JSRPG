@@ -2,20 +2,35 @@
 
 // every AI type has two handlers: nextTurn(aiOwner, forced) and onApplyDamage(aiOwner, dmgAmount, source)
 
+function getAIprop(from, stats, to, name) {
+    to[name] = getProp(from.initialObj, name);
+    if (!to[name])
+        to[name] = stats[name];
+}
+
 class AIStupidLandMob {
     constructor(me, stats) {
         this.stats = stats;
-        this.roamRadius = stats.roamRadius;
-        this.aggroRadius = stats.aggroRadius;
         this.startingX = me.x;
         this.startingY = me.y;
-        this.maxChaseRadius = stats.maxChaseRadius;
+        getAIprop(me, stats, this, "roamRadius");
+        getAIprop(me, stats, this, "aggroRadius");
+        getAIprop(me, stats, this, "maxChaseRadius");
+        getAIprop(me, stats, this, "stupidPathfinding");
+        this.guardArea = getProp(me.initialObj, "guardArea");
     }
 
     nextTurn(me, forced) {
         if (this.stats.enemy) {
-            if (!this.aggred && dist2obj(me, player) <= this.aggroRadius * this.aggroRadius)
-                this._aggro(me);
+            if (!this.aggred) {
+                if (dist2obj(me, player) <= this.aggroRadius * this.aggroRadius) {
+                    this._aggro(me);
+                } else if (this.guardArea) {
+                    const guardZone = world.scriptObjects[this.guardArea];
+                    if (guardZone && guardZone.isPlayerInside())
+                        this._aggro(me);
+                }
+            }
             if (this.stats.attackRadius) {
                 me.attacking = attackIfNear(me, player, null);
                 if (me.attacking)
@@ -26,7 +41,8 @@ class AIStupidLandMob {
     }
 
     onApplyDamage(me, dmg, source) {
-        this._aggro(me);
+        if (!this.aggred)
+            this._aggro(me);
     }
 
     _aggro(me) {
@@ -74,17 +90,19 @@ class AIStupidLandMob {
     }
 
     _moveTowardsPlayer(me) {
-        let dx = Math.abs(me.x - player.x);
-        let dy = Math.abs(me.y - player.y);
         let nextx = me.x, nexty = me.y;
-        if (player.x < me.x)
-            nextx -= 1;
-        else if (player.x > me.x)
-            nextx += 1;
-        if (player.y < me.y)
-            nexty -= 1;
-        else if (player.y > me.y)
-            nexty += 1;
+        if (this.stupidPathfinding) {
+            if (player.x < me.x)
+                nextx -= 1;
+            else if (player.x > me.x)
+                nextx += 1;
+            if (player.y < me.y)
+                nexty -= 1;
+            else if (player.y > me.y)
+                nexty += 1;
+        } else {
+            [nextx, nexty] = world.pathfinding.findPath(me, me.x, me.y, player.x, player.y);
+        }
         
         if (this.maxChaseRadius) {
             let canChase = dist2(nextx, nexty, this.startingX, this.startingY) <= this.stats.maxChaseRadius * this.stats.maxChaseRadius;
@@ -94,16 +112,26 @@ class AIStupidLandMob {
             }
         }
 
-        if (dx > dy) {
-            if (world.pathfinding.isPassable(nextx, me.y, me))
-                me.x = nextx;
-            else if (world.pathfinding.isPassable(me.x, nexty, me))
-                me.y = nexty;
+        if (this.stupidPathfinding) {
+            const dx = Math.abs(me.x - player.x);
+            const dy = Math.abs(me.y - player.y);
+            if (dx > dy) {
+                if (world.pathfinding.isPassable(nextx, me.y, me))
+                    me.x = nextx;
+                else if (world.pathfinding.isPassable(me.x, nexty, me))
+                    me.y = nexty;
+            } else {
+                if (world.pathfinding.isPassable(me.x, nexty, me))
+                    me.y = nexty;
+                else if (world.pathfinding.isPassable(nextx, me.y, me))
+                    me.x = nextx;
+            }
         } else {
-            if (world.pathfinding.isPassable(me.x, nexty, me))
-                me.y = nexty;
-            else if (world.pathfinding.isPassable(nextx, me.y, me))
+            if (world.pathfinding.isPassable(nextx, nexty, me)) {
                 me.x = nextx;
+                me.y = nexty;
+            } else
+                console.error("Pathfinding failed and returned impassable point");
         }
     }
 }
