@@ -697,15 +697,15 @@ class UI {
         this.tileUnderCursor = new TileUnderCursor();
 
         this.state = 2;
-        this.inventoryImg = makeImage("UI/inventory");
+        this.inventoryImg = images.prepare("UI/inventory");
 
         this.dialogUI = new DialogUI(
             ctx, dialogUIleftOffset, 0, uiWidth, dialogUIheight, dialogUIpadding
         );
         this.stateImages = [
-            makeImage("UI/icons1"),
-            makeImage("UI/icons2"),
-            makeImage("UI/icons3"),
+            images.prepare("UI/icons1"),
+            images.prepare("UI/icons2"),
+            images.prepare("UI/icons3"),
         ];
         this.spellImages = {
             none: images.prepare("Spells/none"),
@@ -858,7 +858,7 @@ class UI {
     }
 
     _drawInventory() {
-        ctx.drawImage(this.inventoryImg, dialogUIleftOffset, 45);
+        images.draw(ctx, this.inventoryImg, dialogUIleftOffset, 45);
 
         const areaUnderMouse = this._getInventoryAreaUnderMouse();
         let tooltip, tooltipEm;
@@ -968,8 +968,7 @@ class UI {
             this.healthBar.draw(player.hp, player.stats.hp, dialogUIleftOffset + barPadding, dialogUItopOffset * 3 / 4);
         }
         let stateImg = this.stateImages[this.state];
-        if (stateImg.complete)
-            ctx.drawImage(stateImg, dialogUIleftOffset, dialogUIheight);
+        images.draw(ctx, stateImg, dialogUIleftOffset, dialogUIheight);
         this._line(ctx, dialogUIleftOffset, 0, dialogUIleftOffset, canvas.height);
 
         if (world.script.noControl) {
