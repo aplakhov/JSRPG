@@ -1,13 +1,3 @@
-function makeImage(imageName) {
-    if (!imageName)
-        return null;
-    if (!imageName.endsWith(".png"))
-        imageName += ".png";
-    let image = new Image();
-    image.src = "Assets/" + imageName;
-    return image;
-}
-
 class ImageCache {
     constructor() {
         this.images = {}

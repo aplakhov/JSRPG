@@ -217,7 +217,7 @@ class GoalsUI {
     constructor(ctx) {
         this.ctx = ctx;
         this.hidden = true;
-        this.button = makeImage("UI/goals_button");
+        this.button = images.prepare("UI/goals_button");
         this.font = "18px sans-serif";
         this.headerFont = "32px sans-serif";
         this.header = "Дела на сегодня";
@@ -270,16 +270,15 @@ class GoalsUI {
                     ui._line(ctx, left, top - 6, left + ctx.measureText(goal).width, top - 6);
             }
         }
-        if (this.button.complete) {
-            this.buttonX = 5; //Math.floor((2 * tileSize - this.button.width) / 2);
-            this.buttonY = ctx.canvas.height - 34;
-            this.ctx.drawImage(this.button, this.buttonX, this.buttonY)
-        }
+        this.buttonX = 5;
+        this.buttonY = ctx.canvas.height - 34;
+        images.draw(this.ctx, this.button, this.buttonX, this.buttonY)
     }
 
     onClick(x, y) {
         if (this.hidden) {
-            if (x < this.buttonX || y < this.buttonY || x >= this.buttonX + this.button.width || y >= this.buttonY + this.button.height)
+            let button = images.getReadyImage(this.button);
+            if (!button || x < this.buttonX || y < this.buttonY || x >= this.buttonX + button.width || y >= this.buttonY + button.height)
                 return false;
         }
         this.hidden = !this.hidden;
