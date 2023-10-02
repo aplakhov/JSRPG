@@ -8,6 +8,28 @@ function getAIprop(from, stats, to, name) {
         to[name] = stats[name];
 }
 
+function getMobEnemies(world, faction) {
+    // this may be slow (quadratic) if there's a map with many objects
+    // for now we'll ignore it -- no massive battles right now anyways
+    let enemyFaction;
+    let res;
+    if (faction == 0) {
+        enemyFaction = 1;
+        res = [player];
+    } else if (faction == 1) {
+        enemyFaction = 0;
+        res = [];
+    } else {
+        console.error("Unknown faction", faction);
+        return [];
+    }
+    for (let obj of world.objects) {
+        if (obj.ai && obj.ai.faction == enemyFaction && !obj.dead)
+            res.push(obj);
+    }
+    return res;
+}
+
 class AIStupidLandMob {
     constructor(me, stats) {
         this.stats = stats;
@@ -17,27 +39,34 @@ class AIStupidLandMob {
         getAIprop(me, stats, this, "aggroRadius");
         getAIprop(me, stats, this, "maxChaseRadius");
         getAIprop(me, stats, this, "stupidPathfinding");
+        getAIprop(me, stats, this, "faction");
+        if (!this.faction)
+            this.faction = 0;
         this.guardArea = getProp(me.initialObj, "guardArea");
     }
 
     nextTurn(me, forced) {
-        if (this.stats.enemy) {
+        let enemies = getMobEnemies(world, this.faction);
+        for (let enemy of enemies) {
             if (!this.aggred) {
-                if (dist2obj(me, player) <= this.aggroRadius * this.aggroRadius) {
+                if (dist2obj(me, enemy) <= this.aggroRadius * this.aggroRadius) {
                     this._aggro(me);
                 } else if (this.guardArea) {
                     const guardZone = world.scriptObjects[this.guardArea];
-                    if (guardZone && guardZone.isPlayerInside())
+                    if (guardZone && guardZone.isInside(enemy))
                         this._aggro(me);
                 }
             }
             if (this.stats.attackRadius) {
-                me.attacking = attackIfNear(me, player, null);
-                if (me.attacking)
+                let attacking = attackIfNear(me, enemy, null);
+                if (attacking) {
+                    me.attackTarget = enemy;
                     return;
+                } else
+                    me.attackTarget = null;
             }
         }
-        this._move(me, forced);
+        this._move(me, enemies, forced);
     }
 
     onApplyDamage(me, dmg, source) {
@@ -60,12 +89,12 @@ class AIStupidLandMob {
         }
     }
 
-    _move(me, forced) {
+    _move(me, enemies, forced) {
         if (forced && !this.aggred)
             return;
         if (this.stats && this.stats.movement == "land_mob") {
-            if (this.aggred)
-                this._moveTowardsPlayer(me);
+            if (this.aggred && enemies.length > 0)
+                this._moveTowardsEnemy(me, enemies);
             else
                 this._moveRandomlyInsideRoamingArea(me);
         }
@@ -89,21 +118,33 @@ class AIStupidLandMob {
         }
     }
 
-    _moveTowardsPlayer(me) {
+    _moveTowardsEnemy(me, enemies) {
+        // select nearest enemy
+        let enemy = enemies[0];
+        let bestDist2 = dist2(enemy.x, enemy.y, me.x, me.y);
+        for (let n = 1; n < enemies.length; n++) {
+            let e = enemies[n];
+            let dist2enemy = dist2(e.x, e.y, me.x, me.y);
+            if (dist2enemy < bestDist2) {
+                bestDist2 = dist2enemy;
+                enemy = e;
+            }
+        }
+        // find where we want to move
         let nextx = me.x, nexty = me.y;
         if (this.stupidPathfinding) {
-            if (player.x < me.x)
+            if (enemy.x < me.x)
                 nextx -= 1;
-            else if (player.x > me.x)
+            else if (enemy.x > me.x)
                 nextx += 1;
-            if (player.y < me.y)
+            if (enemy.y < me.y)
                 nexty -= 1;
-            else if (player.y > me.y)
+            else if (enemy.y > me.y)
                 nexty += 1;
         } else {
-            [nextx, nexty] = world.pathfinding.findPath(me, me.x, me.y, player.x, player.y);
+            [nextx, nexty] = world.pathfinding.findPath(me, me.x, me.y, enemy.x, enemy.y);
         }
-        
+        // check if we're too far from our origin
         if (this.maxChaseRadius) {
             let canChase = dist2(nextx, nexty, this.startingX, this.startingY) <= this.stats.maxChaseRadius * this.stats.maxChaseRadius;
             if (!canChase) {
@@ -111,10 +152,10 @@ class AIStupidLandMob {
                 return;
             }
         }
-
+        // execute movement
         if (this.stupidPathfinding) {
-            const dx = Math.abs(me.x - player.x);
-            const dy = Math.abs(me.y - player.y);
+            const dx = Math.abs(me.x - enemy.x);
+            const dy = Math.abs(me.y - enemy.y);
             if (dx > dy) {
                 if (world.pathfinding.isPassable(nextx, me.y, me))
                     me.x = nextx;

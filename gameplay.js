@@ -256,11 +256,9 @@ class World {
     }
 
     nextTurn(forced) {
-        if (Math.random() < 0.8) {
-            for (let obj of this.objects) {
-                if ('nextTurn' in obj)
-                    obj.nextTurn(forced);
-            };
+        for (let obj of this.objects) {
+            if ('nextTurn' in obj && Math.random() < 0.8)
+                obj.nextTurn(forced);
             this.removeDeadObjects();
         }
         this.vision.recalculateLocalVisibility();
@@ -398,8 +396,8 @@ class ScriptArea {
             ctx.fillText(this.initialObj.name, x, y - 10);
         }
     }
-    isPlayerInside() {
-        const x = player.x, y = player.y;
+    isInside(obj) {
+        const x = obj.x, y = obj.y;
         return x >= this.x && y >= this.y && x < this.x + this.w && y < this.y + this.h;
     }
 };
@@ -525,27 +523,18 @@ class DecorativeObject {
 };
 
 function attackIfNear(attacker, target, attackingItem) {
-    let dx = target.x - attacker.x;
-    let dy = target.y - attacker.y;
-    let distToTarget2 = dx * dx + dy * dy;
-    let r2 = attacker.stats.attackRadius * attacker.stats.attackRadius;
-    if (distToTarget2 > r2)
+    const dx = (target.pixelX.get() - attacker.pixelX.get()) / tileSize;
+    const dy = (target.pixelY.get() - attacker.pixelY.get()) / tileSize;
+    const distToTarget2 = dx * dx + dy * dy;
+    const r = attacker.stats.attackRadius + 0.3;
+    if (distToTarget2 > r * r)
         return false;
-    const duration = 0.2
-    const direction = {
-        x: dx * tileSize,
-        y: dy * tileSize
-    }
-    world.animations.add(new Bullet(direction, duration, "rgb(0, 0, 0)"), {
-        x: attacker.x,
-        y: attacker.y
-    });
     setTimeout(() => {
         let damage = Math.floor(attacker.stats.attackMin + (attacker.stats.attackMax - attacker.stats.attackMin + 1) * Math.random());
         if ('damageBonus' in attacker)
             damage += attacker.damageBonus();
         target.applyDamage(damage, attackingItem);
-    }, 200);
+    }, 300);
     return true;
 }
 

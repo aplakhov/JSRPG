@@ -6,7 +6,6 @@ creatures = {
         attackRadius: 1,
         roamRadius: 8,
         aggroRadius: 5,
-        enemy: true,
         movement: "land_mob",
         stupidPathfinding: true,
         speaker: {
@@ -40,7 +39,6 @@ creatures = {
         attackRadius: 1,
         roamRadius: 5,
         aggroRadius: 5,
-        enemy: true,
         movement: "land_mob",
         stupidPathfinding: true,
         speaker: {
@@ -66,7 +64,6 @@ creatures = {
         attackRadius: 1,
         roamRadius: 5,
         aggroRadius: 5,
-        enemy: true,
         movement: "land_mob",
         stupidPathfinding: true,
         speaker: {
@@ -92,7 +89,6 @@ creatures = {
         attackRadius: 1,
         roamRadius: 5,
         aggroRadius: 5,
-        enemy: true,
         movement: "land_mob",
         stupidPathfinding: true,
         speaker: {
@@ -118,7 +114,6 @@ creatures = {
         attackRadius: 1,
         roamRadius: 8,
         aggroRadius: 5,
-        enemy: true,
         movement: "land_mob",
         stupidPathfinding: true,
         speaker: {
@@ -144,7 +139,6 @@ creatures = {
         attackRadius: 1,
         roamRadius: 5,
         aggroRadius: 5,
-        enemy: true,
         movement: "land_mob",
         speaker: {
             color: "rgb(10, 10, 10)",
@@ -171,7 +165,6 @@ creatures = {
         roamRadius: 5,
         aggroRadius: 5,
         maxChaseRadius: 6,
-        enemy: true,
         movement: "land_mob",
         speaker: {
             color: "rgb(10, 10, 10)",
@@ -206,7 +199,6 @@ creatures = {
         roamRadius: 5,
         aggroRadius: 5,
         maxChaseRadius: 6,
-        enemy: true,
         movement: "land_mob",
         normalImage: "Animations/vizier",
         imageDisplacementY: -4,
@@ -230,7 +222,6 @@ creatures = {
         roamRadius: 5,
         aggroRadius: 5,
         maxChaseRadius: 6,
-        enemy: true,
         movement: "land_mob",
         speaker: {
             color: "rgb(10, 10, 10)",
@@ -264,7 +255,6 @@ creatures = {
         attackRadius: 1,
         roamRadius: 3,
         aggroRadius: 5,
-        enemy: true,
         movement: "land_mob",
         speaker: {
             color: "rgb(10, 10, 10)",
@@ -288,7 +278,6 @@ creatures = {
         attackRadius: 1,
         roamRadius: 3,
         aggroRadius: 5,
-        enemy: true,
         movement: "land_mob",
         speaker: {
             color: "rgb(18, 130, 217)",
@@ -313,7 +302,6 @@ creatures = {
         attackRadius: 1,
         roamRadius: 8,
         aggroRadius: 5,
-        enemy: true,
         movement: "land_mob",
         speaker: {
             color: "rgb(10, 10, 10)",
@@ -341,7 +329,6 @@ creatures = {
         attackRadius: 1,
         roamRadius: 8,
         aggroRadius: 5,
-        enemy: true,
         movement: "land_mob",
         speaker: {
             color: "rgb(10, 10, 10)",

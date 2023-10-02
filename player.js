@@ -34,6 +34,7 @@ class Player {
             return false;
         this.x = newx;
         this.y = newy;
+        world.pathfinding.occupyTile(this, this.x, this.y);
         this.pixelX.set(this.x * tileSize, 0.2);
         this.pixelY.set(this.y * tileSize, 0.2);
         for (let n = 0; n < world.objects.length; n++) {

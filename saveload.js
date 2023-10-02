@@ -15,6 +15,10 @@ function saveWorld(w) {
     
         // do not saveload functions and lists of functions
         'triggers':1,
+
+        // do not saveload possible circular dependencies
+        'attackTarget':1,
+        'combatTarget':1,
     }
     // add terrain that was changed
     w.changedTerrain = [];

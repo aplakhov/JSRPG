@@ -77,8 +77,8 @@ class Mob {
     drawTwoSidedAnimation(ctx, img, x, y, pixelX, pixelY) {
         const walkingFrameCount = img.height / 32 - 1;
         let dx;
-        if (this.attacking || this.aggred)
-            dx = player.x * tileSize - pixelX;
+        if (this.attackTarget || this.aggred)
+            dx = this.attackTarget.x * tileSize - pixelX;
         else
             dx = this.pixelX.target - pixelX;
         if (dx > 0)
@@ -86,7 +86,7 @@ class Mob {
         else if (dx < 0)
             this.frameX = 1;
         let frameY;
-        if (this.attacking) {
+        if (this.attackTarget) {
             const halfSecondPart = 2 * globalTimer - Math.floor(2 * globalTimer);
             if (halfSecondPart < 0.5)
                 frameY = 0;
@@ -106,9 +106,9 @@ class Mob {
         const walkingFrameCount = Math.floor(img.height / 32) - 1;
         let frameY = 0;
         let dx, dy;
-        if (this.attacking) {
-            dx = player.x * tileSize - pixelX;
-            dy = player.y * tileSize - pixelY;
+        if (this.attackTarget) {
+            dx = this.attackTarget.x * tileSize - pixelX;
+            dy = this.attackTarget.y * tileSize - pixelY;
         } else {
             dx = this.pixelX.target - pixelX;
             dy = this.pixelY.target - pixelY;
@@ -130,7 +130,7 @@ class Mob {
             this.frameX = 3;
             frameY = Math.floor((pixelX % 64)/8) % walkingFrameCount;
         }
-        if (this.attacking) {
+        if (this.attackTarget) {
             const halfSecondPart = 2 * globalTimer - Math.floor(2 * globalTimer);
             if (halfSecondPart < 0.5)
                 frameY = 0;
@@ -141,6 +141,8 @@ class Mob {
     }
 
     occupy(pathfinding) {
+        if (this.x == player.x && this.y == player.y)
+            console.error("Somehow on one square with player");
         pathfinding.occupyTile(this, this.x, this.y);
     }
 
@@ -193,7 +195,7 @@ class Mob {
     }
 
     isEnemy() {
-        return this.stats && this.stats.enemy && !this.dead;
+        return this.ai && this.ai.faction == 0;
     }
 
     nextTurn(forced) {
@@ -208,8 +210,10 @@ class Mob {
         if (this.ai)
             this.ai.nextTurn(this, forced);
         this.occupy(world.pathfinding);
-        if (this.attacking)
-            this.rotation = Math.atan2(player.x - this.x, player.y - this.y);
+        if (!this.attackTarget && this.stats && this.hp < this.stats.hp)
+            this.hp += 1;
+        if (this.attackTarget)
+            this.rotation = Math.atan2(this.attackTarget.x - this.x, this.attackTarget.y - this.y);
         let currentPixelX = this.pixelX.get();
         let currentPixelY = this.pixelY.get();
         let nextPixelX = this.x * tileSize;

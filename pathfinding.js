@@ -54,7 +54,7 @@ class Pathfinding {
             finalX = toX;
             finalY = toY;
         } else {
-            let bestQuality = 10000;
+            let bestQuality = 1000000;
             for (let x = fromX - 4; x <= fromX + 4; x++) {
                 if (x < 0 || x >= this.width)
                     continue;
