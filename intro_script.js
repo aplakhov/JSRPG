@@ -91,7 +91,7 @@ class IntroMapScript extends AllScripts {
         };
         dragon.initialX = dragon.x;
         dragon.onContact = (player) => {
-            player.applyDamage(10000);
+            player.applyDamage(10000, dragon);
         }
         let gate = world.scriptObjects.gate;
         gate.zLayer = 2;
@@ -102,7 +102,7 @@ class IntroMapScript extends AllScripts {
             [1, 1],
         ];
         gate.onContact = (player) => {
-            player.applyDamage(10000);
+            player.applyDamage(10000, gate);
         }
         player.takeItem("wooden_stick");
         if ('treasure' in world.scriptObjects) {
@@ -140,7 +140,7 @@ class IntroMapScript extends AllScripts {
                         temperature: 20
                     })
                 }
-                player.applyNonPhysicalDamage(2);
+                player.applyDamage(2, "magic");
             }
         });        
     }

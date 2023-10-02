@@ -40,10 +40,8 @@ function castWater(caster, targetX, targetY) {
 }
 
 function applySpellDamage(gameObj, amount) {
-    if ('applyNonPhysicalDamage' in gameObj)
-        gameObj.applyNonPhysicalDamage(amount);
-    else if ('applyDamage' in gameObj)
-        gameObj.applyDamage(amount);
+    if ('applyDamage' in gameObj)
+        gameObj.applyDamage(amount, "magic");
 }
 
 class Lightning {

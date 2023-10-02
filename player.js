@@ -254,10 +254,11 @@ class Player {
         return 0;
     }
 
-    applyDamage(dmg) {
+    applyDamage(dmg, item) {
         if (this.hp <= 0) // already dead
             return;
-        dmg -= this.defenceBonus();
+        if (item != "magic")
+            dmg -= this.defenceBonus();
         if (dmg <= 0)
             return;
         this.hp -= dmg;
@@ -268,13 +269,6 @@ class Player {
         this.hp += amount;
         if (this.hp > this.stats.hp)
             this.hp = this.stats.hp;
-    }
-
-    applyNonPhysicalDamage(dmg) {
-        if (this.hp > 0 && dmg > 0) {
-            this.hp -= dmg;        
-            this.checkDeath();
-        }
     }
 
     checkDeath() {

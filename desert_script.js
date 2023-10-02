@@ -69,7 +69,7 @@ class DesertMapScript extends AllScripts {
                 this.remindedAboutWater = true;
                 ui.dialogUI.addMessage("Силы быстро убывают. Водички бы...", playerSpeaker, player);
             }
-            player.applyNonPhysicalDamage(1);
+            player.applyDamage(1, "magic");
         }
 
         let mirage = world.scriptObjects.mirage;
