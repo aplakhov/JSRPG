@@ -142,7 +142,7 @@ class IntroMapScript extends AllScripts {
                 }
                 player.applyDamage(2, "magic");
             }
-        });        
+        });
     }
 
     nextTurn(forced) {
@@ -150,7 +150,7 @@ class IntroMapScript extends AllScripts {
 
         let dragon = world.scriptObjects.dragon;
 
-        if (dragon.awake && !dragon.laughing && forced && player.x < 18)
+        if (dragon.awake && !dragon.laughing && forced && (player.x < 16 || (player.x < 18 && player.y > 92)))
             dragon.aggro = true;
 
         let playerOnTreasure = player.hp > 0
