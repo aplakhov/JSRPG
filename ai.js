@@ -111,8 +111,11 @@ class AIStupidLandMob {
             nexty += 1;
         else
             nexty -= 1;
-        let insideRoaming = dist2(nextx, nexty, this.startingX, this.startingY) <= this.roamRadius * this.roamRadius;
-        if (world.pathfinding.isPassable(nextx, nexty, me) && insideRoaming) {
+        if (!world.pathfinding.isPassable(nextx, nexty, me))
+            return;
+        const prevDist2 = dist2(me.x, me.y, this.startingX, this.startingY);
+        const nextDist2 = dist2(nextx, nexty, this.startingX, this.startingY);
+        if (nextDist2 <= this.roamRadius * this.roamRadius || nextDist2 <= prevDist2) {
             me.x = nextx;
             me.y = nexty;
         }
