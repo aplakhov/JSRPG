@@ -288,7 +288,6 @@ class GoalsUI {
 
 class RichButton {
     constructor(ctx, x, y, width, height, text, addText, squareImage, center) {
-        this.ctx = ctx;
         this.x = x;
         this.y = y;
         this.width = width;
@@ -354,7 +353,6 @@ function drawButtonSelection(ctx, selected) {
 
 class NearHouseUI {
     constructor(ctx) {
-        this.ctx = ctx;
         this.hidden = true;
     }
 
@@ -473,7 +471,6 @@ class NearHouseUI {
 
 class InsideHouseUI {
     constructor(ctx, inside) {
-        this.ctx = ctx;
         this.inside = inside;
         this._switchToTalkersOverview()
     }
