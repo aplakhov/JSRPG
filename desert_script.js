@@ -41,12 +41,9 @@ class DesertMapScript extends AllScripts {
     }
 
     _makeDeadTreesAround(trees, well) {
-        console.log("Making trees burn around", well.x, well.y, well.w, well.h);
         for (let tree of trees)
-            if (tree.x >= well.x - 2 && tree.y >= well.y - 2 && tree.x < well.x + well.w + 2 && tree.y < well.y + well.h + 2) {
+            if (tree.x >= well.x - 2 && tree.y >= well.y - 2 && tree.x < well.x + well.w + 2 && tree.y < well.y + well.h + 2)
                 tree.burning = 500;
-                console.log("Found a tree to burn!");
-            }
     }
 
     getRestoreHp() {

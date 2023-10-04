@@ -222,7 +222,6 @@ class PalaceMapScript extends AllScripts {
             if (atTarget || world.pathfinding.isPassable(wheel.x + nextX, wheel.y + nextY, null)) {
                 this.mechanicArmX = nextX;
                 this.mechanicArmY = nextY;
-                console.log("Arm moved to", nextX, nextY);
                 if (atTarget && !this.mainQuestDone) {
                     this.mainQuestDone = true;
                     this.playFinalScript();
@@ -396,7 +395,6 @@ class NonEuclideanStone {
         this.prevTime = time;
         const teleportToCell = world.script._getTeleportCellIdx(prevX, prevY, nextX, nextY);
         if (teleportToCell >= 0) {
-            console.log("Teleporting a stone to", teleportToCell);
             // teleport
             const teleportX = teleportToCell % 5, teleportY = Math.floor(teleportToCell / 5);
             const pixelX = (teleportX * 3 + puzzle1.x + 1) * tileSize + 16;
