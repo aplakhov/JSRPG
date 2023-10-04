@@ -839,7 +839,6 @@ class UI {
 
     _getInventoryAreaUnderMouse() {
         const x = this.mouseSelfX - dialogUIleftOffset, y = this.mouseSelfY - 45;
-        //console.log("in inventory", x, y)
         if (x >= 15 && y >= 110 && x <= 15+64 && y <= 110+64)
             return -1;
         if (x >= 175 && y >= 110 && x <= 175+64 && y <= 110+64)
