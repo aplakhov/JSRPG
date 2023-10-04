@@ -47,6 +47,7 @@ class AIStupidLandMob {
 
     nextTurn(me, forced) {
         let enemies = getMobEnemies(world, this.faction);
+        me.attackTarget = null;
         for (let enemy of enemies) {
             if (!this.aggred) {
                 if (dist2obj(me, enemy) <= this.aggroRadius * this.aggroRadius) {
@@ -62,8 +63,7 @@ class AIStupidLandMob {
                 if (attacking) {
                     me.attackTarget = enemy;
                     return;
-                } else
-                    me.attackTarget = null;
+                }
             }
         }
         this._move(me, enemies, forced);
