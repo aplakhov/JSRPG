@@ -66,11 +66,13 @@ class World {
             "north_map": northBiome,
             "desert_test_map": desertBiome,
             "dead_sea_map": desertWoodWallsBiome,
+            "edge_map": desertBiome,
             "palace_map": desertPalaceBiome,
             "snow_test_map": iceBiome,
             "dungeon1_map": grassBiome,
             "port_map": whiteCityBiome,
             "dark_forest_map": grassBiome,
+            "ai_test_map": westBiome,
         }
         const scripts = {
             "intro_map": IntroMapScript,
@@ -80,6 +82,7 @@ class World {
             "palace_map": PalaceMapScript,
             "dark_forest_map": DarkForestMapScript,
             "north_map": NorthMapScript,
+            "edge_map": EdgeScript,
             // chapter 3
             "port_map": PortMapScript,
         }
@@ -259,8 +262,8 @@ class World {
         for (let obj of this.objects) {
             if ('nextTurn' in obj && Math.random() < 0.8)
                 obj.nextTurn(forced);
-            this.removeDeadObjects();
         }
+        this.removeDeadObjects();
         this.vision.recalculateLocalVisibility();
         this.pathfinding.recalculateOccupiedTiles(this.objects);
         this.script.nextTurn(forced);

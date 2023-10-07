@@ -18,6 +18,12 @@ const desertWoodWallsBiome = {
     rock_ground_tiles: "Desert/wood_wall_ground_tiles",
     hints: ["Песок потемнее", "Вода", "Песок посветлее", "Южные деревья", "Камень", "Деревянные стены", "Брусчатка"]
 };
+const westBiome = {
+    tilesetPrefix: "Desert/",
+    pavement_tiles: "West/wooden_floor",
+    stone_wall_ground_tile: "Desert/wood_wall_ground_tiles",
+    hints: ["Песок потемнее", "Морская вода", "Песок посветлее", "Южные деревья", "Камень", "Стены", "Доски"]
+};
 const desertPalaceBiome = {
     tilesetPrefix: "Desert/",
     sand_tiles: "Desert/marble",
