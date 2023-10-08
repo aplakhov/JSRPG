@@ -106,6 +106,30 @@ creatures = {
         numAnimFrames: 2,
         rotatedDrawing: 1,
         bonesImg: "dead_scorpion_king"
+    },
+    red_spider: {
+        hp: 60,
+        attackMin: 8,
+        attackMax: 18,
+        attackRadius: 1,
+        roamRadius: 5,
+        aggroRadius: 5,
+        movement: "land_mob",
+        speaker: {
+            color: "rgb(10, 10, 10)",
+            bgColor: "rgb(255, 89, 89)",
+            font: '18px sans-serif',
+            portraits: ["Portraits/spider1", "Portraits/spider2", "Portraits/spider1", "Portraits/spider2"]
+        },
+        aggroMessages: [
+            "ζ(x)=0 → Re(x)=½",
+            "{x,y,z,n|x^n+y^n=z^n,n>2}=ø",
+            "∀k>1, 2k=p₁+p₂"
+        ],
+        normalImage: "Animations/red_spider",
+        numAnimFrames: 4,
+        rotatedDrawing: 1,
+        bonesImg: "dead_red_spider"
     },        
     slug: {
         hp: 30,
@@ -305,21 +329,52 @@ creatures = {
         movement: "land_mob",
         speaker: {
             color: "rgb(10, 10, 10)",
-            bgColor: "rgb(179, 188, 157)",
+            bgColor: "rgb(199, 194, 176)",
             font: '18px sans-serif',
             portraits: [
-                "Portraits/goblin",
-                "Portraits/goblin2",                           
-                "Portraits/goblin4",
-                "Portraits/goblin5",                           
+                "Portraits/pirate1",
+                "Portraits/pirate1",
+                "Portraits/pirate2",                           
+                "Portraits/pirate3"                           
             ]                           
         },
         aggroMessages: [
-            "Йо-хо-хо!"
+            "Йо-хо-хо!",
+            "Аррр!",
+            "Разрази меня гром!",
+            "Якорь вам в глотку!"
         ],
         normalImage: "Animations/pirate",
         humanoidDrawing: 1,
         bonesImg: "dead_pirate",
+        hpBarY: -4
+    },
+    islander: {
+        hp: 40,
+        attackMin: 2,
+        attackMax: 8,
+        attackRadius: 1,
+        roamRadius: 8,
+        aggroRadius: 5,
+        movement: "land_mob",
+        speaker: {
+            color: "rgb(10, 10, 10)",
+            bgColor: "rgb(253, 223, 120)",
+            font: '18px sans-serif',
+            portraits: [
+                "Portraits/islander1",
+                "Portraits/islander2",
+                "Portraits/islander3"                         
+            ]                           
+        },
+        aggroMessages: [
+            "Ае! Мзунгу!",
+            "Харамбея!",
+            "Полеполе..."
+        ],
+        normalImage: "Animations/native_islander",
+        humanoidDrawing: 1,
+        bonesImg: "dead_islander",
         hpBarY: -4
     },
     ogre: {

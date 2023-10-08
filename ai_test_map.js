@@ -89,18 +89,6 @@
          "name":"Object Layer 1",
          "objects":[
                 {
-                 "class":"Player",
-                 "height":0,
-                 "id":42,
-                 "name":"\u0418\u0433\u0440\u043e\u043a",
-                 "point":true,
-                 "rotation":0,
-                 "visible":true,
-                 "width":0,
-                 "x":1910,
-                 "y":566.66666666667
-                }, 
-                {
                  "class":"Mob",
                  "height":0,
                  "id":69,
@@ -140,11 +128,6 @@
                  "name":"\u041f\u0438\u0440\u0430\u0442",
                  "point":true,
                  "properties":[
-                        {
-                         "name":"Image",
-                         "type":"string",
-                         "value":"wizard"
-                        }, 
                         {
                          "name":"Rules",
                          "type":"string",
@@ -212,14 +195,9 @@
                  "point":true,
                  "properties":[
                         {
-                         "name":"Image",
-                         "type":"string",
-                         "value":"native_islander"
-                        }, 
-                        {
                          "name":"Rules",
                          "type":"string",
-                         "value":"pirate"
+                         "value":"islander"
                         }, 
                         {
                          "name":"aggroRadius",
@@ -245,205 +223,10 @@
                 {
                  "class":"Mob",
                  "height":0,
-                 "id":73,
-                 "name":"\u0422\u0443\u0437\u0435\u043c\u0435\u0446",
-                 "point":true,
-                 "properties":[
-                        {
-                         "name":"Image",
-                         "type":"string",
-                         "value":"native_islander"
-                        }, 
-                        {
-                         "name":"Rules",
-                         "type":"string",
-                         "value":"pirate"
-                        }, 
-                        {
-                         "name":"aggroRadius",
-                         "type":"int",
-                         "value":6
-                        }, 
-                        {
-                         "name":"faction",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
-                         "name":"roamRadius",
-                         "type":"int",
-                         "value":5
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":0,
-                 "x":380,
-                 "y":1024
-                }, 
-                {
-                 "class":"Mob",
-                 "height":0,
-                 "id":74,
-                 "name":"\u0422\u0443\u0437\u0435\u043c\u0435\u0446",
-                 "point":true,
-                 "properties":[
-                        {
-                         "name":"Image",
-                         "type":"string",
-                         "value":"native_islander"
-                        }, 
-                        {
-                         "name":"Rules",
-                         "type":"string",
-                         "value":"pirate"
-                        }, 
-                        {
-                         "name":"aggroRadius",
-                         "type":"int",
-                         "value":6
-                        }, 
-                        {
-                         "name":"faction",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
-                         "name":"roamRadius",
-                         "type":"int",
-                         "value":5
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":0,
-                 "x":514,
-                 "y":1054
-                }, 
-                {
-                 "class":"Mob",
-                 "height":0,
-                 "id":75,
-                 "name":"\u0422\u0443\u0437\u0435\u043c\u0435\u0446",
-                 "point":true,
-                 "properties":[
-                        {
-                         "name":"Image",
-                         "type":"string",
-                         "value":"native_islander"
-                        }, 
-                        {
-                         "name":"Rules",
-                         "type":"string",
-                         "value":"pirate"
-                        }, 
-                        {
-                         "name":"aggroRadius",
-                         "type":"int",
-                         "value":6
-                        }, 
-                        {
-                         "name":"faction",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
-                         "name":"roamRadius",
-                         "type":"int",
-                         "value":5
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":0,
-                 "x":370,
-                 "y":1106
-                }, 
-                {
-                 "class":"Mob",
-                 "height":0,
-                 "id":76,
-                 "name":"\u0422\u0443\u0437\u0435\u043c\u0435\u0446",
-                 "point":true,
-                 "properties":[
-                        {
-                         "name":"Image",
-                         "type":"string",
-                         "value":"native_islander"
-                        }, 
-                        {
-                         "name":"Rules",
-                         "type":"string",
-                         "value":"pirate"
-                        }, 
-                        {
-                         "name":"aggroRadius",
-                         "type":"int",
-                         "value":6
-                        }, 
-                        {
-                         "name":"faction",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
-                         "name":"roamRadius",
-                         "type":"int",
-                         "value":5
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":0,
-                 "x":246,
-                 "y":1108
-                }, 
-                {
-                 "class":"Mob",
-                 "height":0,
-                 "id":77,
-                 "name":"\u0422\u0443\u0437\u0435\u043c\u0435\u0446",
-                 "point":true,
-                 "properties":[
-                        {
-                         "name":"Image",
-                         "type":"string",
-                         "value":"native_islander"
-                        }, 
-                        {
-                         "name":"Rules",
-                         "type":"string",
-                         "value":"pirate"
-                        }, 
-                        {
-                         "name":"aggroRadius",
-                         "type":"int",
-                         "value":6
-                        }, 
-                        {
-                         "name":"faction",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
-                         "name":"roamRadius",
-                         "type":"int",
-                         "value":5
-                        }],
-                 "rotation":0,
-                 "visible":true,
-                 "width":0,
-                 "x":482,
-                 "y":1182
-                }, 
-                {
-                 "class":"Mob",
-                 "height":0,
                  "id":78,
                  "name":"\u041f\u0438\u0440\u0430\u0442",
                  "point":true,
                  "properties":[
-                        {
-                         "name":"Image",
-                         "type":"string",
-                         "value":"wizard"
-                        }, 
                         {
                          "name":"Rules",
                          "type":"string",
@@ -478,14 +261,9 @@
                  "point":true,
                  "properties":[
                         {
-                         "name":"Image",
-                         "type":"string",
-                         "value":"red_spider"
-                        }, 
-                        {
                          "name":"Rules",
                          "type":"string",
-                         "value":"scorpio3"
+                         "value":"red_spider"
                         }, 
                         {
                          "name":"aggroRadius",
@@ -509,9 +287,108 @@
                  "y":1458
                 }, 
                 {
-                 "class":"DecorativeObject",
+                 "class":"BigScaryObject",
                  "height":0,
-                 "id":80,
+                 "id":81,
+                 "name":"\u041a\u043e\u0440\u0430\u0431\u043b\u044c \u043f\u0438\u0440\u0430\u0442\u043e\u0432",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Blocker",
+                         "type":"string",
+                         "value":"true"
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"West\/ship"
+                        }, 
+                        {
+                         "name":"OccupiedTiles",
+                         "type":"string",
+                         "value":"[\n[0,0,1,1,1,1,1,0],\n[1,1,1,1,1,1,1,1],\n[1,1,1,1,1,1,1,1],\n]\n"
+                        }, 
+                        {
+                         "name":"ScriptName",
+                         "type":"string",
+                         "value":"ship"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":1550,
+                 "y":115.5
+                }, 
+                {
+                 "class":"Mob",
+                 "height":0,
+                 "id":83,
+                 "name":"\u041f\u0438\u0440\u0430\u0442",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Rules",
+                         "type":"string",
+                         "value":"pirate"
+                        }, 
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"faction",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"roamRadius",
+                         "type":"int",
+                         "value":5
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":1800,
+                 "y":428
+                }, 
+                {
+                 "class":"Mob",
+                 "height":0,
+                 "id":84,
+                 "name":"\u041f\u0438\u0440\u0430\u0442",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Rules",
+                         "type":"string",
+                         "value":"pirate"
+                        }, 
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"faction",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"roamRadius",
+                         "type":"int",
+                         "value":5
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":1898,
+                 "y":272
+                }, 
+                {
+                 "class":"BigScaryObject",
+                 "height":0,
+                 "id":87,
                  "name":"\u0422\u0430\u0432\u0435\u0440\u043d\u0430",
                  "point":true,
                  "properties":[
@@ -519,48 +396,199 @@
                          "name":"Image",
                          "type":"string",
                          "value":"West\/pirate_tavern"
+                        }, 
+                        {
+                         "name":"OccupiedTiles",
+                         "type":"string",
+                         "value":"[[0,1,1,1],\n[0,1,1,1],\n[0,0,1,1],\n[0,0,1,1],\n[0,0,1,1],\n[1,1,1,1],\n[0,1,0,0]]"
+                        }, 
+                        {
+                         "name":"zLayer",
+                         "type":"int",
+                         "value":1
                         }],
                  "rotation":0,
                  "visible":true,
                  "width":0,
-                 "x":1774,
-                 "y":340
+                 "x":1777,
+                 "y":338
                 }, 
                 {
-                 "class":"DecorativeObject",
+                 "class":"Mob",
                  "height":0,
-                 "id":81,
-                 "name":"\u041a\u043e\u0440\u0430\u0431\u043b\u044c \u043f\u0438\u0440\u0430\u0442\u043e\u0432",
+                 "id":88,
+                 "name":"\u0422\u0443\u0437\u0435\u043c\u0435\u0446",
                  "point":true,
                  "properties":[
                         {
-                         "name":"Image",
+                         "name":"Rules",
                          "type":"string",
-                         "value":"West\/ship"
+                         "value":"islander"
+                        }, 
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"faction",
+                         "type":"int",
+                         "value":0
+                        }, 
+                        {
+                         "name":"roamRadius",
+                         "type":"int",
+                         "value":5
                         }],
                  "rotation":0,
                  "visible":true,
                  "width":0,
-                 "x":1599,
-                 "y":118
+                 "x":382,
+                 "y":1020
                 }, 
                 {
-                 "class":"DecorativeObject",
+                 "class":"Mob",
                  "height":0,
-                 "id":82,
-                 "name":"\u041a\u043e\u0440\u0430\u0431\u043b\u044c \u043f\u0438\u0440\u0430\u0442\u043e\u0432",
+                 "id":89,
+                 "name":"\u0422\u0443\u0437\u0435\u043c\u0435\u0446",
                  "point":true,
                  "properties":[
                         {
-                         "name":"Image",
+                         "name":"Rules",
                          "type":"string",
-                         "value":"West\/ship"
+                         "value":"islander"
+                        }, 
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"faction",
+                         "type":"int",
+                         "value":0
+                        }, 
+                        {
+                         "name":"roamRadius",
+                         "type":"int",
+                         "value":5
                         }],
                  "rotation":0,
                  "visible":true,
                  "width":0,
-                 "x":1512,
-                 "y":973
+                 "x":563,
+                 "y":1057
+                }, 
+                {
+                 "class":"Mob",
+                 "height":0,
+                 "id":90,
+                 "name":"\u0422\u0443\u0437\u0435\u043c\u0435\u0446",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Rules",
+                         "type":"string",
+                         "value":"islander"
+                        }, 
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"faction",
+                         "type":"int",
+                         "value":0
+                        }, 
+                        {
+                         "name":"roamRadius",
+                         "type":"int",
+                         "value":5
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":477,
+                 "y":1166
+                }, 
+                {
+                 "class":"Mob",
+                 "height":0,
+                 "id":91,
+                 "name":"\u0422\u0443\u0437\u0435\u043c\u0435\u0446",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Rules",
+                         "type":"string",
+                         "value":"islander"
+                        }, 
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"faction",
+                         "type":"int",
+                         "value":0
+                        }, 
+                        {
+                         "name":"roamRadius",
+                         "type":"int",
+                         "value":5
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":373,
+                 "y":1100
+                }, 
+                {
+                 "class":"Mob",
+                 "height":0,
+                 "id":92,
+                 "name":"\u0422\u0443\u0437\u0435\u043c\u0435\u0446",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Rules",
+                         "type":"string",
+                         "value":"islander"
+                        }, 
+                        {
+                         "name":"aggroRadius",
+                         "type":"int",
+                         "value":6
+                        }, 
+                        {
+                         "name":"faction",
+                         "type":"int",
+                         "value":0
+                        }, 
+                        {
+                         "name":"roamRadius",
+                         "type":"int",
+                         "value":5
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":240,
+                 "y":1089
+                }, 
+                {
+                 "class":"Player",
+                 "height":0,
+                 "id":93,
+                 "name":"\u0418\u0433\u0440\u043e\u043a",
+                 "point":true,
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":264,
+                 "y":424
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -569,7 +597,7 @@
          "y":0
         }],
  "nextlayerid":3,
- "nextobjectid":83,
+ "nextobjectid":94,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.9.2",
