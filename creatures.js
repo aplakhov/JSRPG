@@ -123,14 +123,14 @@ creatures = {
         },
         aggroMessages: [
             "ζ(x)=0 → Re(x)=½",
-            "{x,y,z,n|x^n+y^n=z^n,n>2}=ø",
+            "{x,y,z,n|x^n+y^n=z^n, n>2}=ø",
             "∀k>1, 2k=p₁+p₂"
         ],
         normalImage: "Animations/red_spider",
         numAnimFrames: 4,
         rotatedDrawing: 1,
         bonesImg: "dead_red_spider"
-    },        
+    },
     slug: {
         hp: 30,
         attackMin: 4,
@@ -403,5 +403,19 @@ creatures = {
         humanoidDrawing: 1,
         bonesImg: "dead_ogre",
         hpBarY: -7
+    },
+    living_lights: {
+        hp: 1000,
+        attackMin: 0,
+        attackMax: 1,
+        attackRadius: 1,
+        roamRadius: 5,
+        aggroRadius: 2,
+        movement: "land_mob",
+        stupidPathfinding: false,
+        normalImage: "Animations/living_lights",
+        numAnimFrames: 8,
+        rotatedDrawing: 1,
+        additionalLight: 4
     },
 }
