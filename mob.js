@@ -20,6 +20,8 @@ class Mob {
                 // gameplay:
                 this.hp = stats.hp;
                 this.ai = new AIStupidLandMob(this, stats);
+                if (stats.additionalLight)
+                    this.additionalLight = stats.additionalLight;
                 // animations/drawing:
                 this.img = images.prepare(stats.normalImage);
                 this.rotatedDrawing = stats.rotatedDrawing;
