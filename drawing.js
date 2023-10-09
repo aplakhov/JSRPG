@@ -713,3 +713,68 @@ class DialogMessages {
         return false;
     }
 }
+
+class VisualDarkness {
+    constructor() {
+        this.canvas = document.createElement("canvas");
+        this.canvas.width = viewInPixels;
+        this.canvas.height = viewInPixels;
+    }
+
+    draw(ctx, offsetInPixels, time) {
+        this.redraw(offsetInPixels);
+        ctx.drawImage(this.canvas, 0, 0);
+        return false;
+    }
+
+    redraw(offsetInPixels) {
+        let ctx = this.canvas.getContext("2d", { willReadFrequently: true });
+        ctx.willReadFrequently = true;
+        ctx.globalCompositeOperation="copy";
+        ctx.fillStyle = "rgba(0,0,20,0.5)";
+        ctx.fillRect(0, 0, viewInPixels, viewInPixels);
+        ctx.globalCompositeOperation="source-over";
+
+        let imageData = ctx.getImageData(0, 0, viewInPixels, viewInPixels);
+        let pixels = imageData.data;
+        for (let o of world.objects) {
+            if (o.additionalLight) {
+                let r = 47 + Math.floor(Math.random() * 3);
+                let x, y;
+                if (o.pixelX) {
+                    x = Math.floor(o.pixelX.get());
+                    y = Math.floor(o.pixelY.get());
+                } else {
+                    x = o.x * tileSize;
+                    y = o.y * tileSize;
+                }
+                this.drawLight(x + offsetInPixels.x, y + offsetInPixels.y, r, pixels);
+            }
+        }
+        for (let t of world.trees) {
+            if (t.burning && t.burning < 400) {
+                let r = 47 + Math.floor(Math.random() * 3);
+                this.drawLight(t.x*tileSize + offsetInPixels.x, t.y*tileSize + offsetInPixels.y, r, pixels);
+            }
+        }
+        ctx.putImageData(imageData, 0, 0);
+    }
+
+    drawLight(lx, ly, r, pixels) {
+        const r2 = r*r;
+        const sx = Math.max(0, lx - r), sy = Math.max(0, ly  - r);
+        const fx = Math.min(viewInPixels, lx + r + 1), fy = Math.min(viewInPixels, ly + r + 1);
+        for (let y = sy; y < fy; y++) {
+            for (let x = sx; x < fx; x++) {
+                const dx = x - lx, dy = y - ly;
+                const d2 = dx*dx+dy*dy;
+                if (d2 <= r2) {
+                    const n = 4 * (y * viewInPixels + x) + 3;
+                    const dst = Math.floor(128 * Math.sqrt(d2 / r2));
+                    if (pixels[n] > dst)
+                        pixels[n] = dst;
+                }
+            }
+        }
+    }
+};

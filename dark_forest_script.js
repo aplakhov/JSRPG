@@ -13,6 +13,11 @@ class DarkForestMapScript extends AllScripts {
         wolfMother.roamRadius = 0;
     }
 
+    setupRecalculatedData(world) {
+        const baseTile = {x: 0, y: 0} 
+        world.animations.add(new VisualDarkness(), baseTile);
+    }
+
     nextTurn(forced) {
         this._executeTriggers()
     }
