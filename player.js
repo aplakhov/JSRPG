@@ -69,9 +69,11 @@ class Player {
             let canCast = world.script.checkCanCast(target.x, target.y, spell);
             if (!canCast)
                 return;
-        }    
-        if (castSpell(player, spell, target))
+        }
+        if (castSpell(player, spell, target)) {
             this.mana -= manaToCast;
+            this.spellAnimationData = [target.x, target.y, globalTimer];
+        }
     }
 
     draw(ctx, pixelOffset) {
@@ -88,7 +90,11 @@ class Player {
         const walkingFrameCount = img.height / 32 - 1;
         let frameY = 0;
         let dx, dy;
-        if (this.combatTarget) {
+        const isCasting = this.spellAnimationData && this.spellAnimationData[2] + 0.3 > globalTimer;
+        if (isCasting) {
+            dx = this.spellAnimationData[0] * tileSize - pixelX;
+            dy = this.spellAnimationData[1] * tileSize - pixelY;
+        } else if (this.combatTarget) {
             dx = this.combatTarget.x * tileSize - pixelX;
             dy = this.combatTarget.y * tileSize - pixelY;
         } else {
@@ -113,7 +119,10 @@ class Player {
             frameY = Math.floor((pixelX % 64)/16) % walkingFrameCount;
         }
         let equipmentFrameY = 0;
-        if (this.combatTarget) {
+        if (isCasting) {
+            frameY = walkingFrameCount;
+            equipmentFrameY = 1;
+        } else if (this.combatTarget) {
             let halfSecondPart = 0.3 + 2 * globalTimer
             halfSecondPart -= Math.floor(halfSecondPart);
             if (halfSecondPart < 0.5)
