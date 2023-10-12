@@ -57,7 +57,7 @@ let player = new Player();
 let worlds = {}
 let world = null;
 
-function changeWorldTo(worldName, doAutosave, oldWorldName) {
+function changeWorldTo(worldName, doNotAutosave, oldWorldName) {
     if (!(worldName in TileMaps)) {
         console.error("World", worldName, "is undefined");
         return;
@@ -78,7 +78,7 @@ function changeWorldTo(worldName, doAutosave, oldWorldName) {
             player.takenQuests.push(questName);
     }
     ui.showGoals();
-    if (doAutosave)
+    if (!doNotAutosave)
         autosave();
 }
 

@@ -104,7 +104,7 @@ class AllScripts {
 
     _changeMap(name, oldName) {
         setTimeout(() => {
-            changeWorldTo(name, true, oldName);
+            changeWorldTo(name, false, oldName);
         }, this.delay * 1000);
     }
 }

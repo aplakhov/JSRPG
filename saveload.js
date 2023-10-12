@@ -121,6 +121,6 @@ function loadGameFromLocalStorage() {
             currentMap = localStorage[prop];
         }
     }
-    changeWorldTo(currentMap, false);
+    changeWorldTo(currentMap, true);
     world.vision.recalculateLocalVisibility();
 }
