@@ -301,7 +301,7 @@ function castFire(caster, targetX, targetY) {
     setTimeout(() => {
         let interrupted = 'onFinishSpell' in world.script && world.script.onFinishSpell(targetX, targetY, "fire");
         if (!interrupted)
-            startGameplayFire(targetX, targetY, 3, 10);
+            startGameplayFire(targetX, targetY, 8, 10);
     }, 300);
 }
 
