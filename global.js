@@ -77,6 +77,7 @@ function changeWorldTo(worldName, doNotAutosave, oldWorldName) {
         if (q.map == worldName && !q.introDialog && (!q.canBeTaken || q.canBeTaken()) && player.takenQuests.indexOf(questName) < 0)
             player.takenQuests.push(questName);
     }
+    world.vision.recalculateLocalVisibility();
     ui.showGoals();
     if (!doNotAutosave)
         autosave();
@@ -85,7 +86,11 @@ function changeWorldTo(worldName, doNotAutosave, oldWorldName) {
 function reloadAll() {
     localStorage.clear();
     worlds = {};
-    ui.dialogUI.messages = [];    
+    ui.dialogUI.messages = [];
+    player.dialogState = {};
+    player.takenQuests = [];
+    player.hp = player.stats.hp;
+    player.mana = player.stats.mana;
     changeWorldTo(world.mapName);
 }
 
