@@ -472,7 +472,8 @@ class NearHouseUI {
 class InsideHouseUI {
     constructor(ctx, inside) {
         this.inside = inside;
-        this._switchToTalkersOverview()
+        this.alreadySaidMessages = [];
+        this._switchToTalkersOverview();
     }
 
     _addExitButton(x, y) {
@@ -528,86 +529,139 @@ class InsideHouseUI {
         return res;
     }
 
-    _showTalkerUI(characterName) {
-        console.log("Talking to", characterName);
-        this.buttons = []
-        const padding = 10;
-        const width = 768 - 2 * padding;
-        const smallPadding = 6;
-        const portraitHeight = 100;
+    /**
+     * get active dialog for a given character, if any
+     * if there's no active dialog, but there's a default dialog, it's started
+     * @param {string} characterName
+     * @returns {[*]} three things: quest name for current dialog; 
+     * one of "introDialog", "rewardDialog" or "reminder dialog";
+     * and point number in dialog  
+     */
+    _getActiveDialogState(characterName) {
         let availableQuests = this._collectAvailableQuests(characterName);
         console.log("Available quests", availableQuests);
         if (!player.dialogState[characterName])
-            player.dialogState[characterName] = { currentQuest: "", currentTalkingPoint: 0 }
-        let dialogState = player.dialogState[characterName];
-
-        if (!dialogState.currentQuest) {
+            player.dialogState[characterName] = {}
+        let charDialogState = player.dialogState[characterName];
+        if (charDialogState.currentQuest) {
+            let dialogState = getCurrentDialogState(charDialogState.currentQuest);
+            if (dialogState != charDialogState.currentState) {
+                console.log(dialogState, " != ", charDialogState.currentState);
+                charDialogState.currentQuest = null;
+            }
+        }
+        if (!charDialogState.currentQuest) {
             for (let questName of availableQuests) {
                 let dialog = getCurrentDialog(questName);
-                if (dialog[0][0] == "") { // первая реплика в этом диалоге принадлежит не игроку
-                    dialogState.currentQuest = questName;
-                    dialogState.currentTalkingPoint = 0;
+                if (dialog[0][0] == "") { // первая реплика в этом диалоге принадлежит не игроку - диалог "по умолчанию"
+                    charDialogState.currentQuest = questName;
+                    charDialogState.currentState = getCurrentDialogState(questName);
+                    charDialogState.currentTalkingPoint = 0;
                     break;
                 }
             }
         }
+        return [charDialogState.currentQuest, charDialogState.currentState, charDialogState.currentTalkingPoint];
+    }
 
-        let dialog = getCurrentDialog(dialogState.currentQuest);
-        let currentTalkingPoint = dialog[dialogState.currentTalkingPoint];
-
-        // prepare portrait, caption and speaker data
+    _getCharacterSpeechData(characterName, currentQuest, currentState, currentTalkingPoint) {
         let who = characters[characterName];
-        let caption = who.text;
-        let portrait = who.portrait;
-        let speaker = who.speaker;
-        if (currentTalkingPoint.length > 3) {
-            speaker = currentTalkingPoint[3];
-            portrait = speaker.portrait;
-            caption = speaker.text;
+        let characterDescription = who.text, characterSpeech, portrait = who.portrait, speaker = who.speaker;
+        if (currentQuest && currentState) {
+            console.log(currentQuest, currentState, currentTalkingPoint, quests[currentQuest], quests[currentQuest][currentState]);
+            let currentTalkingPointData = quests[currentQuest][currentState][currentTalkingPoint];
+            characterSpeech = currentTalkingPointData[1];
+            if (currentTalkingPointData.length > 3) {
+                speaker = currentTalkingPoint[3];
+                portrait = speaker.portrait;
+                characterDescription = speaker.text;    
+            }
+        } else {
+            if ('getGreeting' in who)
+                characterSpeech = who.getGreeting();
+            else {
+                characterSpeech = "Рад тебя видеть, Билл";
+                console.error("No default greeting for", characterName, "add getGreeting()");
+            }
         }
-        if (!speaker)
+        if (!speaker) {
             speaker = {
                 color: "rgb(10, 10, 10)",
                 bgColor: "rgb(239, 230, 215)",
                 font: '18px sans-serif',
                 portrait: who.portrait
             };
-        //
+        }
+        return [characterDescription, characterSpeech, portrait, speaker]
+    }
+
+    _getPlayerAnswers(characterName, currentQuest, currentState, currentTalkingPoint) {
+        let res = [];
+        if (currentQuest && currentState) {
+            let currentDialog = quests[currentQuest][currentState];
+            let currentTalkingPointData = currentDialog[currentTalkingPoint];
+            let answerNums = currentTalkingPointData[2];
+            if (answerNums.length > 0) {
+                for (let n of answerNums) {
+                    const answerText = currentDialog[n][0];
+                    res.push([answerText, currentQuest, currentState, n]);
+                }
+                return res;
+            } else {
+                finishDialog(currentQuest);
+                player.dialogState[characterName] = {}
+            }
+        }
+        let availableQuests = this._collectAvailableQuests(characterName);
+        for (let questName of availableQuests) {
+            const firstUtterance = getCurrentDialog(questName)[0][0];
+            if (firstUtterance != "") // первая реплика в этом диалоге принадлежит игроку - диалог не "по умолчанию"
+                res.push([firstUtterance, questName, getCurrentDialogState(questName), 0]);
+        }
+        return res;
+    }
+
+    _showTalkerUI(characterName) {
+        console.log("Talking to", characterName);
+        let [currentQuest, currentState, currentTalkingPoint] = this._getActiveDialogState(characterName);
+        let [characterDescription, characterSpeech, portrait, speaker] = 
+            this._getCharacterSpeechData(characterName, currentQuest, currentState, currentTalkingPoint);
+        
+        // character speaks
         setTimeout(() => {
-            ui.dialogUI.addMessage(currentTalkingPoint[1], speaker);
+            ui.dialogUI.addMessage(characterSpeech, speaker);
         }, 500);
-        this.buttons.push(new RichButton(ctx, padding, padding, width, portraitHeight, caption, currentTalkingPoint[1], portrait, false));
-        const portraitX = 100 + padding;
+
+        // character speech in the interface
+        this.buttons = []
+        const padding = 10;
+        const width = 768 - 2 * padding;
+        const smallPadding = 6;
+        const portraitHeight = 100;
+        this.buttons.push(new RichButton(ctx, padding, padding, width, portraitHeight, characterDescription, characterSpeech, portrait, false));
+
+        let playerAnswers = this._getPlayerAnswers(characterName, currentQuest, currentState, currentTalkingPoint);
+        // player answer buttons
+        const buttonX = 100 + padding;
         let buttonY = padding * 2 + portraitHeight;
-        const buttonWidth = 768 - 2 * portraitX;
+        const buttonWidth = 768 - 2 * buttonX;
         const fontSize = 20;
         const buttonHeight = 2 * (fontSize + padding);
-        if (currentTalkingPoint[2].length > 0) {
-            for (let n of currentTalkingPoint[2]) {
-                let answerText = dialog[n][0];
-                let b = new RichButton(ctx, portraitX, buttonY, buttonWidth, buttonHeight, "", answerText, null, false);
-                b.answerText = answerText;
-                b.nextQuest = dialogState.currentQuest;
-                b.nextTalkingPoint = n;
-                this.buttons.push(b);
-                buttonY += smallPadding + buttonHeight;
-            }
-        } else { // current dialog is finished
-            finishDialog(dialogState.currentQuest);
-            for (let questName of availableQuests) {
-                if (questName == dialogState.currentQuest)
-                    continue;
-                let dialog = getCurrentDialog(questName);
-                let talkingText = dialog[0][0];
-                let b = new RichButton(ctx, portraitX, buttonY, buttonWidth, buttonHeight, "", talkingText, null, false);
-                b.answerText = talkingText;
-                b.nextQuest = questName;
-                b.nextTalkingPoint = 0;
-                this.buttons.push(b);
-                buttonY += smallPadding + buttonHeight;
-            }
-            this._addExitButton(portraitX, buttonY);
+        for (let answer of playerAnswers) {
+            let answerText = answer[0];
+            if (answerText.length > 5 && this.alreadySaidMessages.indexOf(answerText) >= 0)
+                continue;
+            let b = new RichButton(ctx, buttonX, buttonY, buttonWidth, buttonHeight, "", answer[0], null, false);
+            b.answerText = answerText;
+            b.nextQuest = answer[1];
+            b.nextQuestState = answer[2];
+            b.nextTalkingPoint = answer[3];
+            this.buttons.push(b);
+            buttonY += smallPadding + buttonHeight;
         }
+        let insideSomeDialog = player.dialogState[characterName].currentQuest;
+        if (!insideSomeDialog)
+            this._addExitButton(buttonX, buttonY);
         this.selectedButton = 0;
         this.selectedTalker = characterName;
     }
@@ -628,8 +682,11 @@ class InsideHouseUI {
             let b = this.buttons[n + 1];
             if (typeof b.nextTalkingPoint == "number") {
                 ui.dialogUI.addMessage(b.answerText, playerSpeaker);
-                player.dialogState[t].currentQuest = b.nextQuest;
-                player.dialogState[t].currentTalkingPoint = b.nextTalkingPoint;
+                this.alreadySaidMessages.push(b.answerText);
+                let dialogState = player.dialogState[t];
+                dialogState.currentQuest = b.nextQuest;
+                dialogState.currentState = b.nextQuestState;
+                dialogState.currentTalkingPoint = b.nextTalkingPoint;
                 this._showTalkerUI(t);
             } else {
                 this._switchToTalkersOverview();
