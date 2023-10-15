@@ -2917,6 +2917,11 @@
                          "value":"\u041a\u0430\u043a\u043e\u0439 \u043d\u0435\u043f\u0440\u0438\u044f\u0442\u043d\u044b\u0439 \u043f\u0440\u0438\u0437\u0440\u0430\u043a. \u041d\u0430\u0432\u0435\u0440\u043d\u043e\u0435, \u0438 \u043f\u0440\u0438 \u0436\u0438\u0437\u043d\u0438 \u0431\u044b\u043b \u043d\u0435 \u0441\u0430\u043c\u044b\u043c \u0445\u043e\u0440\u043e\u0448\u0438\u043c \u0447\u0435\u043b\u043e\u0432\u0435\u043a\u043e\u043c!"
                         }, 
                         {
+                         "name":"Loot",
+                         "type":"string",
+                         "value":"scimitar"
+                        }, 
+                        {
                          "name":"Rules",
                          "type":"string",
                          "value":"vizier"

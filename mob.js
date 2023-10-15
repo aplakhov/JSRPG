@@ -182,7 +182,15 @@ class Mob {
         let loot = getProp(this.initialObj, "Loot");
         if (loot == "ManaBottle")
             world.objects.push(new ManaBottle(this.x, this.y));
-        else {
+        else if (loot && rpg[loot]) {
+            let item = rpg[loot];
+            world.objects.push(new DecorativeObject({
+                class: "DecorativeItem",
+                name: item.name,
+                Image: item.mapImg,
+                InventoryItem: loot
+            }, this.x, this.y, item.mapImg))
+        } else {
             let bonesImg = "bones";
             if (this.stats.bonesImg)
                 bonesImg = this.stats.bonesImg;

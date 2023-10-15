@@ -75,6 +75,35 @@ rpg = {
             "*делает крутой выпад*"
         ]
     },
+    scimitar: {
+        type: "sword",
+        quality: 3,
+        name: "Древний ятаган",
+        message: "Древний, но очень острый!",
+        reject: "У меня уже есть оружие не хуже",
+        equipImg: "Equip/scimitar",
+        inventoryImg: "Inventory/scimitar",
+        mapImg: "scimitar",
+        use_message: [
+            "Ууууу! Я прииизрак!",
+            "Тысячи лет я.... как там было дальше?",
+            "Кроваво-призрачный огонь на лезвии. Красота!"
+        ]
+    },
+    scimitar2: {
+        type: "sword",
+        quality: 3,
+        name: "Сабля разбойника",
+        message: "Тяжёлая.",
+        reject: "У меня уже есть оружие не хуже",
+        equipImg: "Equip/scimitar2",
+        inventoryImg: "Inventory/scimitar2",
+        mapImg: "scimitar2",
+        use_message: [
+            "Тысяча чертей!",
+            "Каналья!"
+        ]
+    },
     wooden_shield: {
         type: "shield",
         quality: 1,
