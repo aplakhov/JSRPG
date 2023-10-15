@@ -236,8 +236,15 @@ creatures = {
             mop: "Сухой тряпки призраки тоже не боятся",
             wet_mop: ["Нна!", "Шмяк!", "Получай!", "Плюх!"],
             "": "Этим бить призрака бесполезно"
-        }
-    },    
+        },
+        speaker: {
+            color: "rgb(10, 10, 10)",
+            bgColor: "rgb(161, 196, 196)",
+            font: '18px sans-serif',
+            portraits: ["Portraits/vizier"]
+        },
+        aggroMessages: ["Чужак. Шпион. Схватить. Пытать."],
+    },
     black_ghost: {
         hp: 40,
         attackMin: 6,
@@ -390,18 +397,13 @@ creatures = {
             bgColor: "rgb(179, 188, 157)",
             font: '18px sans-serif',
             portraits: [
-                "Portraits/goblin",
-                "Portraits/goblin2",                           
-                "Portraits/goblin4",
-                "Portraits/goblin5",                           
+                "Portraits/ataman"                           
             ]                           
         },
-        aggroMessages: [
-            "Йо-хо-хо!"
-        ],
-        normalImage: "Animations/ogre",
+        aggroMessages: ["Какого цвета твои кишки, мальчишка?"],
+        normalImage: "Animations/ataman",
         humanoidDrawing: 1,
-        bonesImg: "dead_ogre",
+        bonesImg: "dead_ataman",
         hpBarY: -7
     },
     living_lights: {
