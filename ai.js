@@ -13,12 +13,14 @@ function getMobEnemies(world, faction) {
     // for now we'll ignore it -- no massive battles right now anyways
     let enemyFaction;
     let res;
-    if (faction == 0) {
+    if (faction == 0) { // standard enemies
         enemyFaction = 1;
         res = [player];
-    } else if (faction == 1) {
+    } else if (faction == 1) { // player's allies
         enemyFaction = 0;
         res = [];
+    } else if (faction == 2) { // true neutrals
+        return [];
     } else {
         console.error("Unknown faction", faction);
         return [];

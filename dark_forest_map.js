@@ -418,7 +418,7 @@
                         {
                          "name":"faction",
                          "type":"int",
-                         "value":1
+                         "value":2
                         }],
                  "rotation":0,
                  "visible":true,
@@ -441,7 +441,7 @@
                         {
                          "name":"faction",
                          "type":"int",
-                         "value":1
+                         "value":2
                         }],
                  "rotation":0,
                  "visible":true,
@@ -464,7 +464,7 @@
                         {
                          "name":"faction",
                          "type":"int",
-                         "value":1
+                         "value":2
                         }],
                  "rotation":0,
                  "visible":true,
@@ -487,7 +487,7 @@
                         {
                          "name":"faction",
                          "type":"int",
-                         "value":1
+                         "value":2
                         }],
                  "rotation":0,
                  "visible":true,
