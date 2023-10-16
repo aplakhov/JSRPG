@@ -407,8 +407,17 @@ function _useLookingGlassAt(x, y) {
     if (x < 0 || y < 0 || x >= world.width || y >= world.height)
         return false;
     let target = world.pathfinding.isOccupied(x, y);
-    if (target) {
-        //...
+    if (target && target.initialObj) {
+        // learn fire from anything that burns
+        const fireEmitter = getProp(obj.initialObj, "Fire");
+        if (fireEmitter) {
+            const msgs = [
+                "Этот огонь никогда не гаснет. Явно магический.",
+                "Тоже так хочу научиться."
+            ]
+            discoverNewSpell(msgs, "fire");
+            return true;
+        }
         return false;
     }
     let tile = world.terrain[x][y];
@@ -432,7 +441,7 @@ function useLookingGlass() {
 }
 
 function discoverNewSpell(msgs, spell) {
-    if (playerKnowsSpell("water"))
+    if (playerKnowsSpell(spell))
         return;
     player.stats.spells.push(spell);    
     world.script._startSequence();

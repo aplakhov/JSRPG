@@ -7,7 +7,7 @@
  }
  if(typeof module === 'object' && module && module.exports) {
   module.exports = data;
- }})("dungeon1_map",
+ }})("mushrooms_map",
 { "compressionlevel":-1,
  "height":30,
  "infinite":false,
@@ -37,11 +37,11 @@
             6, 6, 6, 3, 3, 6, 6, 3, 6, 6, 3, 3, 6, 6, 6, 3, 6, 6, 6, 6, 3, 6, 3, 3, 6, 3, 3, 3, 3, 6,
             6, 6, 3, 3, 6, 6, 3, 3, 3, 6, 6, 3, 6, 3, 6, 6, 6, 6, 6, 3, 3, 6, 3, 6, 6, 3, 6, 6, 3, 6,
             6, 3, 3, 6, 6, 3, 3, 6, 3, 3, 6, 6, 6, 3, 3, 3, 3, 3, 3, 3, 6, 6, 6, 6, 6, 3, 6, 6, 6, 6,
-            6, 3, 6, 6, 6, 6, 6, 6, 6, 3, 3, 3, 6, 6, 6, 6, 3, 3, 6, 6, 6, 3, 3, 3, 6, 3, 3, 3, 3, 6,
-            6, 6, 6, 3, 3, 3, 3, 3, 6, 3, 6, 3, 3, 3, 3, 6, 3, 6, 6, 3, 3, 3, 6, 3, 6, 3, 6, 6, 3, 6,
-            6, 3, 3, 3, 6, 6, 6, 3, 6, 6, 6, 3, 6, 6, 3, 3, 3, 3, 3, 3, 6, 3, 6, 3, 6, 6, 6, 3, 3, 6,
-            6, 3, 6, 3, 6, 3, 6, 3, 3, 3, 3, 3, 3, 6, 6, 6, 3, 6, 6, 6, 6, 3, 6, 3, 3, 3, 6, 3, 6, 6,
-            6, 3, 3, 3, 3, 3, 6, 3, 6, 6, 6, 6, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 6, 3, 6, 3, 3, 3, 6, 6,
+            6, 6, 6, 6, 6, 6, 6, 6, 6, 3, 3, 3, 6, 6, 6, 6, 3, 3, 6, 6, 6, 3, 3, 3, 6, 3, 3, 3, 3, 6,
+            6, 3, 3, 3, 6, 6, 3, 3, 6, 3, 6, 3, 3, 3, 3, 6, 3, 6, 6, 3, 3, 3, 6, 3, 6, 3, 6, 6, 3, 6,
+            6, 3, 3, 3, 6, 3, 3, 3, 6, 6, 6, 3, 6, 6, 3, 3, 3, 3, 3, 3, 6, 3, 6, 3, 6, 6, 6, 3, 3, 6,
+            6, 3, 3, 3, 6, 3, 6, 3, 3, 3, 3, 3, 3, 6, 6, 6, 3, 6, 6, 6, 6, 3, 6, 3, 3, 3, 6, 3, 6, 6,
+            6, 6, 6, 3, 3, 3, 6, 3, 6, 6, 6, 6, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 6, 3, 6, 3, 3, 3, 6, 6,
             6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
          "height":30,
          "id":1,
@@ -94,8 +94,8 @@
                  "rotation":0,
                  "visible":true,
                  "width":0,
-                 "x":48.067070330694,
-                 "y":239.21751280857
+                 "x":45.067070330694,
+                 "y":276.21751280857
                 }, 
                 {
                  "class":"Mob",
@@ -122,8 +122,8 @@
                  "rotation":0,
                  "visible":true,
                  "width":0,
-                 "x":335.351653469958,
-                 "y":306.287843502562
+                 "x":399.351653469958,
+                 "y":274.287843502562
                 }, 
                 {
                  "class":"Mob",
@@ -346,8 +346,8 @@
                  "rotation":0,
                  "visible":true,
                  "width":0,
-                 "x":45.8313926408943,
-                 "y":784.722869119702
+                 "x":47.8313926408943,
+                 "y":759.389535786369
                 }, 
                 {
                  "class":"Mob",
@@ -404,6 +404,283 @@
                  "width":0,
                  "x":48.067070330694,
                  "y":528.737773637634
+                }, 
+                {
+                 "class":"BigScaryObject",
+                 "height":0,
+                 "id":25,
+                 "name":"\u0416\u0435\u0440\u043b\u043e",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Fire",
+                         "type":"string",
+                         "value":"20"
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"volcano"
+                        }, 
+                        {
+                         "name":"OccupiedTiles",
+                         "type":"string",
+                         "value":"[[0,0,0],[0,1,0]]"
+                        }, 
+                        {
+                         "name":"ScriptName",
+                         "type":"string",
+                         "value":"volcano"
+                        }, 
+                        {
+                         "name":"ZeroX",
+                         "type":"int",
+                         "value":32
+                        }, 
+                        {
+                         "name":"ZeroY",
+                         "type":"int",
+                         "value":32
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":79.5820524763235,
+                 "y":851.97484862599
+                }, 
+                {
+                 "class":"Message",
+                 "height":99.5624902965378,
+                 "id":27,
+                 "name":"\u0416\u0430\u0440\u043a\u043e \u0442\u0443\u0442. \u0418 \u0437\u0435\u043c\u043b\u044f \u0434\u0440\u043e\u0436\u0438\u0442.",
+                 "rotation":0,
+                 "visible":true,
+                 "width":100.296848315479,
+                 "x":30.3561558764167,
+                 "y":799.762614500854
+                }, 
+                {
+                 "class":"Message",
+                 "height":443.895833333333,
+                 "id":28,
+                 "name":"\u0427\u0442\u043e-\u0442\u043e \u043c\u043d\u0435 \u043f\u043e\u0434\u0441\u043a\u0430\u0437\u044b\u0432\u0430\u0435\u0442, \u0447\u0442\u043e \u044d\u0442\u043e \u043d\u0435 \u0442\u043e \u043f\u043e\u0434\u0437\u0435\u043c\u0435\u043b\u044c\u0435. \u0413\u043d\u043e\u043c\u044b \u0442\u0443\u0442 \u044f\u0432\u043d\u043e \u043d\u0438\u043a\u043e\u0433\u0434\u0430 \u043d\u0435 \u0436\u0438\u043b\u0438.",
+                 "rotation":0,
+                 "visible":true,
+                 "width":684.963666666667,
+                 "x":160.8515,
+                 "y":322.552083333333
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":31,
+                 "name":"\u0413\u0440\u0438\u0431\u044b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"shrooms"
+                        }, 
+                        {
+                         "name":"Light",
+                         "type":"int",
+                         "value":1
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":430.666666666667,
+                 "y":724
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":32,
+                 "name":"\u0413\u0440\u0438\u0431\u044b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"shrooms"
+                        }, 
+                        {
+                         "name":"Light",
+                         "type":"int",
+                         "value":1
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":750.333333333333,
+                 "y":919
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":33,
+                 "name":"\u0413\u0440\u0438\u0431\u044b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"shrooms"
+                        }, 
+                        {
+                         "name":"Light",
+                         "type":"int",
+                         "value":1
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":912,
+                 "y":241
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":34,
+                 "name":"\u0413\u0440\u0438\u0431\u044b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"shrooms"
+                        }, 
+                        {
+                         "name":"Light",
+                         "type":"int",
+                         "value":1
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":846,
+                 "y":495
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":35,
+                 "name":"\u0413\u0440\u0438\u0431\u044b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"shrooms"
+                        }, 
+                        {
+                         "name":"Light",
+                         "type":"int",
+                         "value":1
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":369,
+                 "y":722
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":36,
+                 "name":"\u0413\u0440\u0438\u0431\u044b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"shrooms"
+                        }, 
+                        {
+                         "name":"Light",
+                         "type":"int",
+                         "value":1
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":817,
+                 "y":817
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":37,
+                 "name":"\u0413\u0440\u0438\u0431\u044b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"shrooms"
+                        }, 
+                        {
+                         "name":"Light",
+                         "type":"int",
+                         "value":1
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":334,
+                 "y":305
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":38,
+                 "name":"\u0413\u0440\u0438\u0431\u044b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"shrooms"
+                        }, 
+                        {
+                         "name":"Light",
+                         "type":"int",
+                         "value":1
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":47,
+                 "y":241
+                }, 
+                {
+                 "class":"Message",
+                 "height":32.8960000000001,
+                 "id":39,
+                 "name":"\u042d\u0442\u0438 \u0442\u043e\u043d\u043d\u0435\u043b\u0438 \u0432\u0435\u0434\u0443\u0442 \u0432\u0441\u0451 \u0433\u043b\u0443\u0431\u0436\u0435 \u0438 \u0433\u043b\u0443\u0431\u0436\u0435...",
+                 "rotation":0,
+                 "visible":true,
+                 "width":42.964,
+                 "x":506.684666666667,
+                 "y":798.552
+                }, 
+                {
+                 "class":"MapTransition",
+                 "height":27.4942,
+                 "id":40,
+                 "name":"\u041e\u0431\u0440\u0430\u0442\u043d\u043e \u0432 \u0414\u0440\u0435\u043c\u0443\u0447\u0438\u0439 \u043b\u0435\u0441",
+                 "properties":[
+                        {
+                         "name":"Target",
+                         "type":"string",
+                         "value":"dark_forest_map"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":111.535,
+                 "x":6.23249999999996,
+                 "y":0.252899999999954
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -412,7 +689,7 @@
          "y":0
         }],
  "nextlayerid":3,
- "nextobjectid":25,
+ "nextobjectid":41,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.9.2",

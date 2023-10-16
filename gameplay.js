@@ -81,6 +81,7 @@ class World {
             "desert_test_map": DesertMapScript,
             "palace_map": PalaceMapScript,
             "dark_forest_map": DarkForestMapScript,
+            "mushrooms_map": MushroomsMapScript,
             "north_map": NorthMapScript,
             "edge_map": EdgeScript,
             // chapter 3
@@ -138,6 +139,9 @@ class World {
                 this.fire.addConstantEmitter(obj.x, obj.y, strength);
                 obj.additionalLight = Math.floor(strength / 20);
             }
+            let additionalLight = getProp(obj.initialObj, "Light");
+            if (additionalLight)
+                obj.additionalLight = additionalLight;
             let fountain = getProp(obj.initialObj, "Fountain");
             if (fountain) {
                 let strength = Number(fountain);
@@ -266,7 +270,8 @@ class World {
         this.removeDeadObjects();
         this.vision.recalculateLocalVisibility();
         this.pathfinding.recalculateOccupiedTiles(this.objects);
-        this.script.nextTurn(forced);
+        if ('nextTurn' in this.script)
+            this.script.nextTurn(forced);
     }
 
     isInside(x, y) {

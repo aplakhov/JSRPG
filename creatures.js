@@ -132,9 +132,9 @@ creatures = {
         bonesImg: "dead_red_spider"
     },
     slug: {
-        hp: 30,
-        attackMin: 4,
-        attackMax: 10,
+        hp: 40,
+        attackMin: 8,
+        attackMax: 12,
         attackRadius: 1,
         roamRadius: 8,
         aggroRadius: 5,
