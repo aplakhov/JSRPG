@@ -13,10 +13,10 @@ creatures = {
             bgColor: "rgb(179, 188, 157)",
             font: '18px sans-serif',
             portraits: [
-                "Portraits/goblin",
+                "Portraits/goblin1",
                 "Portraits/goblin2",                           
-                "Portraits/goblin4",
-                "Portraits/goblin5",                           
+                "Portraits/goblin3",
+                "Portraits/goblin4",                           
             ]                           
         },
         aggroMessages: [
