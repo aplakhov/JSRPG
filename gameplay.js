@@ -215,6 +215,10 @@ class World {
                 continue;
             }
             let added = this.addNewObject(obj, gameObj.x, gameObj.y);
+            if (!added) {
+                console.error("Failed to add an object for saved obj", gameObj);
+                continue;
+            }
             recursiveRestore(added, gameObj);
         }
     }

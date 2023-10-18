@@ -185,7 +185,7 @@ class Mob {
         else if (loot && rpg[loot]) {
             let item = rpg[loot];
             world.objects.push(new DecorativeObject({
-                class: "DecorativeItem",
+                class: "DecorativeObject",
                 name: item.name,
                 Image: item.mapImg,
                 InventoryItem: loot
