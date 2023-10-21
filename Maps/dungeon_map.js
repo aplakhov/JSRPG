@@ -236,6 +236,35 @@
                  "width":97.297,
                  "x":95.8515000000002,
                  "y":1505.21875
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":30,
+                 "name":"\u041a\u0430\u043a\u043e\u0439-\u0442\u043e \u0436\u0443\u0442\u043a\u0438\u0439 \u043c\u043e\u043d\u0441\u0442\u0440",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"dead_red_spider"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":239,
+                 "y":1624
+                }, 
+                {
+                 "class":"Message",
+                 "height":99.5630000000001,
+                 "id":31,
+                 "name":"\u041d\u0443 \u0438 \u043f\u0430\u0443\u043a\u0438 \u0442\u0443\u0442 \u043e\u0431\u0438\u0442\u0430\u044e\u0442. \u041d\u0430\u0434\u043e \u0431\u044b\u0442\u044c \u0432\u043d\u0438\u043c\u0430\u0442\u0435\u043b\u044c\u043d\u0435\u0439, \u043d\u0435 \u0445\u043e\u0442\u0435\u043b\u043e\u0441\u044c \u0431\u044b \u0442\u0430\u043a\u043e\u0433\u043e \u0432\u0441\u0442\u0440\u0435\u0442\u0438\u0442\u044c.",
+                 "rotation":0,
+                 "visible":true,
+                 "width":63.297,
+                 "x":223.3515,
+                 "y":1565.2185
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -244,7 +273,7 @@
          "y":0
         }],
  "nextlayerid":3,
- "nextobjectid":30,
+ "nextobjectid":32,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.9.2",
