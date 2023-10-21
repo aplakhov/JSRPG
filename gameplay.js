@@ -82,6 +82,7 @@ class World {
             "palace_map": PalaceMapScript,
             "dark_forest_map": DarkForestMapScript,
             "mushrooms_map": MushroomsMapScript,
+            "dungeon_map": DungeonScript,
             "north_map": NorthMapScript,
             "edge_map": EdgeScript,
             // chapter 3
