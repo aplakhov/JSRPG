@@ -123,7 +123,7 @@ setInterval(() => {
 
 setInterval(
     () => {
-        if (world.script.stopGameplayTime)
+        if (world.script.stopGameplayTime || ui.blockingUI)
             return;
         world.nextTurn(false);
         player.nextTurn();
