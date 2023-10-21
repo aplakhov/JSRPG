@@ -1831,6 +1831,23 @@
                  "width":1139.24242424242,
                  "x":2757.65151515152,
                  "y":-25.560606060606
+                }, 
+                {
+                 "class":"MapTransition",
+                 "height":96,
+                 "id":85,
+                 "name":"\u0412 \u043f\u043e\u0434\u0437\u0435\u043c\u0435\u043b\u044c\u044f",
+                 "properties":[
+                        {
+                         "name":"Target",
+                         "type":"string",
+                         "value":"dungeon_map"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":32,
+                 "x":3808,
+                 "y":384
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -1839,7 +1856,7 @@
          "y":0
         }],
  "nextlayerid":3,
- "nextobjectid":85,
+ "nextobjectid":86,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.9.2",
