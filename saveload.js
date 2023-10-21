@@ -51,8 +51,6 @@ function recursiveRestore(to, from) {
     }
 }
 
-let lastAutosave = {}
-
 function autosave() {
     let worldState = saveWorld(world);
     let playerState = JSON.stringify(player);
@@ -62,11 +60,9 @@ function autosave() {
     console.log("Player state: ", playerState.length);
     console.log("Dialogs state: ", dialogsState.length);
     console.log("Total: ", worldState.length + playerState.length + dialogsState.length);
-    lastAutosave = {
-        world: worldState,
-        player: playerState,
-        dialogs: dialogsState
-    }
+    localStorage["autosave.world"] = worldState;
+    localStorage["autosave.player"] = playerState;
+    localStorage["autosave.dialogs"] = dialogsState;
 }
 
 function loadDialogs(dialogStr) {
@@ -84,10 +80,10 @@ function loadDialogs(dialogStr) {
 }
 
 function loadAutosave() {
-    world.load(JSON.parse(lastAutosave.world));
-    playerState = JSON.parse(lastAutosave.player);
+    world.load(JSON.parse(localStorage["autosave.world"]));
+    playerState = JSON.parse(localStorage["autosave.player"]);
     recursiveRestore(player, playerState);
-    loadDialogs(lastAutosave.dialogs);
+    loadDialogs(localStorage["autosave.dialogs"]);
     world.vision.recalculateLocalVisibility();
 }
 
@@ -97,9 +93,6 @@ function saveGameToLocalStorage() {
     localStorage["player"] = JSON.stringify(player);
     localStorage["dialogs"] = JSON.stringify(ui.dialogUI.messages);
     localStorage["map"] = world.mapName;
-    localStorage["autosave.world"] = lastAutosave.world;
-    localStorage["autosave.player"] = lastAutosave.player;
-    localStorage["autosave.dialogs"] = lastAutosave.dialogs;
 }
 
 function loadGameFromLocalStorage() {
@@ -110,9 +103,6 @@ function loadGameFromLocalStorage() {
             recursiveRestore(player, playerState);
         } else if (prop == "dialogs") {
             loadDialogs(localStorage[prop]);
-        } else if (prop.startsWith("autosave.")) {
-            propName = prop.substring(9);
-            lastAutosave[propName] = localStorage[propName];
         } else if (prop.startsWith("world.")) {
             mapName = prop.substring(6);
             worlds[mapName] = new World(mapName);
