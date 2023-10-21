@@ -196,6 +196,8 @@ class ManaBar {
 
     draw(mana, maxMana, x, y) {
         let wMana = Math.floor(this.barWidth * mana / maxMana);
+        if (wMana < 0)
+            wMana = 0;
 
         this.ctx.fillStyle = this.color1;
         this.ctx.fillRect(x, y - 4, wMana, 8);

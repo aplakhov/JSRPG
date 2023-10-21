@@ -97,8 +97,32 @@ class AIStupidLandMob {
         if (this.stats && this.stats.movement == "land_mob") {
             if (this.aggred && enemies.length > 0)
                 this._moveTowardsEnemy(me, enemies);
+            else if (this.patrolPath)
+                this._followPatrolPath(me);
             else
                 this._moveRandomlyInsideRoamingArea(me);
+        }
+    }
+
+    _followPatrolPath(me) {
+        if (!this.patrolPathNextPoint)
+            this.patrolPathNextPoint = 0;
+        const patrolPt = this.patrolPath[this.patrolPathNextPoint]; 
+        let [nextx, nexty] = world.pathfinding.findPath(me, me.x, me.y, patrolPt[0], patrolPt[1]);
+        if (world.pathfinding.isPassable(nextx, nexty, me)) {
+            me.x = nextx;
+            me.y = nexty;
+        } else
+            console.error("Pathfinding failed and returned impassable point");
+        if (me.x == patrolPt[0] && me.y == patrolPt[1]) {
+            if (this.reversePath && this.patrolPathNextPoint == 0)
+                this.reversePath = false;
+            if (!this.reversePath && this.patrolPathNextPoint + 1 == this.patrolPath.length)
+                this.reversePath = true;
+            if (this.reversePath)
+                this.patrolPathNextPoint--;
+            else
+                this.patrolPathNextPoint++;
         }
     }
 

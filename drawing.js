@@ -268,6 +268,8 @@ class Renderer {
                     images.draw(ctx, this.earthEar, 32*tile, 0, 32, 32, x*tileSize+16-px, y*tileSize+16-py, 32, 32)
             }
         }
+        if ('drawEarthEar' in world.script)
+            world.script.drawEarthEar(fromX, fromY, toX, toY, pixelOffset);
         for (let y = fromY; y < toY; y++) {
             for (let x = fromX; x < toX; x++) {
                 let objectThere = world.pathfinding.isOccupied(x, y);

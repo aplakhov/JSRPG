@@ -408,6 +408,9 @@ class ScriptArea {
             ctx.fillText(this.initialObj.name, x, y - 10);
         }
     }
+    isInsideXY(x, y) {
+        return x >= this.x && y >= this.y && x < this.x + this.w && y < this.y + this.h;
+    }
     isInside(obj) {
         const x = obj.x, y = obj.y;
         return x >= this.x && y >= this.y && x < this.x + this.w && y < this.y + this.h;
