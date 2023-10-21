@@ -198,14 +198,8 @@ class Renderer {
     } 
 
     _drawObj(ctx, pixelOffset, obj) {
-        if ('draw' in obj) {
-            let x = obj.x
-            let y = obj.y
-            let visible = 'isVisible' in obj ? obj.isVisible(pixelOffset) : world.vision.isVisibleSafe(x, y);
-            //TODO: check viewport for second case
-            if (visible)
-                obj.draw(ctx, x * tileSize - pixelOffset.x, y * tileSize - pixelOffset.y);
-        }
+        if ('draw' in obj)
+            obj.draw(ctx, obj.x * tileSize - pixelOffset.x, obj.y * tileSize - pixelOffset.y);
     }
     
     _drawObjects(ctx, pixelOffset, world) {
@@ -294,6 +288,8 @@ class Renderer {
         this._drawObjects(ctx, pixelOffset, world);
         this._drawTrees(ctx, pixelOffset, world);
         this._drawHighObjects(ctx, pixelOffset, world);
+        if ('drawUnderDarkness' in world.script)
+            world.script.drawUnderDarkness(ctx, pixelOffset);
         this._drawDarkness(ctx, pixelOffset, world);
         if (player.earthEarUntil && player.earthEarUntil > globalTimer)
             this._drawEarthEar(ctx, pixelOffset, world);

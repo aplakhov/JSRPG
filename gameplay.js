@@ -416,6 +416,9 @@ class ScriptArea {
         const x = obj.x, y = obj.y;
         return x >= this.x && y >= this.y && x < this.x + this.w && y < this.y + this.h;
     }
+    onContact(player) {
+        this.touchedByPlayer = true;
+    }
 };
 
 class Autosave {
