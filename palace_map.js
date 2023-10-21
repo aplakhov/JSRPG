@@ -2931,6 +2931,29 @@
                  "width":0,
                  "x":975,
                  "y":3094
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":165,
+                 "name":"\u0417\u0435\u0440\u043a\u0430\u043b\u044c\u0446\u0435",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"mirror"
+                        }, 
+                        {
+                         "name":"InventoryItem",
+                         "type":"string",
+                         "value":"mirror"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":271,
+                 "y":3283
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -2939,7 +2962,7 @@
          "y":0
         }],
  "nextlayerid":3,
- "nextobjectid":165,
+ "nextobjectid":166,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.9.2",
