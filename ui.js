@@ -100,7 +100,7 @@ class DialogUI {
         if (!okToRepeat) {
             for (let n = this.messages.length - 1; n >= 0; n--) {
                 let oldMessage = this.messages[n];
-                if (text == oldMessage.text && portrait && portrait.src == oldMessage.portrait.src)
+                if (text == oldMessage.text && portrait && portrait == oldMessage.portrait)
                     return false;
             }
         }
@@ -127,6 +127,61 @@ class DialogUI {
         }
     }
 
+    _isNew(text, portrait) {
+        for (let n = this.messages.length - 1; n >= 0 && n >= this.messages.length - 25; n--) {
+            let oldMessage = this.messages[n];
+            if (text && text == oldMessage.text)
+                return false;
+            if (portrait && portrait == oldMessage.portrait)
+                return false;
+        }
+        return true;
+    }
+
+    _getNewMessage(messages) {
+        const offset = Math.floor(Math.random() * 840);
+        for (let n = 0; n < messages.length; n++) {
+            let message = messages[(n + offset) % messages.length];
+            if (this._isNew(message, null))
+                return message;
+        }
+        return null;
+    }
+
+    _getNewPortrait(portraits) {
+        const offset = Math.floor(Math.random() * 840);
+        for (let n = 0; n < portraits.length; n++) {
+            let portrait = portraits[(n + offset) % portraits.length];
+            if (this._isNew(null, portrait))
+                return portrait;
+        }
+        return null;
+    }
+
+    addRandomNoRepeatMessage(messages, speaker, baseTile) {
+        const message = this._getNewMessage(messages);
+        console.log("Selected message", message, "from", messages);
+        if (!message)
+            return;
+        if (speaker.portrait) {
+            this.addMessage(message, speaker, baseTile, true);
+        } else if (speaker.portraits) {
+            let portrait = this._getNewPortrait(speaker.portraits);
+            if (!portrait)
+                portrait = randomFrom(speaker.portraits);
+            console.log("Selected portrait", portrait, "from", speaker.portraits);
+            const fixedSpeaker = {
+                color: speaker.color,
+                bgColor: speaker.bgColor,
+                font: speaker.font,
+                portrait: portrait
+            };
+            this.addMessage(message, fixedSpeaker, baseTile, true);
+        } else {
+            console.error("Bad speaker with messages", messages);
+        }
+    }
+    
     draw() {
         let timeFromLastMessage = Date.now() / 1000. - this.lastMessageAdded;
         if (timeFromLastMessage > 1)
@@ -574,7 +629,7 @@ class InsideHouseUI {
             let currentTalkingPointData = quests[currentQuest][currentState][currentTalkingPoint];
             characterSpeech = currentTalkingPointData[1];
             if (currentTalkingPointData.length > 3) {
-                speaker = currentTalkingPoint[3];
+                speaker = currentTalkingPointData[3];
                 portrait = speaker.portrait;
                 characterDescription = speaker.text;    
             }

@@ -78,17 +78,8 @@ class AIStupidLandMob {
 
     _aggro(me) {
         this.aggred = true;
-        if ('aggroMessages' in this.stats && 'speaker' in this.stats) {
-            let msg = randomNoRepeatFrom(this.stats.aggroMessages);
-            let speaker = {
-                color: this.stats.speaker.color,
-                bgColor: this.stats.speaker.bgColor,
-                font: this.stats.speaker.font,
-                portrait: images.prepare(randomNoRepeatFrom(this.stats.speaker.portraits))
-            };
-            if (msg && speaker.portrait)
-                ui.dialogUI.addMessage(msg, speaker, me);
-        }
+        if ('aggroMessages' in this.stats && 'speaker' in this.stats)
+            ui.dialogUI.addRandomNoRepeatMessage(this.stats.aggroMessages, this.stats.speaker, me)
     }
 
     _move(me, enemies, forced) {
