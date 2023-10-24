@@ -132,6 +132,10 @@ class Player {
                 equipmentFrameY = 1;
             }
         }
+        if ('drawPlayer' in world.script) {
+            if (world.script.drawPlayer(ctx, this.frameX, frameY, x, y))
+                return;
+        }
         const drawEquipment = this.img == "Animations/player";
         const swordOnTheBack = (this.frameX == 1 || this.frameX == 2);
         const shieldOnTheBack = (this.frameX == 1);

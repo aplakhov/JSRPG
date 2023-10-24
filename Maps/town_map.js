@@ -344,6 +344,23 @@
                  "width":347.535165346996,
                  "x":639.7643223102,
                  "y":1314.36748952026
+                }, 
+                {
+                 "class":"MapTransition",
+                 "height":32,
+                 "id":18,
+                 "name":"\u0414\u043e\u0440\u043e\u0433\u0430 \u0432 \u0414\u0440\u0435\u043c\u0443\u0447\u0438\u0439 \u043b\u0435\u0441",
+                 "properties":[
+                        {
+                         "name":"Target",
+                         "type":"string",
+                         "value":"dark_forest_map"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":32,
+                 "x":1760,
+                 "y":1216
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -352,7 +369,7 @@
          "y":0
         }],
  "nextlayerid":3,
- "nextobjectid":18,
+ "nextobjectid":19,
  "orientation":"orthogonal",
  "renderorder":"left-down",
  "tiledversion":"1.9.2",

@@ -1848,6 +1848,23 @@
                  "width":32,
                  "x":3808,
                  "y":384
+                }, 
+                {
+                 "class":"MapTransition",
+                 "height":96,
+                 "id":86,
+                 "name":"\u0412 \u0433\u043e\u0440\u043e\u0434",
+                 "properties":[
+                        {
+                         "name":"Target",
+                         "type":"string",
+                         "value":"town_map"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":32,
+                 "x":0,
+                 "y":0
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -1856,7 +1873,7 @@
          "y":0
         }],
  "nextlayerid":3,
- "nextobjectid":86,
+ "nextobjectid":87,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.9.2",

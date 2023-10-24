@@ -17,18 +17,6 @@ function randomFrom(array) {
     return array[n];
 }
 
-function randomNoRepeatFrom(array) {
-    for (let n = 0; n < 4; n++) {
-        let n = Math.floor(Math.random() * array.length);
-        if (array[n]) {
-            let res = array[n];
-            array[n] = null;
-            return res;
-        }
-    }
-    return null;
-}
-
 function prepareImageFor(obj) {
     let imageName = getProp(obj, "Image");
     return images.prepare(imageName);
@@ -591,6 +579,9 @@ class SmoothlyChangingNumber {
         if (globalTimer > this.timeAtTarget)
             return this.target;
         return this.val + (this.target - this.val) * (globalTimer - this.timeAtVal) / (this.timeAtTarget - this.timeAtVal);
+    }
+    atTarget() {
+        return this.get() == this.target;
     }
 };
 
