@@ -45,7 +45,7 @@ creatures = {
             color: "rgb(10, 10, 10)",
             bgColor: "rgb(241, 159, 89)",
             font: '18px sans-serif',
-            portraits: ["Portraits/scorpio", "Portraits/scorpio", "Portraits/scorpio"]
+            portrait: "Portraits/scorpio"
         },
         aggroMessages: [
             "Щёлк, щёлк! Щёлк.",
@@ -70,7 +70,7 @@ creatures = {
             color: "rgb(10, 10, 10)",
             bgColor: "rgb(241, 159, 89)",
             font: '18px sans-serif',
-            portraits: ["Portraits/scorpio", "Portraits/scorpio", "Portraits/scorpio"]
+            portrait: "Portraits/scorpio"
         },
         aggroMessages: [
             "Щёлк, щёлк! Щёлк.",
@@ -95,7 +95,7 @@ creatures = {
             color: "rgb(10, 10, 10)",
             bgColor: "rgb(255, 89, 89)",
             font: '18px sans-serif',
-            portraits: ["Portraits/scorpio", "Portraits/scorpio", "Portraits/scorpio"]
+            portrait: "Portraits/scorpio"
         },
         aggroMessages: [
             "ЩЁЛК. ЩЁЛК.",
@@ -119,7 +119,7 @@ creatures = {
             color: "rgb(10, 10, 10)",
             bgColor: "rgb(255, 89, 89)",
             font: '18px sans-serif',
-            portraits: ["Portraits/spider1", "Portraits/spider2", "Portraits/spider1", "Portraits/spider2"]
+            portraits: ["Portraits/spider1", "Portraits/spider2"]
         },
         aggroMessages: [
             "ζ(x)=0 → Re(x)=½",
@@ -144,7 +144,7 @@ creatures = {
             color: "rgb(10, 10, 10)",
             bgColor: "rgb(241, 159, 89)",
             font: '18px sans-serif',
-            portraits: ["Portraits/slug", "Portraits/slug", "Portraits/slug"]
+            portrait: "Portraits/slug"
         },
         aggroMessages: [
             "Флииип",
@@ -168,7 +168,7 @@ creatures = {
             color: "rgb(10, 10, 10)",
             bgColor: "rgb(161, 196, 196)",
             font: '18px sans-serif',
-            portraits: ["Portraits/yeti1", "Portraits/yeti2", "Portraits/yeti1", "Portraits/yeti2"]
+            portraits: ["Portraits/yeti1", "Portraits/yeti2"]
         },
         aggroMessages: [
             "Гррррр.",
@@ -194,7 +194,7 @@ creatures = {
             color: "rgb(10, 10, 10)",
             bgColor: "rgb(161, 196, 196)",
             font: '18px sans-serif',
-            portraits: ["Portraits/ghost1", "Portraits/ghost2", "Portraits/ghost1", "Portraits/ghost2"]
+            portraits: ["Portraits/ghost1", "Portraits/ghost2"]
         },
         aggroMessages: [
             "...Запах живой плоти...",
@@ -241,7 +241,7 @@ creatures = {
             color: "rgb(10, 10, 10)",
             bgColor: "rgb(161, 196, 196)",
             font: '18px sans-serif',
-            portraits: ["Portraits/vizier"]
+            portrait: "Portraits/vizier"
         },
         aggroMessages: ["Чужак. Шпион. Схватить. Пытать."],
     },
@@ -258,7 +258,7 @@ creatures = {
             color: "rgb(10, 10, 10)",
             bgColor: "rgb(161, 196, 196)",
             font: '18px sans-serif',
-            portraits: ["Portraits/black_ghost1", "Portraits/black_ghost2", "Portraits/black_ghost1", "Portraits/black_ghost2"]
+            portraits: ["Portraits/black_ghost1", "Portraits/black_ghost2"]
         },
         aggroMessages: [
             "...Я так давно не спала...",
@@ -291,7 +291,7 @@ creatures = {
             color: "rgb(10, 10, 10)",
             bgColor: "rgb(128, 128, 128)",
             font: '18px sans-serif',
-            portraits: ["Portraits/wolf1", "Portraits/wolf2", "Portraits/wolf1", "Portraits/wolf2"]
+            portraits: ["Portraits/wolf1", "Portraits/wolf2"]
         },
         aggroMessages: [
             "Уууууу!",
@@ -314,7 +314,7 @@ creatures = {
             color: "rgb(18, 130, 217)",
             bgColor: "rgb(220, 240, 250)",
             font: '18px sans-serif',
-            portraits: ["Portraits/wolf1", "Portraits/wolf2", "Portraits/wolf1", "Portraits/wolf2"]
+            portraits: ["Portraits/wolf1", "Portraits/wolf2"]
         },
         aggroMessages: [
             "Уууууу!",
@@ -339,7 +339,6 @@ creatures = {
             bgColor: "rgb(199, 194, 176)",
             font: '18px sans-serif',
             portraits: [
-                "Portraits/pirate1",
                 "Portraits/pirate1",
                 "Portraits/pirate2",                           
                 "Portraits/pirate3"                           
@@ -396,9 +395,7 @@ creatures = {
             color: "rgb(10, 10, 10)",
             bgColor: "rgb(179, 188, 157)",
             font: '18px sans-serif',
-            portraits: [
-                "Portraits/ataman"                           
-            ]                           
+            portrait: "Portraits/ataman"                  
         },
         aggroMessages: ["Какого цвета твои кишки, мальчишка?"],
         normalImage: "Animations/ataman",
