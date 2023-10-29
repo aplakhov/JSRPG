@@ -192,9 +192,6 @@ class Renderer {
         this._drawTerrainBorder(ctx, pixelOffset, world, TERRAIN_GRASS, -1, TERRAIN_PAVEMENT, this.darkGrassBorderTiles);
         this._drawTerrainBorder(ctx, pixelOffset, world, TERRAIN_GRASS, -1, TERRAIN_SAND, this.darkGrassBorderTiles);        
         this._drawTerrainLayer(ctx, pixelOffset, world, TERRAIN_GRASS, this.grassTiles);
-
-        this._drawTerrainLayer(ctx, pixelOffset, world, TERRAIN_STONE_WALL, this.rockGroundTiles);
-        this._drawTerrainLayer(ctx, pixelOffset, world, TERRAIN_STONE_WALL, this.rockTiles);
     } 
 
     _drawObj(ctx, pixelOffset, obj) {
@@ -207,6 +204,8 @@ class Renderer {
             if (!obj.zLayer)
                 this._drawObj(ctx, pixelOffset, obj)
         };
+        this._drawTerrainLayer(ctx, pixelOffset, world, TERRAIN_STONE_WALL, this.rockGroundTiles);
+        this._drawTerrainLayer(ctx, pixelOffset, world, TERRAIN_STONE_WALL, this.rockTiles);
         player.draw(ctx, pixelOffset);
         for (let obj of world.objects) {
             if (obj.zLayer == 1)

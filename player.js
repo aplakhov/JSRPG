@@ -30,6 +30,11 @@ class Player {
             newy = dy + Math.round(this.pixelY.get() / tileSize);
         else
             newy = Math.round(this.pixelY.target / tileSize);
+        if ('tryMovePlayer' in world.script) {
+            const result = world.script.tryMovePlayer(dx, dy, newx, newy);
+            if (!result)
+                return false;
+        }
         if (!world.pathfinding.isPassable(newx, newy, this))
             return false;
         this.x = newx;

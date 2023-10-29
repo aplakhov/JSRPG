@@ -576,7 +576,7 @@ class SmoothlyChangingNumber {
     get() {
         if (!this.timeAtTarget)
             return this.target;
-        if (globalTimer > this.timeAtTarget)
+        if (globalTimer >= this.timeAtTarget)
             return this.target;
         return this.val + (this.target - this.val) * (globalTimer - this.timeAtVal) / (this.timeAtTarget - this.timeAtVal);
     }

@@ -409,7 +409,7 @@ function _useLookingGlassAt(x, y) {
     let target = world.pathfinding.isOccupied(x, y);
     if (target && target.initialObj) {
         // learn fire from anything that burns
-        const fireEmitter = getProp(obj.initialObj, "Fire");
+        const fireEmitter = getProp(target.initialObj, "Fire");
         if (fireEmitter) {
             const msgs = [
                 "Этот огонь никогда не гаснет. Явно магический.",
