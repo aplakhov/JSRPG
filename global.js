@@ -94,6 +94,13 @@ function reloadAll() {
     changeWorldTo(world.mapName);
 }
 
+function killAll() {
+    for (let o of world.objects) {
+        if ('applyDamage' in o)
+            o.die()
+    }
+}
+
 let globalTimer = Date.now() / 1000.;
 let renderer = new Renderer();
 let ui = new UI();

@@ -168,7 +168,10 @@ class World {
         if (!scriptName && obj.class == "ScriptArea")
             scriptName = obj.name;
         if (scriptName != "") {
-            console.log("Found object with name ", scriptName);
+            if (scriptName in this.scriptObjects)
+                console.error("Duplicate objects with name ", scriptName);
+            else
+                console.log("Found object with name ", scriptName);
             this.scriptObjects[scriptName] = this.objects.at(-1);
         }
         let coolImage = getProp(obj, "CoolImage");
