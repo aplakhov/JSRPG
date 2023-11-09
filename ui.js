@@ -38,6 +38,14 @@ function canvasOffset() {
     };
 }
 
+function countString(n) {
+    if (n == 1)
+        return "1 штука"
+    if (n > 1 && n <= 4)
+        return n + " штуки"
+    return n + " штук"
+}
+
 class TileUnderCursor {
     constructor() {
         this.x = 0;
@@ -527,10 +535,13 @@ class NearHouseUI {
 };
 
 class InsideHouseUI {
-    constructor(ctx, inside) {
+    constructor(ctx, inside, character) {
         this.inside = inside;
         this.alreadySaidMessages = [];
-        this._switchToTalkersOverview();
+        if (inside)
+            this._switchToTalkersOverview();
+        else
+            this._showTalkerUI(character);
     }
 
     _addExitButton(x, y) {
@@ -746,7 +757,12 @@ class InsideHouseUI {
                 dialogState.currentTalkingPoint = b.nextTalkingPoint;
                 this._showTalkerUI(t);
             } else {
-                this._switchToTalkersOverview();
+                if (this.inside)
+                    this._switchToTalkersOverview();
+                else {
+                    ui.blockingUI = null;
+                    ui.nearHouseUI.hidden = true;    
+                }
             }
         }
         this.ignoreClicks = true;
@@ -990,8 +1006,9 @@ class UI {
             }
         }
         for (let n = 0; n < player.inventory.length; n++) {
-            let item = rpg[player.inventory[n]];
-            let invSlotX = n % 3, invSlotY = Math.floor(n/3);
+            const itemName = player.inventory[n];
+            const item = rpg[itemName];
+            const invSlotX = n % 3, invSlotY = Math.floor(n/3);
             if (invSlotY >= 6)
                 break;
             this._drawInventoryItem(30 + 64 * invSlotX, 244 + 64 * invSlotY, item.inventoryImg);
@@ -999,6 +1016,21 @@ class UI {
                 tooltip = item.name;
                 tooltipEm = item.description;
             }
+            if (player.inventoryCounts && itemName in player.inventoryCounts) {
+                const quantity = player.inventoryCounts[itemName];
+                const quantityStr = quantity.toString();
+                ctx.font = systemMessageSpeaker.font;
+                ctx.fillStyle = systemMessageSpeaker.color;
+                const x = dialogUIleftOffset + 90 + 64 * invSlotX - ctx.measureText(quantityStr).width;
+                const y = 349 + 64 * invSlotY;
+                ctx.fillText(quantityStr, x, y);
+                if (areaUnderMouse == n) {
+                    if (tooltipEm)
+                        tooltipEm += " (" + countString(quantity) + ")"
+                    else
+                        tooltipEm = countString(quantity)
+                }
+            }            
         }
 
         if (tooltip)

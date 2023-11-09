@@ -196,7 +196,14 @@ class Player {
         }
         // check if already has one
         if (itemName == this.sword || itemName == this.shield || this.inventory.indexOf(itemName) >= 0) {
-            if (itemRpg.reject)
+            if (itemRpg.multiple) {
+                if (!this.inventoryCounts)
+                    this.inventoryCounts = {}
+                if (!(itemName in this.inventoryCounts))
+                    this.inventoryCounts[itemName] = 0;
+                this.inventoryCounts[itemName]++;
+            }
+            else if (itemRpg.reject)
                 ui.dialogUI.addMessage(itemRpg.reject, playerSpeaker, player);
             else
                 ui.dialogUI.addMessage(itemRpg.name + " у меня уже есть", playerSpeaker, player);
@@ -207,7 +214,6 @@ class Player {
         images.prepare(itemRpg.inventoryImg);
         if (itemRpg.message)
             ui.dialogUI.addMessage(itemRpg.message, playerSpeaker, player);
-        //ui.showStateHint(1);
         // see it should be auto-equipped
         if (itemRpg.type) {
             let currentItemInSlot = this[itemRpg.type];
