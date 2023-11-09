@@ -55,8 +55,8 @@
             6, 6, 7, 6, 3, 3, 3, 3, 3, 6, 3, 6, 7, 7, 7, 7, 3, 7, 3, 3, 3, 7, 3, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 7, 6,
             6, 6, 6, 6, 3, 6, 6, 6, 6, 6, 3, 6, 7, 7, 7, 7, 3, 7, 7, 7, 7, 7, 3, 7, 7, 7, 7, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 7, 6,
             6, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 6, 7, 7, 7, 7, 3, 3, 3, 3, 3, 3, 3, 7, 7, 7, 7, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 7, 6,
-            6, 3, 7, 7, 7, 7, 7, 7, 7, 3, 6, 6, 7, 7, 7, 7, 7, 7, 7, 3, 7, 7, 7, 7, 7, 7, 7, 6, 7, 7, 7, 7, 7, 7, 6, 6, 6, 6, 7, 6,
-            6, 3, 7, 7, 7, 7, 7, 7, 7, 3, 6, 6, 6, 6, 6, 6, 6, 6, 7, 3, 7, 6, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 6, 7, 7, 7, 7, 6,
+            6, 3, 3, 3, 7, 7, 7, 7, 7, 3, 6, 6, 7, 7, 7, 7, 7, 7, 7, 3, 7, 7, 7, 7, 7, 7, 7, 6, 7, 7, 7, 7, 7, 7, 6, 6, 6, 6, 7, 6,
+            6, 3, 3, 3, 7, 7, 7, 7, 7, 3, 6, 6, 6, 6, 6, 6, 6, 6, 7, 3, 7, 6, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 6, 7, 7, 7, 7, 6,
             6, 7, 7, 7, 7, 7, 7, 7, 7, 3, 6, 3, 3, 3, 3, 3, 3, 7, 7, 3, 7, 7, 3, 3, 3, 3, 3, 3, 6, 7, 7, 7, 7, 7, 6, 7, 7, 7, 7, 6,
             6, 7, 7, 7, 7, 7, 7, 7, 7, 3, 6, 3, 3, 3, 3, 3, 3, 7, 3, 3, 3, 7, 3, 3, 3, 3, 3, 3, 6, 7, 7, 7, 7, 7, 6, 7, 7, 7, 7, 6,
             6, 7, 7, 7, 7, 7, 7, 7, 7, 3, 6, 3, 3, 3, 3, 3, 3, 7, 3, 3, 3, 7, 3, 3, 3, 3, 3, 3, 6, 7, 7, 7, 7, 7, 6, 7, 7, 7, 7, 6,
@@ -68,8 +68,8 @@
             6, 7, 7, 7, 7, 7, 7, 7, 7, 3, 6, 7, 7, 7, 7, 3, 3, 3, 3, 3, 3, 3, 3, 3, 7, 7, 7, 7, 6, 7, 7, 7, 7, 7, 6, 7, 7, 7, 7, 6,
             6, 7, 7, 7, 7, 7, 7, 7, 7, 3, 6, 7, 7, 7, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 7, 7, 7, 6, 7, 7, 7, 7, 7, 6, 7, 7, 7, 7, 6,
             6, 7, 7, 7, 7, 7, 7, 7, 7, 3, 6, 7, 7, 7, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 7, 7, 7, 7, 6,
-            6, 3, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 7, 7, 7, 7, 6,
-            6, 3, 7, 7, 7, 7, 7, 7, 7, 3, 6, 7, 7, 7, 7, 3, 3, 3, 3, 3, 3, 3, 3, 3, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 7, 7, 7, 7, 6,
+            6, 3, 3, 3, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 7, 7, 7, 7, 6,
+            6, 3, 3, 3, 7, 7, 7, 7, 7, 3, 6, 7, 7, 7, 7, 3, 3, 3, 3, 3, 3, 3, 3, 3, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 7, 7, 7, 7, 6,
             6, 3, 3, 3, 3, 3, 3, 3, 3, 3, 6, 7, 7, 7, 7, 3, 3, 3, 3, 3, 3, 3, 3, 3, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 7, 7, 7, 7, 6,
             6, 6, 6, 6, 6, 6, 6, 6, 3, 3, 6, 7, 7, 7, 7, 7, 3, 3, 3, 3, 3, 3, 3, 7, 7, 7, 7, 7, 6, 7, 7, 7, 7, 7, 6, 3, 7, 7, 3, 6,
             6, 3, 3, 3, 3, 3, 3, 6, 3, 3, 6, 7, 7, 7, 7, 7, 7, 7, 3, 3, 3, 7, 7, 7, 7, 7, 7, 7, 6, 7, 7, 7, 7, 7, 6, 3, 7, 7, 3, 6,
@@ -2310,8 +2310,8 @@
                  "rotation":0,
                  "visible":true,
                  "width":0,
-                 "x":97,
-                 "y":1686
+                 "x":104,
+                 "y":1753
                 }, 
                 {
                  "class":"Mob",
@@ -2954,6 +2954,259 @@
                  "width":0,
                  "x":271,
                  "y":3283
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":166,
+                 "name":"\u041e\u0431\u0435\u0434\u0435\u043d\u043d\u044b\u0439 \u0441\u0442\u043e\u043b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Blocker",
+                         "type":"string",
+                         "value":"6x6"
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"Palace\/dining_table"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":45,
+                 "y":1526
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":167,
+                 "name":"\u041e\u0433\u0440\u043e\u043c\u043d\u044b\u0439 \u043a\u043e\u0442\u0451\u043b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Blocker",
+                         "type":"string",
+                         "value":"2x2"
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"Palace\/pot"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":47,
+                 "y":1335
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":168,
+                 "name":"\u0412\u043e\u0441\u0442\u043e\u0447\u043d\u0430\u044f \u043f\u0435\u0447\u044c",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Blocker",
+                         "type":"string",
+                         "value":"2x2"
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"Palace\/oven"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":45,
+                 "y":1810
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":169,
+                 "name":"\u041f\u0440\u0438\u043f\u0430\u0441\u044b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Blocker",
+                         "type":"string",
+                         "value":"3x1"
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"Palace\/goods1"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":43,
+                 "y":1910
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":171,
+                 "name":"\u041f\u0440\u0438\u043f\u0430\u0441\u044b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Blocker",
+                         "type":"string",
+                         "value":"2x1"
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"Palace\/goods2"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":47,
+                 "y":2036
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":172,
+                 "name":"\u041f\u0440\u0438\u043f\u0430\u0441\u044b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Blocker",
+                         "type":"string",
+                         "value":"true"
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"Palace\/goods3"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":45,
+                 "y":1971
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":173,
+                 "name":"\u041f\u0440\u0438\u043f\u0430\u0441\u044b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Blocker",
+                         "type":"string",
+                         "value":"3x1"
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"Palace\/goods1"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":74,
+                 "y":2545
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":174,
+                 "name":"\u041f\u0440\u0438\u043f\u0430\u0441\u044b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Blocker",
+                         "type":"string",
+                         "value":"2x1"
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"Palace\/goods2"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":45,
+                 "y":2485
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":176,
+                 "name":"\u041f\u0440\u0438\u043f\u0430\u0441\u044b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Blocker",
+                         "type":"string",
+                         "value":"3x1"
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"Palace\/goods1"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":47,
+                 "y":2612
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":177,
+                 "name":"\u041f\u0440\u0438\u043f\u0430\u0441\u044b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Blocker",
+                         "type":"string",
+                         "value":"2x1"
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"Palace\/goods2"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":204,
+                 "y":2547
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":178,
+                 "name":"\u041f\u0440\u0438\u043f\u0430\u0441\u044b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Blocker",
+                         "type":"string",
+                         "value":"true"
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"Palace\/goods3"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":47,
+                 "y":2545
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -2962,7 +3215,7 @@
          "y":0
         }],
  "nextlayerid":3,
- "nextobjectid":166,
+ "nextobjectid":179,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.9.2",

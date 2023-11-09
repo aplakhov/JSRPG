@@ -7,6 +7,23 @@ const mechSpeaker = {
 class DungeonScript extends AllScripts {
     constructor(world) {
         super();
+        this.triggers.push(() => {
+            const entryTablet = world.scriptObjects.entryTablet;
+            if (player.x == entryTablet.x && player.y == entryTablet.y) {
+                setTimeout(() => {
+                    ui.dialogUI.addMessage("А, ну да. Я же не умею говорить по-гномьи.", playerSpeaker, player);
+                }, 3000);
+                return true;
+            }
+        });
+        this.triggers.push(() => {
+            const terrain = world.terrain[player.x][player.y];
+            if (terrain == TERRAIN_GRASS) {
+                ui.dialogUI.addMessage("Трава? В таком месте? Что-то мне не по себе.", playerSpeaker, player);
+                return true;
+            }
+        });
+
         this._setupRails(world);
         this.vagonImg = images.prepare("Animations/player_vagon");
     }
@@ -49,7 +66,7 @@ class DungeonScript extends AllScripts {
         world.fire.emitters.push((fire, pixelOffset) => {
             if (world.script.domnaWorking) {
                 addSmokeParticle(world.scriptObjects.domna, 48, 20, 10, fire, pixelOffset);
-                addSmokeParticle(world.scriptObjects.gear, 28, 41, 7, fire, pixelOffset);
+                addSmokeParticle(world.scriptObjects.gear, 28, 41, 8, fire, pixelOffset);
             }
             return false;
         });
@@ -68,7 +85,10 @@ class DungeonScript extends AllScripts {
         const x = gear.x * tileSize - pixelOffset.x, y = gear.y * tileSize - pixelOffset.y;
         images.draw(ctx, springShadow, x + 105, y, gear.spring.get(), 96);
         images.draw(ctx, spring, x + 105, y, gear.spring.get(), 96);
-        images.drawRotated(ctx, rotating, gear.gearRotation.get(), x + 46, y + 44);
+        let partX = x;
+        if (world.script.domnaWorking)
+            partX += Math.random() * 2 - 1;
+        images.drawRotated(ctx, rotating, gear.gearRotation.get(), partX + 46, y + 44);
         images.draw(ctx, stationary, x, y);
     }
 
@@ -90,6 +110,61 @@ class DungeonScript extends AllScripts {
             else
                 player.applyDamage(10000, gear);
         }
+    }
+
+    _drawSpiderAbyss(ctx, pixelOffset) {
+        const spiderAbyss = world.scriptObjects.spiderAbyss;
+        const spiderInAbyss = world.scriptObjects.spiderInAbyss;
+        const darkSpider = images.prepare("Dungeon/dark_spider");
+        // collect all web points
+        if (!this.abyssWebPoints || this.abyssWebPoints.length == 0) {
+            this.abyssWebPoints = [];
+            const p = world.pathfinding;
+            for (let tx = spiderInAbyss.x - 5; tx <= spiderInAbyss.x + 5; tx++) {
+                for (let ty = spiderInAbyss.y - 5; ty <= spiderInAbyss.y + 5; ty++) {
+                    if (p.isOccupied(tx, ty) == spiderAbyss)
+                        continue;
+                    const way1 = (p.isOccupied(tx-1, ty) == spiderAbyss && p.isOccupied(tx, ty+1) == spiderAbyss)
+                    const way2 = (p.isOccupied(tx+1, ty) == spiderAbyss && p.isOccupied(tx, ty-1) == spiderAbyss)
+                    if (way1 || way2)
+                        this.abyssWebPoints.push([tx * tileSize + halfTileSize, ty * tileSize + halfTileSize])
+                }
+            }
+        }
+        // determine spider position
+        const startX = spiderInAbyss.x * tileSize + halfTileSize;
+        const startY = spiderInAbyss.y * tileSize + halfTileSize;
+        if (!this.abyssSpiderX) {
+            this.abyssSpiderX = startX;
+            this.abyssSpiderY = startY;
+            this.abyssSpiderMovement = 0;
+        }
+        if (Math.random() < 0.01)
+            this.abyssSpiderMovement = Math.floor(Math.random() * 3 - 1)
+        if (Math.random() < 0.2) {
+            this.abyssSpiderX += this.abyssSpiderMovement;
+            this.abyssSpiderY += this.abyssSpiderMovement;
+        }
+        if (this.abyssSpiderX > startX + 32)
+            this.abyssSpiderX = startX + 32;
+        if (this.abyssSpiderY > startY + 32)
+            this.abyssSpiderY = startY + 32;
+        if (this.abyssSpiderX < startX - 32)
+            this.abyssSpiderX = startX - 32;
+        if (this.abyssSpiderY < startY - 32)
+            this.abyssSpiderY = startY - 32;
+        // draw all web threads
+        ctx.strokeStyle = "rgba(192,192,192,0.4)";
+        ctx.lineWidth = 1;
+        for (const web of this.abyssWebPoints) {
+            ctx.beginPath();
+            const fromX = web[0] - pixelOffset.x, fromY = web[1] - pixelOffset.y;
+            ctx.moveTo(fromX, fromY);
+            ctx.lineTo(this.abyssSpiderX - pixelOffset.x, this.abyssSpiderY - pixelOffset.y);
+            ctx.stroke();            
+        }
+        // draw darkness above them
+        images.draw(ctx, darkSpider, this.abyssSpiderX - pixelOffset.x - 64, this.abyssSpiderY - pixelOffset.y - 64);
     }
 
     _playSpringJump() {
@@ -125,11 +200,11 @@ class DungeonScript extends AllScripts {
 
     tryMovePlayer(dx, dy, newx, newy) {
         const pushingVagon = world.scriptObjects.pushingVagon;
+        const domna = world.scriptObjects.domna;
         if (pushingVagon && pushingVagon.x == newx && pushingVagon.y == newy) {
-            if (dy == 0) {
+            if (dy == 0 && pushingVagon.x + dx <= domna.x + 33) {
                 pushingVagon.x += dx;
                 pushingVagon.pixelX.set(pushingVagon.x * tileSize, 0.3);
-                const domna = world.scriptObjects.domna;
                 if (pushingVagon.x == domna.x + 2) {
                     pushingVagon.zLayer = 0;
                     this.domnaLoaded = true;
@@ -182,7 +257,7 @@ class DungeonScript extends AllScripts {
                         const x1 = guardZone.x * tileSize + 16 - pixelOffset.x, y1 = guardZone.y * tileSize + 16 - pixelOffset.y;
                         ctx.lineTo(x1, y1);
                     }
-                    ctx.stroke();            
+                    ctx.stroke();
                 }
             }
         }
@@ -192,6 +267,7 @@ class DungeonScript extends AllScripts {
                 mech.pixelX.set(mech.x * tileSize + dx, 0);
             }
         }
+        this._drawSpiderAbyss(ctx, pixelOffset);
     }
 
     drawPlayer(ctx, frameX, frameY, x, y) {
@@ -240,11 +316,15 @@ class DungeonScript extends AllScripts {
             this.gearLoaded = false;
             this._releaseGear();
         }
+        const sub = world.scriptObjects.submarine;
+        const shift = Math.round(Math.random());
+        sub.pixelY.set(sub.y * tileSize + shift);
     }
 
     onFinishSpell(targetX, targetY, spell) {
+        const targetObj = world.pathfinding.isOccupied(targetX, targetY);
         const domna = world.scriptObjects.domna;
-        if (world.pathfinding.isOccupied(targetX, targetY) == domna && spell == "fire") {
+        if (targetObj == domna && spell == "fire") {
             if (this.domnaLoaded) {
                 this.domnaWorking = true;
                 this._startSequence();
@@ -258,6 +338,10 @@ class DungeonScript extends AllScripts {
                 ui.dialogUI.addMessage("Наверное, там внутри нечему гореть.", playerSpeaker, player);
             }
             return false;
+        }
+        const sub = world.scriptObjects.submarine;
+        if (targetX >= sub.x && targetY >= sub.y && targetX < sub.x + 4 && targetY < sub.y + 4 && spell == "stone") {
+            return true;
         }
     }
 
