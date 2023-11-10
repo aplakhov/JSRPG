@@ -81,7 +81,6 @@ class DarkForestMapScript extends AllScripts {
 
     checkCanCast(targetX, targetY, spell) {
         const wolfCubs = world.scriptObjects.wolfCubs;
-        console.log("wolf cubs", wolfCubs.x, wolfCubs.y);
         if (dist2(targetX, targetY, wolfCubs.x, wolfCubs.y) <= 1) {
             if (spell == "healing") {
                 this.wolfCubsHealed = true;
@@ -105,7 +104,6 @@ class DarkForestMapScript extends AllScripts {
                 }
                 return true;
             } else if (spell == "fire" || spell == "lightning") {
-                // TODO: player refuses to do that
                 ui.dialogUI.addMessage("Да вы там офигели, что ли?! Это же щенята.", playerSpeaker, player);
                 ui.dialogUI.addMessage("Не буду я такое делать.", playerSpeaker, player);
                 return false;
