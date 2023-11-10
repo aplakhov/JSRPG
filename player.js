@@ -11,6 +11,7 @@ class Player {
         this.hp = this.stats.hp;
         this.img = images.prepare("Animations/player");
         this.inventory = []
+        this.inventoryCounts = {}
         this.takenQuests = []
         this.doneQuests = []
         this.doneAndRewardedQuests = []
@@ -188,7 +189,16 @@ class Player {
         }
     }
 
-    takeItem(itemName) {
+    _increaseCount(itemName, countToTake) {
+        if (!(itemName in this.inventoryCounts))
+            this.inventoryCounts[itemName] = 0;
+        if (!countToTake)
+            this.inventoryCounts[itemName]++;
+        else
+            this.inventoryCounts[itemName] += countToTake;
+    }
+
+    takeItem(itemName, countToTake) {
         const itemRpg = rpg[itemName];
         if (!itemRpg) {
             ui.dialogUI.addMessage("Unknown item " + itemName, errorSpeaker);
@@ -197,23 +207,23 @@ class Player {
         // check if already has one
         if (itemName == this.sword || itemName == this.shield || this.inventory.indexOf(itemName) >= 0) {
             if (itemRpg.multiple) {
-                if (!this.inventoryCounts)
-                    this.inventoryCounts = {}
-                if (!(itemName in this.inventoryCounts))
-                    this.inventoryCounts[itemName] = 0;
-                this.inventoryCounts[itemName]++;
+                this._increaseCount(itemName, countToTake);
+                return true;
+            } else {
+                if (itemRpg.reject)
+                    ui.dialogUI.addMessage(itemRpg.reject, playerSpeaker, player);
+                else
+                    ui.dialogUI.addMessage(itemRpg.name + " у меня уже есть", playerSpeaker, player);
+                return false;
             }
-            else if (itemRpg.reject)
-                ui.dialogUI.addMessage(itemRpg.reject, playerSpeaker, player);
-            else
-                ui.dialogUI.addMessage(itemRpg.name + " у меня уже есть", playerSpeaker, player);
-            return false;
         }
         // add to inventory
         this.inventory.push(itemName);
+        this._increaseCount(itemName, countToTake);
         images.prepare(itemRpg.inventoryImg);
         if (itemRpg.message)
             ui.dialogUI.addMessage(itemRpg.message, playerSpeaker, player);
+
         // see it should be auto-equipped
         if (itemRpg.type) {
             let currentItemInSlot = this[itemRpg.type];
@@ -249,6 +259,11 @@ class Player {
     }
 
     loseItem(item) {
+        if (player.inventoryCounts && player.inventoryCounts[item]) {
+            player.inventoryCounts[item]--;
+            if (player.inventoryCounts[item])
+                return;
+        }
         if (item == this.sword)
             this.sword = null;
         if (item == this.shield)

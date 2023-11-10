@@ -3,6 +3,12 @@ const mechSpeaker = {
     bgColor: "rgb(200, 120, 80)",
     font: '18px sans-serif'
 };
+const stoneMageSpeaker = {
+    color: "rgb(0, 0, 0)",
+    bgColor: "rgb(163, 176, 178)",
+    font: '18px sans-serif',
+    portrait: images.prepare("Dialogs/stone_mage")
+};
 
 class DungeonScript extends AllScripts {
     constructor(world) {
@@ -26,6 +32,7 @@ class DungeonScript extends AllScripts {
 
         this._setupRails(world);
         this.vagonImg = images.prepare("Animations/player_vagon");
+        this.fullVagonImg = images.prepare("Animations/very_full_vagon");
     }
 
     _setupRails(world) {
@@ -127,7 +134,7 @@ class DungeonScript extends AllScripts {
                     const way1 = (p.isOccupied(tx-1, ty) == spiderAbyss && p.isOccupied(tx, ty+1) == spiderAbyss)
                     const way2 = (p.isOccupied(tx+1, ty) == spiderAbyss && p.isOccupied(tx, ty-1) == spiderAbyss)
                     if (way1 || way2)
-                        this.abyssWebPoints.push([tx * tileSize + halfTileSize, ty * tileSize + halfTileSize])
+                        this.abyssWebPoints.push([tx, ty])
                 }
             }
         }
@@ -158,7 +165,8 @@ class DungeonScript extends AllScripts {
         ctx.lineWidth = 1;
         for (const web of this.abyssWebPoints) {
             ctx.beginPath();
-            const fromX = web[0] - pixelOffset.x, fromY = web[1] - pixelOffset.y;
+            const fromX = web[0] * tileSize + halfTileSize - pixelOffset.x;
+            const fromY = web[1] * tileSize + halfTileSize - pixelOffset.y;
             ctx.moveTo(fromX, fromY);
             ctx.lineTo(this.abyssSpiderX - pixelOffset.x, this.abyssSpiderY - pixelOffset.y);
             ctx.stroke();            
@@ -186,7 +194,8 @@ class DungeonScript extends AllScripts {
             const o = {
                 "class": "BigScaryObject",
                 "name": "Летающая вагонетка",
-                "Image": "Rails/vagon"
+                "Image": "Rails/vagon",
+                "ScriptName": "flyingVagon"
             };
             let vagon = world.addNewObject(o, player.x + 1, player.y);
             vagon.pixelX = new SmoothlyChangingNumber(player.x * tileSize + 16);
@@ -228,6 +237,22 @@ class DungeonScript extends AllScripts {
             if (newy != abyss1.y + 1)
                 return false;
             ui.dialogUI.addMessage("Во. Другое дело.", playerSpeaker, player);
+        }
+        for (const webPt of this.abyssWebPoints) {
+            if (webPt[0] == newx && webPt[1] == newy) {
+                ui.dialogUI.addMessage("Серьёзно? Нет, в такую очевидную ловушку я попадать не собираюсь.", playerSpeaker, player);
+                return false;
+            }
+        }
+        if (this.mageTeleported) {
+            const stoneMage = world.scriptObjects.stoneMage;
+            if (newx == stoneMage.x && newy == stoneMage.y) {
+                player.teleport(stoneMage.x, stoneMage.y);
+                stoneMage.image = "Animations/very_full_vagon";
+                return true;
+            } else {
+                stoneMage.image = "Animations/stone_mage_vagon";
+            }
         }
         return true;
     }
@@ -271,13 +296,24 @@ class DungeonScript extends AllScripts {
     }
 
     drawPlayer(ctx, frameX, frameY, x, y) {
-        if (!this.playerInVagon)
-            return false;
-        const fx = frameX % 2, fy = frameY % 2;
-        images.draw(ctx, this.vagonImg, fx * 32, fy * 32, 32, 32, x, y - 4, 32, 32);
-        if (player.hp < player.stats.hp)
-            drawHPbar(ctx, player.hp, player.stats.hp, x, y - 6)
-        return true;
+        if (this.mageTeleported) {
+            const stoneMage = world.scriptObjects.stoneMage;
+            if (player.x == stoneMage.x && player.y == stoneMage.y)
+                return true; // do not draw player
+        }
+        if (this.finalScriptInAction) {
+            const fy = frameY % 2;
+            images.draw(ctx, "Animations/very_full_vagon", x, y - 4 + fy);
+            return true;
+        }
+        if (this.playerInVagon) {
+            const fx = frameX % 2, fy = frameY % 2;
+            images.draw(ctx, this.vagonImg, fx * 32, fy * 32, 32, 32, x, y - 4, 32, 32);
+            if (player.hp < player.stats.hp)
+                drawHPbar(ctx, player.hp, player.stats.hp, x, y - 6)
+                return true;
+        }
+        return false;
     }
 
     onDraw() {
@@ -307,7 +343,7 @@ class DungeonScript extends AllScripts {
                 this._useGear();
                 this.releaseGearAfter = globalTimer + 10;
             } else {
-                ui.dialogUI.addMessage("Я нажимаю, но ничего не происходит.", playerSpeaker, player);
+                ui.dialogUI.addMessage("Тут рычаг. Я нажимаю, но ничего не происходит.", playerSpeaker, player);
                 ui.dialogUI.addMessage("Наверное, эту штуку надо сначала как-то включить.", playerSpeaker, player);
             }
         }
@@ -319,6 +355,10 @@ class DungeonScript extends AllScripts {
         const sub = world.scriptObjects.submarine;
         const shift = Math.round(Math.random());
         sub.pixelY.set(sub.y * tileSize + shift);
+        
+        const stoneMage = world.scriptObjects.stoneMage;
+        if (dist2obj(stoneMage, player) <= 9)
+            this.playFirstPartScript();
     }
 
     onFinishSpell(targetX, targetY, spell) {
@@ -328,8 +368,8 @@ class DungeonScript extends AllScripts {
             if (this.domnaLoaded) {
                 this.domnaWorking = true;
                 this._startSequence();
-                this._say("Дырдырдыр", mechSpeaker, domna);
-                this._say("Бырбырбыр", mechSpeaker, domna);
+                this._say("Дырдырдыр.", mechSpeaker, domna);
+                this._say("Бырбырбыр.", mechSpeaker, domna);
                 this._say("О, заработало! Я настоящий механик!", playerSpeaker, player);
                 this._say("Интересно, зачем мне это.", playerSpeaker, player);
                 this._finishSequence();
@@ -343,9 +383,142 @@ class DungeonScript extends AllScripts {
         if (targetX >= sub.x && targetY >= sub.y && targetX < sub.x + 4 && targetY < sub.y + 4 && spell == "stone") {
             return true;
         }
+        const spiderAbyss = world.scriptObjects.spiderAbyss;
+        if (targetObj == spiderAbyss) {
+            ui.blockingUI = new InsideHouseUI(ctx, null, "abyss_spider");
+            ui.state = 2;
+            return true;
+        }
+        this.checkFinishSpellOnMage(targetObj, spell);
     }
 
     onItemUse(item) {
         return false;
+    }
+
+    playFirstPartScript() {
+        const stoneMage = world.scriptObjects.stoneMage;
+        if (this.firstPartDone) {
+            if (Math.random() < 0.1)
+                ui.dialogUI.addMessage("....оммм....", stoneMageSpeaker, stoneMage, true);
+            return;
+        }
+        this.firstPartDone = true;
+        this._startSequence();
+        this._say("Здравствуйте. Можно, это, вас спасти?", playerSpeaker, player);
+        this._say("....оммммм...", stoneMageSpeaker, stoneMage);
+        this._wait(3);
+        this._say("....оммммм...", stoneMageSpeaker, stoneMage);
+        this._say("Нельзя же просто сидеть и медитировать. Вокруг опасно. Пауки всякие. Нужно уходить.", playerSpeaker, player);
+        this._say("...омммм...", stoneMageSpeaker, stoneMage);
+        this._say("Ахтунг! Полундра!! Вира! Майна! Хенде хох!", playerSpeaker, player);
+        this._wait(2);
+        this._say("Кто здесь?", stoneMageSpeaker, stoneMage);
+        this._say("А, это ты, Билл.", stoneMageSpeaker, stoneMage);
+        this._say("Опять торопишься куда-то.", stoneMageSpeaker, stoneMage);
+        this._say("Пока не запомнишь, что магия не терпит спешки, зачёта тебе не видать.", stoneMageSpeaker, stoneMage);
+        this._say("Кстати, как ты сюда попал? Твой приятель Кираэль случайно взорвал рельсы, по которым переправились мы.", stoneMageSpeaker, stoneMage);
+        this._say("Во-первых, он не мой приятель.", playerSpeaker, player);
+        this._say("Во-вторых, наверняка он взорвал их не случайно.", playerSpeaker, player);
+        this._say("А я... я перелетел по воздуху.", playerSpeaker, player);
+        this._say("Какая-то отвратительная антимагия.", stoneMageSpeaker, stoneMage);
+        this._say("А обратно как собираешься?", stoneMageSpeaker, stoneMage);
+        this._say("...", playerSpeaker, player);
+        this._wait(2);
+        this._say("Об этом я ещё не подумал. А у вас нет идей?", playerSpeaker, player);
+        this._say("Конечно, есть. Я буду медитировать, и Вселенная рано или поздно поможет мне.", stoneMageSpeaker, stoneMage);
+        this._say("...омммм...", stoneMageSpeaker, stoneMage);
+        this._finishSequence();
+    }
+
+    checkFinishSpellOnMage(targetObj, spell) {
+        const stoneMage = world.scriptObjects.stoneMage;
+        if (targetObj == stoneMage && !this.mageTeleported) {
+            if (!this.mageTired) {
+                this.mageTired = [];
+            }
+            if (this.mageTired.indexOf(spell) == -1) {
+                this.mageTired.push(spell);
+                const reactions = {
+                    "fire": "Почему-то стало жарко. Но это не повод прерывать медитацию.",
+                    "water": "Почему-то стало мокро. Но это не повод прерывать медитацию.",
+                    "stone": "Почему-то стало твёрдо сидеть. Но это не повод прерывать медитацию.",
+                    "healing": "Я ничем и не болею. И это точно не повод прерывать медитацию.",
+                    "lightning": "В воздухе чувствуется некоторое напряжение. Но это не повод прерывать медитацию."
+                }
+                const staticPlace = { x: stoneMage.x, y: stoneMage.y };
+                if (reactions[spell])
+                    ui.dialogUI.addMessage(reactions[spell], stoneMageSpeaker, staticPlace);
+                if (this.mageTired.length > 2) {
+                    this.mageTeleported = true;
+                    const newPosition = {x: 68, y: 14};
+                    this._startSequence();
+                    this._wait(2);
+                    this._say("Впрочем, можно найти место и поспокойней.", stoneMageSpeaker, staticPlace);
+                    this._do(() => {
+                        world.animations.add(new TeleportEffect(stoneMage.x, stoneMage.y, newPosition.x, newPosition.y), stoneMage);
+                        stoneMage.x = newPosition.x; stoneMage.y = newPosition.y;
+                        stoneMage.image = "Animations/stone_mage_vagon";
+                        if (world.scriptObjects.flyingVagon)
+                            world.scriptObjects.flyingVagon.dead = true;
+                    })
+                    this._finishSequence();
+                }
+            }
+        }        
+    }
+
+    hasDynamite(x, y) {
+        for (let o of world.objects)
+            if (o.x == x && o.y == y && o.inventoryItem == "dynamite")
+                return true;
+        return false;
+    }
+
+    checkCanCast(targetX, targetY, spell) {
+        if (this.checkFinalKaboom(targetX, targetY, spell))
+            return false;
+        return true;
+    }
+
+    checkFinalKaboom(targetX, targetY, spell) {
+        if (spell != "fire" || !this.mageTeleported)
+            return false;
+        const stoneMage = world.scriptObjects.stoneMage;
+        if (targetY != stoneMage.y || (targetX != stoneMage.x + 1 && targetX != stoneMage.x + 2))
+            return false;
+        if (!this.hasDynamite(targetX, targetY))
+            return false;
+        if (player.x != stoneMage.x || player.y != stoneMage.y) {
+            ui.dialogUI.addMessage("Подождите. Идея понятна, но я сам тогда как переберусь?", playerSpeaker, player, true);
+        } else {
+            this._startSequence();
+            this._say("...оммм... стоп. Что ты задумал?", stoneMageSpeaker, stoneMage);
+            this._say("Не волнуйтесь. Это абсолютно безопасно.", playerSpeaker, player);
+            this._wait(1);
+            this._do(() => {
+                castFire(player, targetX, targetY);
+            });
+            this._wait(0.3);
+            const playerStartX = player.x;
+            const playerStartPix = player.pixelX.get();
+            const positions = [8, 16, 24, 30, 31];
+            const timeToGo = [0.3, 0.4, 0.5, 0.6, 0.4];
+            for (let n = 0; n < positions.length; n++) {
+                this._do(() => {
+                    stoneMage.image = "";
+                    stoneMage.x = 0;
+                    stoneMage.y = 0;
+                    this.finalScriptInAction = true;
+                    player.pixelX.set(playerStartPix - tileSize * positions[n], timeToGo[n]);
+                    player.x = playerStartX - positions[n];
+                    world.vision.recalculateLocalVisibility();
+                });
+                this._wait(timeToGo[n]);
+            }
+            // finish script here
+            this._finishSequence();
+        }
+        return true;
     }
 };
