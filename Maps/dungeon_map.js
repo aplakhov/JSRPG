@@ -13,7 +13,7 @@
  "infinite":false,
  "layers":[
         {
-         "data":[6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+         "data":[3, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
             6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 6, 6, 3, 3, 3, 3, 6,
             6, 6, 6, 6, 3, 6, 6, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 6, 6, 6, 6, 6, 3, 3, 3, 3, 6, 6, 6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 6, 6, 6, 6, 6, 3, 3, 3, 6, 6, 6, 3, 6, 6, 6,
             6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 3, 3, 3, 3, 3, 3, 3, 6, 6, 6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 3, 6, 6, 6, 6, 6, 6, 6, 3, 3, 3, 6, 6, 6, 3, 6, 6, 6,
@@ -2495,7 +2495,7 @@
                  "class":"DecorativeObject",
                  "height":0,
                  "id":119,
-                 "name":"\u0424\u0430\u043a\u0435\u043b",
+                 "name":"\u041c\u0430\u0433\u0438\u0441\u0442\u0440",
                  "point":true,
                  "properties":[
                         {
@@ -2504,14 +2504,19 @@
                          "value":"true"
                         }, 
                         {
-                         "name":"Fire",
-                         "type":"string",
-                         "value":"80"
-                        }, 
-                        {
                          "name":"Image",
                          "type":"string",
-                         "value":"torch"
+                         "value":"Animations\/stone_mage"
+                        }, 
+                        {
+                         "name":"ScriptName",
+                         "type":"string",
+                         "value":"stoneMage"
+                        }, 
+                        {
+                         "name":"zLayer",
+                         "type":"int",
+                         "value":1
                         }],
                  "rotation":0,
                  "visible":true,
@@ -2632,6 +2637,126 @@
                  "width":33.6664,
                  "x":2079.83346666667,
                  "y":2079.74965
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":127,
+                 "name":"\u041e\u0442\u0432\u0430\u043b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Blocker",
+                         "type":"string",
+                         "value":"true"
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"Dungeon\/pile"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":2126.66666666667,
+                 "y":309.333333333333
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":128,
+                 "name":"\u041e\u0442\u0432\u0430\u043b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Blocker",
+                         "type":"string",
+                         "value":"true"
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"Dungeon\/pile"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":1649.33333333333,
+                 "y":273.333333333333
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":129,
+                 "name":"\u041e\u0442\u0432\u0430\u043b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Blocker",
+                         "type":"string",
+                         "value":"true"
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"Dungeon\/pile"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":1553.33333333333,
+                 "y":333.333333333333
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":130,
+                 "name":"\u041e\u0442\u0432\u0430\u043b",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Blocker",
+                         "type":"string",
+                         "value":"true"
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"Dungeon\/pile"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":912,
+                 "y":369.333333333333
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":131,
+                 "name":"\u0412\u0437\u0440\u044b\u0432\u0447\u0430\u0442\u043a\u0430",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Count",
+                         "type":"int",
+                         "value":5
+                        }, 
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"Dungeon\/dynamite_small"
+                        }, 
+                        {
+                         "name":"InventoryItem",
+                         "type":"string",
+                         "value":"dynamite"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":1262.66666666667,
+                 "y":310.666666666667
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -2640,7 +2765,7 @@
          "y":0
         }],
  "nextlayerid":3,
- "nextobjectid":127,
+ "nextobjectid":132,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.9.2",
