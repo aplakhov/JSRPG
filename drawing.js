@@ -775,3 +775,20 @@ class VisualDarkness {
         }
     }
 };
+
+class Flash {
+    constructor(duration) {
+        this.duration = duration;
+    }    
+
+    draw(ctx, offsetInPixels, time) {
+        if (time > this.duration)
+            return true;
+
+        let rate = Math.random() / 2;
+        ctx.fillStyle = `rgba(214, 238, 255, ${rate})`;
+        ctx.fillRect(0, 0, tileSize * viewInTiles, tileSize * viewInTiles);
+
+        return false;
+    }
+}

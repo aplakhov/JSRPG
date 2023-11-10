@@ -1016,7 +1016,7 @@ class UI {
                 tooltip = item.name;
                 tooltipEm = item.description;
             }
-            if (player.inventoryCounts && itemName in player.inventoryCounts) {
+            if (item.multiple && itemName in player.inventoryCounts) {
                 const quantity = player.inventoryCounts[itemName];
                 const quantityStr = quantity.toString();
                 ctx.font = systemMessageSpeaker.font;
@@ -1049,6 +1049,8 @@ class UI {
         if (!itemToUse)
             return;
         let success = world.script.onItemUse(itemToUse);
+        if (!success && 'use' in rpg[itemToUse])
+            success = rpg[itemToUse].use(); 
         const type = rpg[itemToUse].type;
         if (!success && (type == "sword" || type == "shield") && player[type] != itemToUse)
             success = player.equipItem(itemToUse);

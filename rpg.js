@@ -210,6 +210,7 @@ rpg = {
     shrooms: {
         name: "Подземные грибы",
         inventoryImg: "Inventory/shrooms",
+        multiple: true,
         use_message: [
             "Я такое есть не буду.",
             "Слушайте, это вообще, небось, нелегально."
@@ -243,14 +244,24 @@ rpg = {
     dynamite: {
         name: "Гномья взрывчатка",
         message: "Никогда не имел дела с взрывчаткой, но что тут может быть сложного?",
-        reject: "Взрывчатка у меня уже есть",
+        multiple: true,
         inventoryImg: "Inventory/dynamite",
         use_message: [
             "Уверен ли я? Конечно, уверен!",
             "КАБУМ!",
             "Наконец-то начинается веселье!"
-        ]
-
+        ],
+        use: () => {
+            world.objects.push(new DecorativeObject({
+                class: "DecorativeObject",
+                name: this.name,
+                Image: "Dungeon/dynamite_small",
+                InventoryItem: "dynamite"
+            }, player.x, player.y, "Dungeon/dynamite_small"));
+            player.loseItem("dynamite");
+            ui.dialogUI.addMessage(rpg.dynamite.use_message, playerSpeaker, player, true);
+            return true;
+        },
     },
     web: {
         name: "Паутина",
@@ -262,5 +273,10 @@ rpg = {
             "Я не знаю, как использовать паутину",
             "Нет, мух я ловить не хочу"
         ]
+    },
+    rope: {
+        name: "Веревка",
+        message: "Незаменимая вещь в путешествиях",
+        inventoryImg: ""
     }
 }

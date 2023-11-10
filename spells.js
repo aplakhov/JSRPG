@@ -251,6 +251,11 @@ function _checkFireEffectsAt(x, y, fireStrength) {
     let tile = world.terrain[x][y];
     if (tile == TERRAIN_DARK_FOREST && Math.random() < fireStrength / 2000)
         burnTreeAt(x, y, 1);
+    // TODO: faster check for objects
+    for (let gameObj of world.objects) {
+        if (x == gameObj.x && y == gameObj.y && 'onFire' in gameObj)
+            gameObj.onFire();
+    }
 }
 
 function checkFireEffects(x, y, fireStrength) {
@@ -261,7 +266,7 @@ function checkFireEffects(x, y, fireStrength) {
     _checkFireEffectsAt(x, y+1, fireStrength/2);
 }
 
-function startGameplayFire(x, y, durationInTurns, fireStrength) {
+function startGameplayFire(x, y, durationInTurns, fireStrength, noDecal) {
     x = Math.floor(x + 0.5);
     y = Math.floor(y + 0.5);
     if (x < 0 || y < 0 || x >= world.width || y >= world.height)
@@ -272,6 +277,8 @@ function startGameplayFire(x, y, durationInTurns, fireStrength) {
     } else {
         let f = new GameplayFire(x, y);
         f.startFire(durationInTurns, fireStrength);
+        if (noDecal)
+            f.noDecal = true;
         f.additionalLight = 6;
         world.objects.push(f);
         world.vision.recalculateLocalVisibility();
@@ -303,6 +310,19 @@ function castFire(caster, targetX, targetY) {
         if (!interrupted)
             startGameplayFire(targetX, targetY, 8, 10);
     }, 300);
+}
+
+function castKaboom(targetX, targetY) {
+    let interrupted = 'onFinishSpell' in world.script && world.script.onFinishSpell(targetX, targetY, "kaboom");
+    if (interrupted)
+        return;
+    world.animations.add(new Flash(0.3), {x: targetX, y: targetY});
+    for (let xy of [[0,0], [0,-1], [0,1], [-1,0], [1,0]]) {
+        const noDecal = true;
+        let interrupted = 'onFinishSpell' in world.script && world.script.onFinishSpell(targetX + xy[0], targetY + xy[1], "fire");
+        if (!interrupted)
+            startGameplayFire(targetX + xy[0], targetY + xy[1], 8, 10, noDecal);
+    }
 }
 
 class HealingEffect {
@@ -398,6 +418,8 @@ function castSpell(caster, spell, target) {
         castHealing(target);
     else if (spell == "earth_ear")
         return castEarthEar();
+    else if (spell == "kaboom")
+        castKaboom(target.x, target.y);
     else
         console.log(spell, "is not implemented");
     return true;

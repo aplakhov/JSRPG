@@ -500,10 +500,19 @@ class DecorativeObject {
             this.foundMessage = null;
         }
         if (this.inventoryItem) {
-            if (player.takeItem(this.inventoryItem)) {
+            let count = getProp(this.initialObj, "Count");
+            if (!count)
+                count = 1;
+            if (player.takeItem(this.inventoryItem, count)) {
                 this.inventoryItem = null;
                 this.dead = true;
             }
+        }
+    }
+    onFire() {
+        if (!this.dead && this.inventoryItem == "dynamite") {
+            this.dead = true;
+            castKaboom(this.x, this.y);
         }
     }
     _checkTerrain() {
