@@ -3194,6 +3194,165 @@
                  "width":0,
                  "x":2766,
                  "y":1862
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":155,
+                 "name":"\u041f\u0430\u0443\u0447\u044c\u0435 \u044f\u0439\u0446\u043e",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"spider_egg"
+                        }, 
+                        {
+                         "name":"InventoryItem",
+                         "type":"string",
+                         "value":"spider_egg"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":682,
+                 "y":1814
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":156,
+                 "name":"\u041f\u0430\u0443\u0447\u044c\u0435 \u044f\u0439\u0446\u043e",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"spider_egg"
+                        }, 
+                        {
+                         "name":"InventoryItem",
+                         "type":"string",
+                         "value":"spider_egg"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":152,
+                 "y":2480
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":157,
+                 "name":"\u041f\u0430\u0443\u0447\u044c\u0435 \u044f\u0439\u0446\u043e",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"spider_egg"
+                        }, 
+                        {
+                         "name":"InventoryItem",
+                         "type":"string",
+                         "value":"spider_egg"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":42,
+                 "y":2482
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":158,
+                 "name":"\u041f\u0430\u0443\u0447\u044c\u0435 \u044f\u0439\u0446\u043e",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"spider_egg"
+                        }, 
+                        {
+                         "name":"InventoryItem",
+                         "type":"string",
+                         "value":"spider_egg"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":908,
+                 "y":2226
+                }, 
+                {
+                 "class":"DecorativeObject",
+                 "height":0,
+                 "id":159,
+                 "name":"\u041f\u0430\u0443\u0447\u044c\u0435 \u044f\u0439\u0446\u043e",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"Image",
+                         "type":"string",
+                         "value":"spider_egg"
+                        }, 
+                        {
+                         "name":"InventoryItem",
+                         "type":"string",
+                         "value":"spider_egg"
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":0,
+                 "x":1420,
+                 "y":2038
+                }, 
+                {
+                 "class":"Autosave",
+                 "height":281,
+                 "id":160,
+                 "name":"Autosave",
+                 "rotation":0,
+                 "visible":true,
+                 "width":46,
+                 "x":2055,
+                 "y":335.5
+                }, 
+                {
+                 "class":"Autosave",
+                 "height":281,
+                 "id":161,
+                 "name":"Autosave",
+                 "rotation":0,
+                 "visible":true,
+                 "width":46,
+                 "x":1933,
+                 "y":1097.5
+                }, 
+                {
+                 "class":"Autosave",
+                 "height":77,
+                 "id":162,
+                 "name":"Autosave",
+                 "rotation":0,
+                 "visible":true,
+                 "width":90,
+                 "x":2243,
+                 "y":1643.5
+                }, 
+                {
+                 "class":"Autosave",
+                 "height":281,
+                 "id":163,
+                 "name":"Autosave",
+                 "rotation":0,
+                 "visible":true,
+                 "width":46,
+                 "x":309,
+                 "y":423.5
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -3202,7 +3361,7 @@
          "y":0
         }],
  "nextlayerid":3,
- "nextobjectid":155,
+ "nextobjectid":164,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.9.2",
