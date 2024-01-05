@@ -408,25 +408,24 @@ class DungeonScript extends AllScripts {
         this._say("Здравствуйте. Можно, это, вас спасти?", playerSpeaker, player);
         this._say("....оммммм...", stoneMageSpeaker, stoneMage);
         this._wait(3);
-        this._say("....оммммм...", stoneMageSpeaker, stoneMage);
-        this._say("Нельзя же просто сидеть и медитировать. Вокруг опасно. Пауки всякие. Нужно уходить.", playerSpeaker, player);
+        this._say("Нельзя же просто сидеть и медитировать. Тут опасно. Нужно уходить.", playerSpeaker, player);
         this._say("...омммм...", stoneMageSpeaker, stoneMage);
         this._say("Ахтунг! Полундра!! Вира! Майна! Хенде хох!", playerSpeaker, player);
         this._wait(2);
         this._say("Кто здесь?", stoneMageSpeaker, stoneMage);
         this._say("А, это ты, Билл.", stoneMageSpeaker, stoneMage);
         this._say("Опять торопишься куда-то.", stoneMageSpeaker, stoneMage);
-        this._say("Пока не запомнишь, что магия не терпит спешки, зачёта тебе не видать.", stoneMageSpeaker, stoneMage);
-        this._say("Кстати, как ты сюда попал? Твой приятель Кираэль случайно взорвал рельсы, по которым переправились мы.", stoneMageSpeaker, stoneMage);
-        this._say("Во-первых, он не мой приятель.", playerSpeaker, player);
-        this._say("Во-вторых, наверняка он взорвал их не случайно.", playerSpeaker, player);
-        this._say("А я... я перелетел по воздуху.", playerSpeaker, player);
-        this._say("Какая-то отвратительная антимагия.", stoneMageSpeaker, stoneMage);
+        this._say("Пока не запомнишь, что магия не терпит спешки, магом тебе не стать.", stoneMageSpeaker, stoneMage);
+        this._say("Кстати, как ты сюда попал? Мы-то с Кираэлем переправлялись по рельсам, но он случайно их взорвал.", stoneMageSpeaker, stoneMage);
+        this._say("Дайте угадаю, он тут же побежал за помощью и заодно унёс что-нибудь ценное?", playerSpeaker, player);
+        this._say("Да, когда раздался взрыв, Золотой рог был у него. Простое совпадение.", stoneMageSpeaker, stoneMage);
+        this._say("Так как ты сюда попал?", stoneMageSpeaker, stoneMage);
+        this._say("Я... я перелетел по воздуху.", playerSpeaker, player);
         this._say("А обратно как собираешься?", stoneMageSpeaker, stoneMage);
         this._say("...", playerSpeaker, player);
         this._wait(2);
         this._say("Об этом я ещё не подумал. А у вас нет идей?", playerSpeaker, player);
-        this._say("Конечно, есть. Я буду медитировать, и Вселенная рано или поздно поможет мне.", stoneMageSpeaker, stoneMage);
+        this._say("Конечно, есть. Я буду медитировать, и Вселенная рано или поздно поможет.", stoneMageSpeaker, stoneMage);
         this._say("...омммм...", stoneMageSpeaker, stoneMage);
         this._finishSequence();
     }
@@ -516,7 +515,16 @@ class DungeonScript extends AllScripts {
                 });
                 this._wait(timeToGo[n]);
             }
-            // finish script here
+            this._say("Что ж, как я и говорил, если долго медитировать, Вселенная сама решит все проблемы.", stoneMageSpeaker, stoneMage)
+            this._say("Эй, это же я вас спас!", playerSpeaker, player);
+            this._say("Верно. Ты тоже часть Вселенной.", stoneMageSpeaker, stoneMage);
+            this._say("Тогда поставьте Вселенной экзамен автоматом?", playerSpeaker, player);
+            this._finishQuest("town_intro_stone_magic");
+            this._finishQuest("town_find_stone_mage");
+            this._fade("На обратном пути Вселенная ещё не раз нам помогала...", 5);
+            this._wait(3);
+            this._changeMap("town_map", "dark_forest_map");
+            this._do(() => { this.finalScriptInAction = false });
             this._finishSequence();
         }
         return true;
