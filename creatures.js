@@ -17,7 +17,7 @@ creatures = {
                 "Portraits/goblin2",                           
                 "Portraits/goblin3",
                 "Portraits/goblin4",                           
-            ]                           
+            ]
         },
         aggroMessages: [
             "Сегодня едим мясо!",
@@ -31,6 +31,38 @@ creatures = {
         normalImage: "Animations/goblin",
         humanoidDrawing: 1,
         bonesImg: "dead_goblin"
+    },
+    hobgoblin: {
+        hp: 50,
+        attackMin: 10,
+        attackMax: 20,
+        attackRadius: 1,
+        roamRadius: 8,
+        aggroRadius: 5,
+        movement: "land_mob",
+        stupidPathfinding: true,
+        speaker: {
+            color: "rgb(10, 10, 10)",
+            bgColor: "rgb(179, 188, 157)",
+            font: '18px sans-serif',
+            portraits: [
+                "Portraits/hobgoblin1",
+                "Portraits/hobgoblin2",                           
+                "Portraits/hobgoblin3",
+            ]
+        },
+        aggroMessages: [
+            "О, мясо к нам само пришло!",
+            "Э, слышь, тормозни-ка",
+            "Чё, проблемы? Нет? Ща будут",
+            "Опа!",
+            "Чо ты мне исполняешь тут?",
+            "Слышь, братишка. Иди-ка сюда"
+        ],
+        normalImage: "Animations/hobgoblin",
+        humanoidDrawing: 1,
+        bonesImg: "dead_goblin",
+        hpBarY: -4
     },
     scorpio: {
         hp: 30,
