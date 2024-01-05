@@ -61,6 +61,7 @@ class World {
             "port_map": whiteCityBiome,
             "dark_forest_map": grassBiome,
             "ai_test_map": westBiome,
+            "pirates_map": westBiome
         }
         const scripts = {
             "intro_map": IntroMapScript,
